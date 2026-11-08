@@ -46,7 +46,12 @@ FEATURE_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings"}
 
 def top_class(series: pd.Series) -> pd.Series:
     """First (top-level) value of the ' | '-joined classification field; None when missing."""
-    return series.map(lambda x: x.split(" | ")[0].strip() if isinstance(x, str) and x.strip() else None)
+    def top(x):
+        if not isinstance(x, str) or not x.strip():
+            return None
+        t = x.split(" | ")[0].strip().rstrip(".")
+        return t[:1].upper() + t[1:].lower()      # 'RELIGION. THEOLOGY' and 'Religion. Theology' are one label
+    return series.map(top)
 
 
 def clean_json(obj):
