@@ -45,11 +45,9 @@ def downsample(curve, n=200):
     return [curve[i] for i in idx]
 
 
-def main() -> None:
-    feats = joblib.load(PROCESSED / "features.joblib")
-    st = joblib.load(PROCESSED / "study.joblib")
+def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
+    """The app's model bundle. `docs` is indexed by identifier."""
     ids = feats["ids"]
-    docs = pd.read_csv(PROCESSED / "docs.csv").set_index("identifier")
     fs = st["selection"]["chosen"]
     res = st["results"][fs]
     Z = feats[fs]["Z"].astype(np.float64)
@@ -73,9 +71,9 @@ def main() -> None:
     meta_cols = ["title", "creator", "year", "era", "lang_tag", "script", "mean_conf", "classification", "total_pages"]
     display = docs.loc[ids, meta_cols].reset_index()
     display["url"] = display["identifier"].map(archive_url)
+    display = display.astype(object).where(display.notna(), None)   # NaN is not valid JSON for the API
 
-    MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    joblib.dump({
+    return {
         "feature_set": fs, "feature_name": res["name"],
         "transform": feats[fs]["transform"], "lsa": feats["A"]["transform"], "Xw": feats["A"]["Xw"],
         "ids": ids, "Z": Z.astype(np.float32),
@@ -86,7 +84,22 @@ def main() -> None:
         "pca": st["models"][fs]["pca"],
         "docs": display.to_dict("records"),
         "thresholds": {"min_conf": preprocess.MIN_DOC_CONF, "min_tokens": preprocess.MIN_DOC_TOKENS},
-    }, MODEL_DIR / "bundle.joblib")
+    }
+
+
+def main() -> None:
+    feats = joblib.load(PROCESSED / "features.joblib")
+    st = joblib.load(PROCESSED / "study.joblib")
+    ids = feats["ids"]
+    docs = pd.read_csv(PROCESSED / "docs.csv").set_index("identifier")
+    bundle = build_bundle(feats, st, docs)
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    joblib.dump(bundle, MODEL_DIR / "bundle.joblib")
+    fs = bundle["feature_set"]
+    res = st["results"][fs]
+    hl, dl = bundle["hier"]["labels"], bundle["dbscan"]["labels"]
+    hnames, dnames = bundle["hier"]["names"], bundle["dbscan"]["names"]
+    display = pd.DataFrame(bundle["docs"])
 
     # ---- web data
     WEB_DATA.mkdir(parents=True, exist_ok=True)
