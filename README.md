@@ -54,6 +54,17 @@ docker compose run --rm pipeline python -m pipeline.export
 docker compose run --rm pipeline python -m pipeline.figures
 ```
 
+Before building the app image, save LaBSE as a plain folder (the Hugging Face cache uses symlinks
+that a Windows build context cannot send):
+
+```bash
+docker compose run --rm pipeline python -c "from sentence_transformers import SentenceTransformer as S; S('sentence-transformers/LaBSE', device='cpu').save('/work/data/labse')"
+docker compose build app
+```
+
+The image is about 6 GB (PyTorch CPU, LaBSE 1.8 GB, Tesseract with 8 languages) and needs no network
+once built.
+
 | Step | What it does | Output |
 |---|---|---|
 | harvest | sampling frame per language (published up to 1960 or undated), seeded draw stratified by era, 5 body pages per book | `data/corpus.sqlite`, `data/pages/` |

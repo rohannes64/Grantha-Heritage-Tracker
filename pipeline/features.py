@@ -15,6 +15,7 @@ a per-script cap would miss Sanskrit ones, because Hindi shares the Devanagari s
 """
 import argparse
 import json
+import os
 from collections import Counter, defaultdict
 
 import joblib
@@ -113,7 +114,9 @@ class Embedder:
     def model(self):
         if self._model is None:
             from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(self.model_name, device="cpu")
+            # HERITAGE_EMBED_MODEL: a plain local copy of the same model (the app image uses one,
+            # since the Hugging Face cache relies on symlinks that a Windows build context cannot send).
+            self._model = SentenceTransformer(os.environ.get("HERITAGE_EMBED_MODEL", self.model_name), device="cpu")
             self._model.max_seq_length = MAX_SEQ
         return self._model
 

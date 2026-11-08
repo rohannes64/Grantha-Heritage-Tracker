@@ -6,7 +6,8 @@ FROM python:3.12-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     OMP_THREAD_LIMIT=1 \
-    HF_HOME=/srv/hf \
+    HF_HOME=/tmp/hf \
+    HERITAGE_EMBED_MODEL=/srv/labse \
     HF_HUB_OFFLINE=1 \
     TRANSFORMERS_OFFLINE=1
 
@@ -20,13 +21,14 @@ WORKDIR /srv
 COPY requirements-pipeline.txt requirements-ml.txt requirements-app.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt -r /tmp/requirements-ml.txt -r /tmp/requirements-app.txt
 
-COPY data/hf /srv/hf
-COPY pipeline /srv/pipeline
-COPY app /srv/app
-COPY web /srv/web
-COPY data/model /srv/data/model
-
-RUN useradd --create-home --uid 10001 reader && chown -R reader /srv
+# LaBSE as a plain folder (data/labse, saved by sentence-transformers), not the symlinked HF cache.
+# --chown on each COPY instead of a later `chown -R`, which would copy the 1.8 GB model into a second layer.
+RUN useradd --create-home --uid 10001 reader
+COPY --chown=reader data/labse /srv/labse
+COPY --chown=reader pipeline /srv/pipeline
+COPY --chown=reader app /srv/app
+COPY --chown=reader web /srv/web
+COPY --chown=reader data/model /srv/data/model
 USER reader
 
 EXPOSE 8000
