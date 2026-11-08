@@ -11,11 +11,13 @@ import csv
 import json
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from . import config, db, sampling
 from .ia import IAClient
 
 FRAME_FIELDS = ["identifier", "date_raw", "year", "era"]
+PAGE_THREADS = 3
 
 
 def log(msg: str) -> None:
@@ -88,14 +90,19 @@ def harvest_one(client: IAClient, con, lang: str, rank: int, row: dict) -> str:
         _save_doc(con, doc)
         return doc["status"]
 
-    pages = []
-    for leaf, pos in sampling.choose_leaves(total):
+    def fetch(leaf_pos):
+        leaf, pos = leaf_pos
         rel = f"data/pages/{ident}/{leaf:05d}.jpg"
         try:
             client.page_image(ident, leaf, config.ROOT / rel)
-            pages.append((ident, leaf, pos, rel))
+            return (ident, leaf, pos, rel)
         except Exception as e:  # one bad page should not sink the book
             log(f"  page {leaf} of {ident} failed: {e}")
+            return None
+
+    # Requests still start at most once per second (the client paces them); up to three overlap.
+    with ThreadPoolExecutor(max_workers=PAGE_THREADS) as ex:
+        pages = [p for p in ex.map(fetch, sampling.choose_leaves(total)) if p]
     if len(pages) < 3:
         doc["status"], doc["note"] = "failed", f"only {len(pages)} pages downloaded"
     else:
