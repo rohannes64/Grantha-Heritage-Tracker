@@ -31,7 +31,7 @@ main { padding-block: var(--space-2xl) var(--space-xl); }
 .verdict-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); }
 .verdict-grid > div { padding: var(--space-lg) var(--space-lg) var(--space-lg) 0; display: grid; gap: var(--space-xs); align-content: start; }
 .verdict-grid > div + div { padding-left: var(--space-lg); border-left: var(--rule-hair) solid var(--color-rule); }
-.verdict-grid .figure { font-size: clamp(2rem, 2vw + 1rem, 3rem); }
+.verdict-grid .figure { font-size: clamp(2rem, 2vw + 1rem, 3rem); font-variant-numeric: tabular-nums; }
 @media (max-width: 40rem) { .verdict-grid { grid-template-columns: minmax(0, 1fr); } .verdict-grid > div + div { padding-left: 0; border-left: 0; border-top: var(--rule-hair) solid var(--color-rule); } }
 .level { color: var(--color-ink); }
 .cautions { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-xs); }
@@ -61,7 +61,7 @@ main { padding-block: var(--space-2xl) var(--space-xl); }
 .figures-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); }
 .figures-row > div { padding: var(--space-lg) var(--space-lg) var(--space-lg) 0; }
 .figures-row > div + div { padding-left: var(--space-lg); border-left: var(--rule-hair) solid var(--color-rule); }
-.figures-row .figure { font-size: clamp(2.5rem, 3vw + 1rem, 4.5rem); display: block; }
+.figures-row .figure { font-size: clamp(2.5rem, 3vw + 1rem, 4.5rem); display: block; font-variant-numeric: tabular-nums; }
 @media (max-width: 48rem) { .figures-row { grid-template-columns: minmax(0, 1fr); } .figures-row > div + div { padding-left: 0; border-left: 0; border-top: var(--rule-hair) solid var(--color-rule); } }
 .toc { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-lg); margin: 0 0 var(--space-xl); padding: 0; list-style: none; font-size: var(--text-sm); }
 .toc a { color: var(--color-ink-2); }

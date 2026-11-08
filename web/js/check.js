@@ -84,7 +84,7 @@ async function render(r) {
         el("span", { class: "small muted", text: lvlWhy }),
         h.runner_up_name ? el("span", { class: "small muted", text: `Next closest: ${h.runner_up_name}` }) : null),
       el("div", {},
-        el("span", { class: "label", text: "DBSCAN" }),
+        el("span", { class: "label", text: "Density-based clustering" }),
         el("span", { class: "figure", text: d.in_dense_group ? d.name : "No dense group" }),
         el("span", { class: "level", text: d.in_dense_group ? "Within reach of the group's core books" : "Noise: not close to any dense group" }),
         el("span", { class: "small muted", text: `Nearest core book at ${fmt.f(d.nearest_core_distance, 3)}; the reach is ${fmt.f(d.eps, 3)}` }))),

@@ -2,6 +2,7 @@
  * hero: Settled · nav: slab · footer: index columns · imagery: photographs (real archive page scans, hotlinked from the Internet Archive) and the product, live · signature: an unindexed 1904 Tamil page read live and placed beside its five nearest archive books · darkroom: amber
  * axes: dark/display-condensed/chromatic-amber · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: P, a tool page argues little; the argument made is that a page is read best beside its neighbours, shown live rather than claimed */
+/* Hallmark · dismissed 42 · the footer is index columns by the draw (b81b24), named in the stamp; five real destinations plus the source collection */
 @import url("./tokens.css");
 @import url("./base.css");
 @import url("./components.css");
@@ -41,12 +42,12 @@
 .neighbours { margin: 0; padding: 0; list-style: none; counter-reset: n; }
 .neighbours li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: var(--space-md); align-items: baseline; padding: var(--space-md) 0; border-top: var(--rule-hair) solid var(--color-rule); }
 .neighbours li:last-child { border-bottom: var(--rule-hair) solid var(--color-rule); }
-.neighbours .figure { font-size: var(--text-3xl); color: var(--color-muted); }
+.neighbours .figure { font-size: var(--text-3xl); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .neighbours h3 { font-size: var(--text-title); }
 .neighbours .why { margin-top: var(--space-2xs); font-size: var(--text-sm); color: var(--color-muted); }
 .neighbours .group-name { font-size: var(--text-sm); color: var(--color-ink-2); text-align: right; }
 .verdict { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-columns); margin-bottom: var(--space-xl); }
-.verdict .figure { font-size: var(--text-section); }
+.verdict .figure { font-size: var(--text-section); font-variant-numeric: tabular-nums; }
 
 /* stage 3: map */
 .map-frame { background: var(--color-paper-2); padding: var(--space-lg); }
@@ -58,7 +59,7 @@
 .split .side + .side { padding: var(--space-xl) 0 var(--space-xl) var(--space-2xl); border-left: var(--rule-hair) solid var(--color-rule); }
 .split h2 { font-size: var(--text-section); }
 .split p { margin-top: var(--space-md); color: var(--color-ink-2); max-width: 40ch; }
-.split .figure { display: block; font-size: clamp(5rem, 9vw, 10rem); margin-top: var(--space-lg); }
+.split .figure { display: block; font-size: clamp(5rem, 9vw, 10rem); margin-top: var(--space-lg); font-variant-numeric: tabular-nums; }
 @media (max-width: 48rem) { .split .container { grid-template-columns: minmax(0, 1fr); } .split .side, .split .side + .side { padding: var(--space-lg) 0; border-left: 0; } .split .side + .side { border-top: var(--rule-hair) solid var(--color-rule); } }
 
 /* what it reads: languages as a sheet */

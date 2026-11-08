@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Heritage Topic Finder: browse the groups</title>
+<meta name="description" content="Topic groups found without labels in a sample of Digital Library of India scans, with their words and typical books.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
@@ -24,14 +25,14 @@
 <main class="container">
   <div class="page-head">
     <h1>Browse the groups</h1>
-    <p id="browse-intro">Groups found in the archive sample without any labels. Names come from each group's most distinctive words.</p>
+    <p id="browse-intro">Groups found in the archive sample without any labels. Names come from each group’s most distinctive words.</p>
   </div>
 
   <div class="toolbar">
     <fieldset class="seg" id="method">
       <legend>Grouping method</legend>
       <input type="radio" name="method" id="m-h" value="hierarchical" checked><label for="m-h">Hierarchical</label>
-      <input type="radio" name="method" id="m-d" value="dbscan"><label for="m-d">DBSCAN</label>
+      <input type="radio" name="method" id="m-d" value="dbscan"><label for="m-d">Density-based</label>
     </fieldset>
   </div>
 

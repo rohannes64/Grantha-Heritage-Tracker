@@ -61,7 +61,7 @@ function draw() {
       more("Features used",
         el("p", { class: "prose", text: fs === "A"
           ? `Word 1-2-grams and character 3-5-grams, weighted by TF-IDF (terms in more than half the books of their own script dropped), reduced to ${r.dims} dimensions with truncated SVD, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.`
-          : `LaBSE sentence embeddings (109 languages) of up to 12 text chunks per book, averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })))));
+          : `LaBSE sentence embeddings (109 languages) of up to 4 evenly spaced 64-word chunks per book (128 word-pieces each), averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })))));
 
   // 3. distance
   const dm = r.distance.metrics;
@@ -126,12 +126,12 @@ function draw() {
     [`Re-running each method on 20 random samples of 80% of the books, the hierarchical groups come back with a median adjusted Rand index of `, strong(fmt.f(hb.median, 2)),
       ` and DBSCAN's with ${fmt.f(db.median, 2)}. DBSCAN is expected to move more: fewer books means thinner neighbourhoods at the same eps.`],
     el("div", { class: "mt-xl" }, figs([fmt.f(hb.median, 2), `hierarchical, median ARI (10th to 90th percentile ${fmt.f(hb.p10, 2)} to ${fmt.f(hb.p90, 2)})`],
-      [fmt.f(db.median, 2), `DBSCAN, median ARI (${fmt.f(db.p10, 2)} to ${fmt.f(db.p90, 2)})`],
+      [fmt.f(db.median, 2), `density-based, median ARI (${fmt.f(db.p10, 2)} to ${fmt.f(db.p90, 2)})`],
       [fmt.f(Math.min(...H.neighbours.map((n) => n.ari)), 2), "hierarchical, lowest agreement with k one up or down"])),
     el("div", { class: "more-wrap" }, more("Neighbouring settings",
       table([["Method"], ["Setting"], ["Agreement with the chosen one (ARI)", 1]],
         [...H.neighbours.map((n) => ["Hierarchical", `k = ${n.k}`, fmt.f(n.ari, 3)]),
-          ...D.neighbours.map((n) => ["DBSCAN", `MinPts ${n.min_pts}, eps ${fmt.f(n.eps, 4)}`, fmt.f(n.ari, 3)])])))));
+          ...D.neighbours.map((n) => ["Density-based", `MinPts ${n.min_pts}, eps ${fmt.f(n.eps, 4)}`, fmt.f(n.ari, 3)])])))));
 
   // 8. drivers
   const eff = (m) => [fmt.f(m.effects.nmi_script, 2), fmt.f(m.effects.nmi_era, 2), fmt.f(m.effects.nmi_classification, 2)];
@@ -140,7 +140,7 @@ function draw() {
     [`How much each grouping follows the script, the era and the catalogue subject (normalised mutual information, 0 none, 1 complete). With this feature set the hierarchical groups follow script at `, strong(fmt.f(H.effects.nmi_script, 2)),
       `. DBSCAN's noise books have a median OCR confidence of ${fmt.f(on.median_conf_noise, 0)} against ${fmt.f(on.median_conf_clustered, 0)} for grouped books.`],
     el("div", { class: "mt-xl" }, table([["Grouping"], ["Script", 1], ["Era", 1], ["Catalogue subject", 1]],
-      Object.entries(st.sets).flatMap(([k, s_]) => [[`${NAME[k]}, hierarchical`, ...eff(s_.hierarchical)], [`${NAME[k]}, DBSCAN`, ...eff(s_.dbscan)]]),
+      Object.entries(st.sets).flatMap(([k, s_]) => [[`${NAME[k]}, hierarchical`, ...eff(s_.hierarchical)], [`${NAME[k]}, density-based`, ...eff(s_.dbscan)]]),
       { chosen: (i) => Object.keys(st.sets)[Math.floor(i / 2)] === fs })),
     el("div", { class: "more-wrap" },
       more("OCR quality and DBSCAN noise",
@@ -183,7 +183,7 @@ function draw() {
     hl.forEach((h, i) => { if (h === g && dl[i] !== -1) counts[dl[i]] = (counts[dl[i]] || 0) + 1; });
     const match = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
     const dg = match ? Number(match[0]) : null;
-    const lab = (i) => `${esc(H.names[String(hl[i])])}${dl[i] === -1 ? "<br>DBSCAN: noise" : `<br>DBSCAN: ${esc(D.names[String(dl[i])] || "")}`}`;
+    const lab = (i) => `${esc(H.names[String(hl[i])])}${dl[i] === -1 ? "<br>density-based: noise" : `<br>density-based: ${esc(D.names[String(dl[i])] || "")}`}`;
     scatter(left, xy.map(([x, y], i) => ({ x, y, hi: hl[i] === g, label: lab(i) })), { height: 340 });
     scatter(right, xy.map(([x, y], i) => ({ x, y, hi: dg != null && dl[i] === dg, noise: dl[i] === -1, label: lab(i) })), { height: 340 });
   };
