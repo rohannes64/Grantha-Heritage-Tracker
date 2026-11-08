@@ -1,0 +1,33 @@
+{
+  "_note": "Names given by reading each group's distinctive words and typical books (reports/study/results_*.json). Keys: feature set _ method; -1 is DBSCAN noise and is named in the app.",
+  "A_hier": {
+    "0": "English books",
+    "1": "Hindi and Sanskrit (Devanagari)",
+    "2": "Bengali books",
+    "3": "Gujarati books",
+    "4": "Kannada books",
+    "5": "Tamil books",
+    "6": "Telugu books"
+  },
+  "A_dbscan": {
+    "-1": "Not in any dense group (noise)",
+    "0": "Tamil books",
+    "1": "English books",
+    "2": "Gujarati books",
+    "3": "Bengali books",
+    "4": "Kannada books",
+    "5": "Telugu books",
+    "6": "Sanskrit commentary and grammar",
+    "7": "Modern Hindi prose"
+  },
+  "B_hier": {
+    "0": "English-language books",
+    "1": "Religious and classical texts",
+    "2": "Modern prose and essays"
+  },
+  "B_dbscan": {
+    "-1": "Not in any dense group (noise)",
+    "0": "Main body: classical and scholarly books",
+    "1": "Modern fiction and stories"
+  }
+}

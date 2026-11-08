@@ -6,7 +6,7 @@ Writes
   data/model/bundle.joblib   everything the app needs to check a new document (no retraining)
   web/data/study.json        all study results the Study page shows (both feature sets)
   web/data/corpus.json       the clustered books, their groups and PCA positions (Browse page)
-Cluster names: reports/cluster_names.json ({"A": {"0": "name", ...}, "B": {...}}) if present,
+Cluster names: reports/cluster_names.json ({"A_hier": {"0": "name", ...}, "B_dbscan": {...}}) if present,
 otherwise the three most distinctive terms.
 """
 import json
