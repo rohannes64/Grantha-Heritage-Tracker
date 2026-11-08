@@ -1,0 +1,15 @@
+field,missing_pct,distinct,decision,reason
+year,18.6,162,keep (numeric),publication era shapes vocabulary and spelling; median-imputed with a missing flag
+total_pages,0.0,737,keep as log10 (numeric),"book length; heavy right tail, so log-transformed"
+mean_conf,0.3,2988,keep (numeric),OCR quality; needed to study whether noise drives clusters
+n_tokens,0.0,1241,keep as log10 (numeric),amount of usable text
+script,0.0,7,keep (one-hot),detected script; the only categorical field encoded
+lang_tag,0.0,8,drop,catalogue tag; replaced by detected script because some tags are wrong
+era,0.0,5,drop from features,derived from year (redundant); kept for profiles and sampling
+title,0.0,2971,drop from features,not available for a new scan; used only to display results
+creator,8.3,2400,drop from features,"free text, mostly unique; display only"
+publisher,28.7,1821,drop from features,"free text, high cardinality; display only"
+source_library,32.9,248,drop,"provenance, not content"
+scanning_centre,24.6,26,drop,provenance; would let clusters form by scanning site (leakage)
+subject_field,0.0,288,drop,"mostly the scanning centre, not a topic (checked on real records)"
+classification,49.0,496,drop from features,sparse real subject labels; used only as a weak outside check
