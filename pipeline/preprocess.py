@@ -122,8 +122,9 @@ def write_log(df: pd.DataFrame, rel: pd.DataFrame, enc: ColumnTransformer) -> No
           "would split Indian-script words at vowel signs.",
           f"3. Tokens shorter than {text.MIN_TOKEN_CHARS} characters, starting with a stray vowel sign, or mixing "
           "scripts are dropped as OCR noise; tokens in the book's own script or in Latin are kept.",
-          "4. Latin tokens lower-cased; English function words removed. Indian-language function words are "
-          "removed by the TF-IDF document-frequency cap (terms in > 50% of books), not by hand lists.",
+          "4. Latin tokens lower-cased; English function words removed. Function words of every language are "
+          "removed in the feature step by a per-language document-frequency cap (a term in more than 30% of the "
+          "books of its own language), not by hand-written lists.",
           "5. Digits, numerals and punctuation removed (not letters).", "",
           "## 3. Variable relevance review", "",
           "| Field | Missing % | Distinct | Decision | Reason |", "|---|---|---|---|---|"]
