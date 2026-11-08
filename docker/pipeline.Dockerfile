@@ -13,8 +13,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /work
-COPY requirements-pipeline.txt /tmp/requirements-pipeline.txt
-RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt
+COPY requirements-pipeline.txt requirements-ml.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt -r /tmp/requirements-ml.txt
+
+# Embedding model cache lives in the bind-mounted data folder during development.
+ENV HF_HOME=/work/data/hf
 
 # Code is bind-mounted at /work by docker-compose during development.
 CMD ["python", "-m", "pytest", "-q"]
