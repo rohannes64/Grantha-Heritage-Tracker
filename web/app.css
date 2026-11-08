@@ -1,0 +1,69 @@
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Darkroom (deal 1/3, seed heritage-topic-finder-check-f3c4·d60aadc9·2026-11-08·r0) · scope: app
+ * screens: check a page (form, verdict, matches table, map; states loading, empty, error, full) · browse groups (table and detail, URL state) · study (results with disclosure) · about · darkroom: amber
+ * axes: dark/display-condensed/chromatic-amber · posture: restrained · contrast: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V3 · weakest: V, app screens share one shell by design; variety spent on each screen's object (the verdict, the group table, the study sheets) */
+@import url("./tokens.css");
+@import url("./base.css");
+@import url("./components.css");
+
+:root { --text-section: clamp(1.75rem, 1.5vw + 1rem, 2.5rem); }
+main { padding-block: var(--space-2xl) var(--space-xl); }
+.page-head { display: grid; gap: var(--space-sm); margin-bottom: var(--space-2xl); }
+.page-head h1 { font-size: clamp(2.5rem, 3vw + 1rem, 4rem); max-width: 20ch; }
+.page-head p { color: var(--color-ink-2); max-width: 60ch; }
+
+/* check */
+.workbench { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-2xl); align-items: start; }
+@media (max-width: 64rem) { .workbench { grid-template-columns: minmax(0, 1fr); } }
+.check-form { display: grid; gap: var(--space-lg); position: sticky; top: calc(72px + var(--space-lg)); }
+@media (max-width: 64rem) { .check-form { position: static; } }
+.drop { display: grid; place-items: center; gap: var(--space-xs); min-height: 168px; padding: var(--space-lg); border: var(--rule-hair) dashed var(--color-muted); text-align: center; cursor: pointer; transition: background-color var(--dur-short) var(--ease-out); }
+.drop:hover, .drop.is-over { background: var(--color-paper-2); }
+.drop:focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.drop .file-name { color: var(--color-accent); }
+.or { display: flex; align-items: center; gap: var(--space-sm); color: var(--color-muted); font-size: var(--text-sm); }
+.or::before, .or::after { content: ""; flex: 1; border-top: var(--rule-hair) solid var(--color-rule); }
+.form-error { color: var(--color-error); font-size: var(--text-sm); }
+
+.result { display: grid; gap: var(--space-2xl); }
+.result h2 { font-size: var(--text-section); }
+.verdict-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); }
+.verdict-grid > div { padding: var(--space-lg) var(--space-lg) var(--space-lg) 0; display: grid; gap: var(--space-xs); align-content: start; }
+.verdict-grid > div + div { padding-left: var(--space-lg); border-left: var(--rule-hair) solid var(--color-rule); }
+.verdict-grid .figure { font-size: clamp(2rem, 2vw + 1rem, 3rem); font-variant-numeric: tabular-nums; }
+@media (max-width: 40rem) { .verdict-grid { grid-template-columns: minmax(0, 1fr); } .verdict-grid > div + div { padding-left: 0; border-left: 0; border-top: var(--rule-hair) solid var(--color-rule); } }
+.level { color: var(--color-ink); }
+.cautions { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-xs); }
+
+/* browse */
+.groups-layout { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: var(--space-2xl); align-items: start; }
+@media (max-width: 64rem) { .groups-layout { grid-template-columns: minmax(0, 1fr); } }
+.group-row { cursor: pointer; }
+.group-row:hover td { background: var(--color-paper-2); }
+.group-row[aria-selected="true"] td { color: var(--color-ink); background: var(--color-paper-2); }
+.group-row[aria-selected="true"] td:first-child { box-shadow: inset 2px 0 0 var(--color-accent); padding-left: var(--space-sm); }
+.group-row button { all: unset; cursor: pointer; font-family: var(--font-display); font-size: var(--text-title); text-transform: uppercase; line-height: 1.1; }
+.group-row button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.detail { display: grid; gap: var(--space-xl); position: sticky; top: calc(72px + var(--space-lg)); }
+@media (max-width: 64rem) { .detail { position: static; } }
+.detail h2 { font-size: var(--text-section); }
+.toolbar { display: flex; flex-wrap: wrap; gap: var(--space-lg); align-items: end; margin-bottom: var(--space-xl); }
+
+/* study */
+.study-section { padding-block: var(--space-2xl); border-top: var(--rule-hair) solid var(--color-rule); }
+.study-section > h2 { font-size: var(--text-section); }
+.study-section > .summary { margin-top: var(--space-md); font-size: var(--text-lead); line-height: 1.5; color: var(--color-ink-2); max-width: 62ch; }
+.study-section > .summary strong { color: var(--color-ink); font-weight: 400; }
+.study-section .more-wrap { margin-top: var(--space-xl); }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2xl); }
+@media (max-width: 64rem) { .two { grid-template-columns: minmax(0, 1fr); } }
+.figures-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); }
+.figures-row > div { padding: var(--space-lg) var(--space-lg) var(--space-lg) 0; }
+.figures-row > div + div { padding-left: var(--space-lg); border-left: var(--rule-hair) solid var(--color-rule); }
+.figures-row .figure { font-size: clamp(2.5rem, 3vw + 1rem, 4.5rem); display: block; font-variant-numeric: tabular-nums; }
+@media (max-width: 48rem) { .figures-row { grid-template-columns: minmax(0, 1fr); } .figures-row > div + div { padding-left: 0; border-left: 0; border-top: var(--rule-hair) solid var(--color-rule); } }
+.toc { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-lg); margin: 0 0 var(--space-xl); padding: 0; list-style: none; font-size: var(--text-sm); }
+.toc a { color: var(--color-ink-2); }
+.prose p + p { margin-top: var(--space-md); }
+.prose { display: grid; gap: var(--space-md); }

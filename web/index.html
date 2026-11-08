@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heritage Topic Finder</title>
+<meta name="description" content="Upload a scanned page from an old Indian book and see which archive books it belongs with.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="home.css">
+</head>
+<body>
+<header class="slab">
+  <div class="container">
+    <a class="wordmark" href="./">Heritage Topic Finder</a>
+    <nav aria-label="Main"><ul>
+      <li><a href="check.html">Check a page</a></li>
+      <li><a href="browse.html">Browse groups</a></li>
+      <li><a href="study.html">The study</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container">
+      <div>
+        <h1 id="hero-title">Every old page has neighbours</h1>
+        <p class="lead">Upload a scanned page and see which archive books it belongs with.</p>
+        <div class="actions">
+          <a class="btn btn--primary" href="check.html">Check a page</a>
+          <a class="btn" href="browse.html">Browse the groups</a>
+        </div>
+      </div>
+      <figure class="plate">
+        <div data-slot="hero" data-alt="A page of Tamil verse from an unindexed archive scan">
+          <img id="hero-img" src="https://archive.org/download/in.ernet.dli.2015.294941/page/n18_w1200.jpg"
+               width="1270" height="2088" alt="A page of Tamil verse with commentary, printed in 1912, from an unindexed archive scan" fetchpriority="high">
+        </div>
+        <figcaption class="caption" id="hero-caption">Ain-tinaiyaimpatu Muulamum Uraiyum, Tamil, 1912. Page 19 of an unindexed scan.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="stage stage--first" aria-labelledby="s1">
+    <div class="container">
+      <div class="stage-text">
+        <h2 id="s1">1. Read the page</h2>
+        <p>Tesseract reads the scan in its own script, after turning it upright.</p>
+      </div>
+      <div class="readout">
+        <div data-slot="crop" data-alt="The top of the same page, close up">
+          <img id="crop-img" src="https://archive.org/download/in.ernet.dli.2015.294941/page/n18_w1200.jpg" width="1270" height="2088" alt="The top lines of the Tamil page, close up" loading="lazy">
+        </div>
+        <div>
+          <p class="ocr-text" id="ocr-text" lang="ta">இரவுக்குறிவந்து பெயருந்‌ தலைமகனைக்‌
+கண்ணுற்றுரின்ற தோழி வரைவுகடாயது.
+(இ-ள்‌) சொடுவரி வேங்சையாழ்‌ கோட்பட்டுப்‌ பிழைத்து மடிந்த செவி</p>
+          <dl class="sheet" id="ocr-sheet">
+            <div><dt>Model</dt><dd>Tamil (tam), Tesseract 5</dd></div>
+            <div><dt>Mean word confidence</dt><dd class="num" id="ocr-conf">73 of 100</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" aria-labelledby="s2">
+    <div class="container">
+      <div class="stage-text">
+        <h2 id="s2">2. Find its neighbours</h2>
+        <p>Its words are compared with every book in the study. The five closest come back with the words they share.</p>
+      </div>
+      <div id="neighbours-wrap">
+        <ol class="neighbours" id="neighbours">
+          <li><span class="figure">1</span><div><h3>Checking the page against the archive</h3><p class="why">The five closest books appear here.</p></div><span></span></li>
+        </ol>
+        <noscript><p class="note">Turn on JavaScript, or open <a href="check.html">Check a page</a>, to run this live.</p></noscript>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" aria-labelledby="s3">
+    <div class="container">
+      <div class="stage-text">
+        <h2 id="s3">3. See where it sits</h2>
+        <p>Each dot is a book. The lit dots are its group; the ring is the page.</p>
+      </div>
+      <div class="map-frame" id="map" role="figure" aria-label="Map of the archive books with the page marked"></div>
+    </div>
+  </section>
+
+  <section class="split well grained" aria-label="Before and after">
+    <div class="container">
+      <div class="side">
+        <h2>Before</h2>
+        <p>One scan, catalogued by title and scanning centre, read alone.</p>
+        <span class="figure" aria-hidden="true">1</span>
+      </div>
+      <div class="side">
+        <h2>After</h2>
+        <p>The same scan read beside the books that share its words, in any of eight languages.</p>
+        <span class="figure" id="after-figure" aria-hidden="true">5</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="langs" aria-labelledby="langs-title">
+    <div class="container">
+      <div>
+        <h2 id="langs-title">What it reads</h2>
+        <p>Printed books in eight languages from the Digital Library of India. A page image or a PDF of up to five pages.</p>
+      </div>
+      <div class="table-wrap">
+        <table id="lang-table">
+          <thead><tr><th scope="col">Language</th><th scope="col" class="num">Books in the study</th><th scope="col" class="num">Readable enough to group</th><th scope="col" class="num">Median OCR confidence</th></tr></thead>
+          <tbody>
+            <tr><td>English</td><td class="num" colspan="3">Counts load from the study</td></tr>
+            <tr><td>Hindi</td><td></td><td></td><td></td></tr>
+            <tr><td>Sanskrit</td><td></td><td></td><td></td></tr>
+            <tr><td>Bengali</td><td></td><td></td><td></td></tr>
+            <tr><td>Gujarati</td><td></td><td></td><td></td></tr>
+            <tr><td>Telugu</td><td></td><td></td><td></td></tr>
+            <tr><td>Kannada</td><td></td><td></td><td></td></tr>
+            <tr><td>Tamil</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="close" aria-labelledby="close-title">
+    <div class="container">
+      <div>
+        <h2 id="close-title">Bring your own page</h2>
+        <p class="lead ink-2">Groups are exploratory, not a catalogue. The study page says how far to trust them.</p>
+        <div class="actions"><a class="btn btn--primary" href="check.html">Check a page</a></div>
+      </div>
+      <figure>
+        <img src="assets/check-screen.png" width="1440" height="900" alt="The check screen with a result: the closest group, five archive books and the map" loading="lazy">
+        <figcaption class="caption">The check screen after the Tamil page above was uploaded, with the language left on detect.</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+    <p class="colophon">SIH26096. Page images: Digital Library of India scans served by the Internet Archive, shown by link and not copied. Photographs: the page above is from <a href="https://archive.org/details/in.ernet.dli.2015.294941">Ain-tinaiyaimpatu Muulamum Uraiyum (1912)</a>.</p>
+  </div>
+</footer>
+
+<script>window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
+document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
+<script type="module" src="js/home.js"></script>
+</body>
+</html>

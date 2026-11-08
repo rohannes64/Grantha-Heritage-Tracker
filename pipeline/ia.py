@@ -1,6 +1,7 @@
 """Polite Internet Archive client: rate-limited, retried, cached."""
 import gzip
 import json
+import threading
 import time
 from pathlib import Path
 
@@ -16,13 +17,19 @@ class IAClient:
         self.interval = interval
         self.cache_dir = cache_dir
         self._last = 0.0
+        self._lock = threading.Lock()
 
-    def _get(self, url: str, params=None, stream=False, tries: int = 5) -> requests.Response:
-        for attempt in range(tries):
+    def _pace(self) -> None:
+        """At most one request *started* per `interval` seconds per client, across threads."""
+        with self._lock:
             wait = self.interval - (time.monotonic() - self._last)
             if wait > 0:
                 time.sleep(wait)
             self._last = time.monotonic()
+
+    def _get(self, url: str, params=None, stream=False, tries: int = 5) -> requests.Response:
+        for attempt in range(tries):
+            self._pace()
             try:
                 r = self.s.get(url, params=params, timeout=60, stream=stream)
             except requests.RequestException:

@@ -1,9 +1,10 @@
 """Project-wide settings. Every number that shapes the sample lives here."""
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
-DB_PATH = DATA / "corpus.sqlite"
+DB_PATH = Path(os.environ.get("HERITAGE_DB", DATA / "corpus.sqlite"))  # override for dry runs on a snapshot
 FRAME_DIR = DATA / "frame"      # full sampling frame per language (identifiers + dates)
 PAGES_DIR = DATA / "pages"      # downloaded page images (deleted after OCR in the full run)
 CACHE_DIR = DATA / "cache"      # cached Internet Archive metadata

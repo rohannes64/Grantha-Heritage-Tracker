@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "heritage-app",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up", "dev-app"],
+      "port": 8000
+    }
+  ]
+}

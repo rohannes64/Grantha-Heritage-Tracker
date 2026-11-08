@@ -8,12 +8,14 @@ A. TF-IDF + LSA: word 1-2-grams and character 3-5-grams (robust to OCR errors), 
 B. Multilingual sentence embeddings (LaBSE, 109 languages incl. all 8 here): each book's clean text
    is cut into chunks, embedded, averaged; reduced with PCA to 100 dimensions, rows re-normalised.
 
-Stopwords: per-script document frequency. A term found in more than half of the books *of its own
-script* is dropped. A corpus-wide cap would miss Hindi or Tamil function words, because each
-script is only a fraction of the corpus.
+Stopwords: per-language document frequency. A term found in more than 30% of the books *of its own
+language* (the OCR model: eng, hin, san, ben, guj, tel, kan, tam) is dropped. A corpus-wide cap
+would miss Hindi or Tamil function words, because each language is only an eighth of the corpus;
+a per-script cap would miss Sanskrit ones, because Hindi shares the Devanagari script.
 """
 import argparse
 import json
+import os
 from collections import Counter, defaultdict
 
 import joblib
@@ -28,10 +30,11 @@ from . import config, text
 
 PROCESSED = config.DATA / "processed"
 N_COMPONENTS = 100
-SCRIPT_DF_CAP = 0.5
+LANG_DF_CAP = 0.3
 EMBED_MODEL = "sentence-transformers/LaBSE"
-CHUNK_TOKENS = 96          # LaBSE reads up to 256 word-pieces; Indian-script words split into several
-MAX_CHUNKS = 12            # evenly spaced across the book's 5 pages
+CHUNK_TOKENS = 64          # words per chunk; ~128 word-pieces for Indian scripts
+MAX_CHUNKS = 4             # evenly spaced across the book's 5 pages (CPU budget: ~4 chunks/s)
+MAX_SEQ = 128              # word-pieces per chunk; Indian-script words split into several
 
 
 def word_analyzer(tokens: list[str]) -> list[str]:
@@ -39,13 +42,13 @@ def word_analyzer(tokens: list[str]) -> list[str]:
     return tokens + [f"{a} {b}" for a, b in zip(tokens, tokens[1:])]
 
 
-def script_stopwords(token_lists: list[list[str]], scripts: list[str], cap: float = SCRIPT_DF_CAP) -> set[str]:
-    by_script = defaultdict(list)
-    for toks, s in zip(token_lists, scripts):
-        by_script[s].append(set(toks))
+def language_stopwords(token_lists: list[list[str]], groups: list[str], cap: float = LANG_DF_CAP) -> set[str]:
+    by_group = defaultdict(list)
+    for toks, g in zip(token_lists, groups):
+        by_group[g].append(set(toks))
     stop = set()
-    for s, sets in by_script.items():
-        if len(sets) < 20:   # too few books in this script to judge what is a function word
+    for g, sets in by_group.items():
+        if len(sets) < 20:   # too few books in this language to judge what is a function word
             continue
         df = Counter(t for st in sets for t in st)
         stop |= {t for t, c in df.items() if c / len(sets) > cap}
@@ -66,6 +69,7 @@ class TfidfLSA:
                                     sublinear_tf=True, max_features=40000, dtype=np.float32)
         self.svd = TruncatedSVD(N_COMPONENTS, algorithm="randomized", n_iter=7, random_state=seed)
         self.stop: set[str] = set()
+        self.stop_cap = LANG_DF_CAP
 
     def _sparse(self, token_lists, fit=False):
         joined = [" ".join(t) for t in token_lists]
@@ -73,8 +77,8 @@ class TfidfLSA:
         Xc = self.char.fit_transform(joined) if fit else self.char.transform(joined)
         return sp.hstack([Xw, Xc]).tocsr() * np.float32(1 / np.sqrt(2)), Xw
 
-    def fit_transform(self, token_lists, scripts):
-        self.stop = script_stopwords(token_lists, scripts)
+    def fit_transform(self, token_lists, languages):
+        self.stop = language_stopwords(token_lists, languages, self.stop_cap)
         token_lists = apply_stopwords(token_lists, self.stop)
         X, Xw = self._sparse(token_lists, fit=True)
         Z = normalize(self.svd.fit_transform(X))
@@ -110,7 +114,10 @@ class Embedder:
     def model(self):
         if self._model is None:
             from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(self.model_name, device="cpu")
+            # HERITAGE_EMBED_MODEL: a plain local copy of the same model (the app image uses one,
+            # since the Hugging Face cache relies on symlinks that a Windows build context cannot send).
+            self._model = SentenceTransformer(os.environ.get("HERITAGE_EMBED_MODEL", self.model_name), device="cpu")
+            self._model.max_seq_length = MAX_SEQ
         return self._model
 
     def raw(self, token_lists, batch_size: int = 64, progress: bool = False) -> np.ndarray:
@@ -136,15 +143,15 @@ def load_inputs():
     rows = [json.loads(l) for l in (PROCESSED / "tokens.jsonl").open(encoding="utf-8")]
     ids = [r["identifier"] for r in rows]
     toks = [r["tokens"] for r in rows]
-    script = docs.set_index("identifier").loc[ids, "script"].tolist()
-    return ids, toks, script
+    language = docs.set_index("identifier").loc[ids, "ocr_model"].tolist()   # eng, hin, san, ...
+    return ids, toks, language
 
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--only", choices=["A", "B"])
     args = ap.parse_args(argv)
-    ids, toks, scripts = load_inputs()
+    ids, toks, languages = load_inputs()
     out_path = PROCESSED / "features.joblib"
     bundle = joblib.load(out_path) if out_path.exists() else {}
     if bundle.get("ids") not in (None, ids):
@@ -152,13 +159,13 @@ def main(argv=None) -> None:
     bundle["ids"] = ids
     if args.only in (None, "A"):
         lsa = TfidfLSA()
-        Z, Xw = lsa.fit_transform(toks, scripts)
+        Z, Xw = lsa.fit_transform(toks, languages)
         bundle["A"] = {"Z": Z, "Xw": Xw, "transform": lsa,
                        "explained_variance": float(lsa.svd.explained_variance_ratio_.sum()),
                        "n_stopwords": len(lsa.stop),
                        "vocab_word": len(lsa.word.vocabulary_), "vocab_char": len(lsa.char.vocabulary_)}
         print(f"A: {Z.shape}, SVD explains {bundle['A']['explained_variance']:.1%} of TF-IDF variance, "
-              f"{len(lsa.stop)} script stopwords", flush=True)
+              f"{len(lsa.stop)} per-language stopwords", flush=True)
     if args.only in (None, "B"):
         emb = Embedder()
         cache = PROCESSED / "embeddings_raw.npy"
@@ -177,4 +184,7 @@ def main(argv=None) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # Run through the importable module so pickled classes are saved as pipeline.features.*,
+    # not __main__.*, and can be loaded by the study, the export and the web app.
+    from pipeline.features import main as _main
+    _main()

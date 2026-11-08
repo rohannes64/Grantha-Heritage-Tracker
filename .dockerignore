@@ -1,6 +1,14 @@
 .git
-data
-reports
-**/__pycache__
+.hallmark
+.claude
 .pytest_cache
+**/__pycache__
 .env
+reports
+docs
+scripts
+tests
+# Data: only the trained model bundle and the embedding model go into the app image.
+data/*
+!data/model
+!data/labse

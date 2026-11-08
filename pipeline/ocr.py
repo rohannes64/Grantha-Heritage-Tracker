@@ -85,6 +85,19 @@ def ocr_document(identifier: str, lang_tag: str, pages: list[tuple[int, str]]) -
             img = img.rotate(-rotate, expand=True)  # OSD 'rotate' is clockwise degrees to fix
         images[leaf], osd[leaf] = img, (script if sconf >= 1 else None)
     model, script = choose_model(lang_tag, [s for s in osd.values() if s])
+    tag = config.LANGUAGES[lang_tag]
+    if model != tag["tess"]:
+        # Script detection overrode the catalogue tag. OSD is unreliable on some scripts (it called
+        # most Gujarati pages Bengali or Latin in the pilot), so read the middle page with both
+        # models and keep the one that reads with higher confidence.
+        mid = pages[len(pages) // 2][0]
+        trial = {}
+        for m in (tag["tess"], model):
+            d = pytesseract.image_to_data(images[mid], lang=m, config="--oem 1 --psm 3",
+                                          output_type=pytesseract.Output.DICT)
+            trial[m] = _lines_from_data(d)[1] or 0.0
+        if trial[tag["tess"]] >= trial[model]:
+            model, script = tag["tess"], tag["script"]
     out = []
     for leaf, _ in pages:
         d = pytesseract.image_to_data(images[leaf], lang=model, config="--oem 1 --psm 3",

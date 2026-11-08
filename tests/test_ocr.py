@@ -60,3 +60,39 @@ def test_rotation_fix_reads_rotated_page(tmp_path, monkeypatch, turn):
     assert res["ocr_model"] == "eng"
     assert "kingdoms" in res["text"].lower()
     assert res["mean_conf"] > 70
+
+
+@needs_tesseract
+def test_wrong_catalogue_tag_loses_the_confidence_check(tmp_path, monkeypatch):
+    """An English page catalogued as Hindi: OSD says Latin, and the English model also reads it
+    with higher confidence than the Hindi model, so English wins."""
+    text = "\n".join(["The history of the ancient kingdoms of southern India"] * 12)
+    _render(text).save(tmp_path / "page.png")
+    monkeypatch.setattr(ocr.config, "ROOT", tmp_path)
+    [res] = ocr.ocr_document("x", "hin", [(0, "page.png")])
+    assert res["ocr_model"] == "eng"
+    assert "kingdoms" in res["text"].lower()
+
+
+@needs_tesseract
+def test_auto_mode_overrules_a_wrong_script_guess(monkeypatch):
+    """Upload with no language: if the script detector guesses wrong (it called a real Tamil scan
+    Latin), the guessed model reads the page poorly and the most confident model wins instead."""
+    from app import ocr_input
+    page = _render("\n".join(["The history of the ancient kingdoms of southern India"] * 12))
+    monkeypatch.setattr(ocr_input, "_osd", lambda g: ("Tamil", 0, 5.0))
+    res = ocr_input.ocr_images([page], None)
+    assert res["model"] == "eng" and res["script"] == "Latin"
+    assert "kingdoms" in res["text"].lower()
+    assert res["ocr_conf"] > 70
+
+
+@needs_tesseract
+def test_auto_mode_keeps_a_confident_guess(monkeypatch):
+    from app import ocr_input
+    page = _render("\n".join(["The history of the ancient kingdoms of southern India"] * 12))
+    calls = []
+    real = ocr_input._read
+    monkeypatch.setattr(ocr_input, "_read", lambda g, m: calls.append(m) or real(g, m))
+    res = ocr_input.ocr_images([page], None)
+    assert res["model"] == "eng" and calls == ["eng"]

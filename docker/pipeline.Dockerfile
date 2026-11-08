@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /work
-COPY requirements-pipeline.txt requirements-ml.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt -r /tmp/requirements-ml.txt
+COPY requirements-pipeline.txt requirements-ml.txt requirements-app.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt -r /tmp/requirements-ml.txt -r /tmp/requirements-app.txt
 
 # Embedding model cache lives in the bind-mounted data folder during development.
 ENV HF_HOME=/work/data/hf

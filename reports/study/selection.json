@@ -1,0 +1,12 @@
+{
+  "chosen": "B",
+  "meets_quality_bar": {
+    "A": true,
+    "B": true
+  },
+  "nmi_script": {
+    "A": 1.0,
+    "B": 0.3789093251900786
+  },
+  "rule": "lowest NMI with script among sets with silhouette > 0 and median bootstrap ARI >= 0.5"
+}

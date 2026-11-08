@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heritage Topic Finder: the study</title>
+<meta name="description" content="Hierarchical clustering and DBSCAN compared on heritage book scans: distances, linkages, parameters, PCA, silhouette and stability.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="slab">
+  <div class="container">
+    <a class="wordmark" href="./">Heritage Topic Finder</a>
+    <nav aria-label="Main"><ul>
+      <li><a href="check.html">Check a page</a></li>
+      <li><a href="browse.html">Browse groups</a></li>
+      <li><a href="study.html" aria-current="page">The study</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>The study</h1>
+    <p>Hierarchical clustering and DBSCAN on the same books, compared on two kinds of features. Each part opens with the finding in plain words; the numbers are underneath.</p>
+  </div>
+  <div class="toolbar">
+    <fieldset class="seg" id="fs">
+      <legend>Features</legend>
+      <input type="radio" name="fs" id="fs-a" value="A"><label for="fs-a">Word weights</label>
+      <input type="radio" name="fs" id="fs-b" value="B"><label for="fs-b">Multilingual meaning</label>
+    </fieldset>
+  </div>
+  <ul class="toc" aria-label="Parts of the study">
+    <li><a href="#sample">The sample</a></li><li><a href="#prep">Preprocessing</a></li><li><a href="#distance">Distance</a></li>
+    <li><a href="#hier">Hierarchical</a></li><li><a href="#dbscan">Density-based</a></li><li><a href="#compare">Compared</a></li>
+    <li><a href="#stability">Stability</a></li><li><a href="#drivers">What drives the groups</a></li><li><a href="#choice">The app’s model</a></li><li><a href="#limits">Limits</a></li>
+  </ul>
+  <div id="study"><div class="state"><p class="ink-2">Loading the study results.</p><noscript><p>The study page draws its tables and charts with JavaScript. The raw results are in <a href="data/study.json">data/study.json</a>.</p></noscript></div></div>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="data/study.json">Raw results</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+<script type="module" src="js/study.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heritage Topic Finder: browse the groups</title>
+<meta name="description" content="Topic groups found without labels in a sample of Digital Library of India scans, with their words and typical books.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="slab">
+  <div class="container">
+    <a class="wordmark" href="./">Heritage Topic Finder</a>
+    <nav aria-label="Main"><ul>
+      <li><a href="check.html">Check a page</a></li>
+      <li><a href="browse.html" aria-current="page">Browse groups</a></li>
+      <li><a href="study.html">The study</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>Browse the groups</h1>
+    <p id="browse-intro">Groups found in the archive sample without any labels. We named each group after reading its most distinctive words and typical books.</p>
+  </div>
+
+  <div class="toolbar">
+    <fieldset class="seg" id="method">
+      <legend>Grouping method</legend>
+      <input type="radio" name="method" id="m-h" value="hierarchical" checked><label for="m-h">Hierarchical</label>
+      <input type="radio" name="method" id="m-d" value="dbscan"><label for="m-d">Density-based</label>
+    </fieldset>
+  </div>
+
+  <div class="groups-layout">
+    <div class="table-wrap">
+      <table id="groups" aria-describedby="browse-intro">
+        <thead><tr><th scope="col">Group</th><th scope="col" class="num">Books</th><th scope="col">Main languages</th></tr></thead>
+        <tbody><tr><td colspan="3"><div class="skeleton skeleton--block"></div></td></tr></tbody>
+      </table>
+      <noscript><p class="note mt-md">The group list needs JavaScript. The same data is at <a href="data/study.json">data/study.json</a>.</p></noscript>
+    </div>
+    <aside class="detail" id="detail" aria-live="polite">
+      <div class="state"><h2>Pick a group</h2><p class="ink-2">Its words, its typical books and where it sits on the map appear here.</p></div>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+<script type="module" src="js/browse.js"></script>
+</body>
+</html>

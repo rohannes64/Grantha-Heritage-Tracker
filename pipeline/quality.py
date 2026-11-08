@@ -30,8 +30,9 @@ def _norm(s: str) -> str:
 
 
 def fill_ia_similarity(con, client: IAClient) -> None:
-    docs = con.execute("""SELECT identifier, ia_ocr_files FROM documents
-                          WHERE status='harvested' AND ia_ocr_files IS NOT NULL""").fetchall()
+    pilot = pilot_ids(con)
+    docs = [d for d in con.execute("""SELECT identifier, ia_ocr_files FROM documents
+                          WHERE status='harvested' AND ia_ocr_files IS NOT NULL""").fetchall() if d["identifier"] in pilot]
     for d in docs:
         todo = con.execute("""SELECT leaf, text FROM pages WHERE identifier=? AND text IS NOT NULL
                               AND ia_similarity IS NULL""", (d["identifier"],)).fetchall()
@@ -59,11 +60,22 @@ def _med(xs):
     return round(st.median(xs), 2) if xs else None
 
 
+def pilot_ids(con) -> set[str]:
+    """The pilot: the first PILOT_PER_LANG harvested books of each language, in draw order."""
+    out = set()
+    for lang in config.LANGUAGES:
+        out |= {r[0] for r in con.execute(
+            "SELECT identifier FROM documents WHERE lang_tag=? AND status='harvested' ORDER BY sample_rank LIMIT ?",
+            (lang, config.PILOT_PER_LANG))}
+    return out
+
+
 def summarise(con) -> list[dict]:
-    rows = con.execute("""SELECT d.identifier, d.lang_tag, p.ocr_model, p.osd_script, p.mean_conf, p.n_words,
+    pilot = pilot_ids(con)
+    rows = [r for r in con.execute("""SELECT d.identifier, d.lang_tag, p.ocr_model, p.osd_script, p.mean_conf, p.n_words,
                                  p.script_ratio, p.ia_similarity
                           FROM pages p JOIN documents d USING (identifier)
-                          WHERE d.status='harvested' AND p.text IS NOT NULL""").fetchall()
+                          WHERE d.status='harvested' AND p.text IS NOT NULL""").fetchall() if r["identifier"] in pilot]
     by_lang = defaultdict(list)
     for r in rows:
         by_lang[r["lang_tag"]].append(r)
@@ -95,11 +107,10 @@ def summarise(con) -> list[dict]:
 def write_report(con, summary: list[dict]) -> None:
     config.REPORTS.mkdir(exist_ok=True)
     (config.REPORTS / "pilot_ocr_quality.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    counts = {r["status"]: r["n"] for r in con.execute(
-        "SELECT status, COUNT(*) n FROM documents GROUP BY status")}
+    n_pilot = sum(s["documents"] for s in summary)
     L = ["# Pilot OCR quality", "",
-         f"Documents drawn and tried: {sum(counts.values())} "
-         f"(harvested {counts.get('harvested', 0)}, skipped {counts.get('skipped', 0)}, failed {counts.get('failed', 0)}).",
+         f"Pilot: the first {config.PILOT_PER_LANG} harvested books of each language in draw order "
+         f"({n_pilot} books with OCR).",
          "",
          f"Usability rule (fixed before the run): median word confidence >= {MIN_MEDIAN_CONF:.0f} "
          f"and median script ratio >= {MIN_MEDIAN_SCRIPT_RATIO:.2f}.",
