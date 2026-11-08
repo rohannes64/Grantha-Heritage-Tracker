@@ -61,7 +61,15 @@ function draw() {
       more("Features used",
         el("p", { class: "prose", text: fs === "A"
           ? `Word 1-2-grams and character 3-5-grams, weighted by TF-IDF (terms found in more than 30% of one language’s books dropped as that language’s stopwords), reduced to ${r.dims} dimensions with truncated SVD, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.`
-          : `LaBSE sentence embeddings (109 languages) of up to 4 evenly spaced 64-word chunks per book (128 word-pieces each), averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })))));
+          : `LaBSE sentence embeddings (109 languages) of up to 4 evenly spaced 64-word chunks per book (128 word-pieces each), averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })),
+      st.sensitivity && st.sensitivity.feature_sets[fs] ? more("Encoded metadata added to the text: a sensitivity check",
+        el("p", { class: "prose", text: "Year, page count, OCR confidence and token count were standardised, missing years median-filled with a flag, and script one-hot encoded. This block was added to the text features at three weights and the chosen hierarchical setting refitted. Weight 0 is the study as run." }),
+        table([["Metadata weight", 1], ["Silhouette", 1], ["Follows script (NMI)", 1], ["Agreement with text-only groups (ARI)", 1], ["Largest group", 1]],
+          st.sensitivity.feature_sets[fs].rows.map((x) => [fmt.f(x.weight, 2), fmt.f(x.silhouette, 3), fmt.f(x.nmi_script, 2), fmt.f(Math.abs(x.ari_vs_text_only) < 0.005 ? 0 : x.ari_vs_text_only, 2), fmt.p(x.largest_share)]),
+          { chosen: (i) => i === 0 }),
+        el("p", { class: "small muted mt-xs", text: fs === "A"
+          ? "Word-weight groups are script groups, and metadata does not move them."
+          : "With meaning-based features, metadata soon outweighs the text: at weight 0.5 nearly every book falls into one group. So the study clusters text alone." })) : null)));
 
   // 3. distance
   const dm = r.distance.metrics;
