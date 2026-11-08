@@ -243,8 +243,27 @@ Checkpoint commit before each large phase. Nothing pushed.
 - The sample reflects DLI's language and era skew.
 - Clusters are exploratory and not fixed categories.
 
-## 11. Assumed (change any time)
+## 11. Team and commit split
+
+| | Rajith Sundar | Etikala Sai Pranav | Vemuri Rohan |
+|---|---|---|---|
+| Area | A: Data & OCR | B: ML study | C: App & delivery |
+| Branch | `data` | `ml` | `app` |
+| Phases | 1 Setup, 2 Pilot, 3 Harvest + OCR, 4 Preprocessing | 4 Features, 5 Clustering study | 6 API, 7 UI, 8 Docker |
+| Code | Harvest, OCR container, text cleaning, missing values, encoding, scaling, preprocessing log | TF-IDF+LSA, embeddings, Euclidean vs Manhattan, hierarchical, DBSCAN grid, PCA, silhouette, stability, cluster profiles | FastAPI, new-record check, UI pages, charts, Docker |
+| Tests | Cleaning and preprocessing | Clustering and metrics | API and end to end |
+| Report | Dataset, OCR, preprocessing; Level 2 DFD for process 3 | Methods, results, limitations; Level 2 DFD for process 4 | System design, Level 0/1 DFDs, Level 2 DFD for process 5, run guide |
+| Other | Viva notes: data | Viva notes: ML; short-paper draft | Viva notes: app; presentation deck |
+
+Commit rules:
+- Each commit's author and committer is the area owner (name and GitHub email). No Claude credit, ever.
+- Work happens on the area branch and is merged into `main` with a merge commit at the end of each phase.
+- Plan and project-wide docs are credited to Vemuri Rohan (coordination).
+- Nothing is pushed by Claude; the team adds the GitHub remote and pushes.
+- Each owner reads and runs their own part before reviews.
+
+## 12. Assumed (change any time)
 - Folder: `C:\Users\Karthik\Pictures\klaus\heritage-topics`
 - Git: local only, no GitHub remote yet
 - Hosting: local first; Hugging Face Spaces optional later
-- Deadline and team member names: to be given for the report
+- Deadline: to be given
