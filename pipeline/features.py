@@ -31,8 +31,9 @@ PROCESSED = config.DATA / "processed"
 N_COMPONENTS = 100
 LANG_DF_CAP = 0.3
 EMBED_MODEL = "sentence-transformers/LaBSE"
-CHUNK_TOKENS = 96          # LaBSE reads up to 256 word-pieces; Indian-script words split into several
-MAX_CHUNKS = 12            # evenly spaced across the book's 5 pages
+CHUNK_TOKENS = 64          # words per chunk; ~128 word-pieces for Indian scripts
+MAX_CHUNKS = 4             # evenly spaced across the book's 5 pages (CPU budget: ~4 chunks/s)
+MAX_SEQ = 128              # word-pieces per chunk; Indian-script words split into several
 
 
 def word_analyzer(tokens: list[str]) -> list[str]:
@@ -113,6 +114,7 @@ class Embedder:
         if self._model is None:
             from sentence_transformers import SentenceTransformer
             self._model = SentenceTransformer(self.model_name, device="cpu")
+            self._model.max_seq_length = MAX_SEQ
         return self._model
 
     def raw(self, token_lists, batch_size: int = 64, progress: bool = False) -> np.ndarray:
