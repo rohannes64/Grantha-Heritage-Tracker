@@ -56,4 +56,4 @@ Every choice made between OCR output and the clustering features, with counts.
 
 - Numeric fields ['year', 'log_pages', 'mean_conf', 'log_tokens'] are standardised (zero mean, unit variance) so year (hundreds) does not outweigh confidence (tens) in distance calculations.
 - Categorical ['script'] is one-hot encoded: categories ['Bengali', 'Devanagari', 'Gujarati', 'Kannada', 'Latin', 'Tamil', 'Telugu'].
-- The metadata block is used only in a sensitivity variant (text + metadata). The main study clusters text alone, so groups reflect content, not script or era.
+- The metadata block is used in a sensitivity check (`python -m pipeline.sensitivity`, `reports/study/sensitivity.json`): appended to the text features at weights 0.25, 0.5 and 1. The main study clusters text alone, so groups reflect content, not script or era.

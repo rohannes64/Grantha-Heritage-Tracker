@@ -143,8 +143,9 @@ def write_log(df: pd.DataFrame, rel: pd.DataFrame, enc: ColumnTransformer) -> No
           "does not outweigh confidence (tens) in distance calculations.",
           f"- Categorical {CATEGORICAL} is one-hot encoded: categories "
           f"{list(enc.named_transformers_['cat'].named_steps['onehot'].categories_[0])}.",
-          "- The metadata block is used only in a sensitivity variant (text + metadata). The main study "
-          "clusters text alone, so groups reflect content, not script or era.", ""]
+          "- The metadata block is used in a sensitivity check (`python -m pipeline.sensitivity`, "
+          "`reports/study/sensitivity.json`): appended to the text features at weights 0.25, 0.5 and 1. The main "
+          "study clusters text alone, so groups reflect content, not script or era.", ""]
     config.REPORTS.mkdir(exist_ok=True)
     (config.REPORTS / "preprocessing_log.md").write_text("\n".join(L), encoding="utf-8")
     rel.to_csv(config.REPORTS / "variable_relevance.csv", index=False)
