@@ -5,3 +5,5 @@ __pycache__/
 .pytest_cache/
 # All harvested data, page images, caches, corpus database and logs
 data/
+docs/build/node_modules/
+docs/build/render/

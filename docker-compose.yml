@@ -1,6 +1,18 @@
 services:
-  # Development: everything runs from the bind-mounted project folder.
+  # The app: `docker compose up` (website and API on http://localhost:8000).
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    image: heritage-topics:1.0
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  # Reproduce the study from scratch: `docker compose run --rm pipeline <step>`
+  # (steps: python -m pipeline.harvest/ocr/preprocess/features/study/export; see README).
   pipeline:
+    profiles: ["pipeline"]
     build:
       context: .
       dockerfile: docker/pipeline.Dockerfile
@@ -9,7 +21,9 @@ services:
     volumes:
       - .:/work
 
+  # Development server on the working tree: `docker compose --profile dev up dev-app`
   dev-app:
+    profiles: ["dev"]
     image: heritage-topics-pipeline:dev
     working_dir: /work
     volumes:
