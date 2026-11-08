@@ -52,7 +52,9 @@ function detail() {
     el("div", {}, el("h2", { text: name }),
       el("p", { class: "ink-2 mt-xs", text: `${fmt.n(p.size)} books, ${fmt.p(p.share)} of the sample. Median year ${p.median_year ? Math.round(p.median_year) : "unknown"}; median OCR confidence ${fmt.f(p.median_conf, 0)}.` }),
       p.cluster === -1 ? el("p", { class: "note mt-md", text: "DBSCAN leaves these books out: none sits in a dense neighbourhood of similar books. Many are hard-to-read scans or one-off subjects." }) : null),
-    el("div", {}, el("h3", { text: "Most distinctive words" }), el("ul", { class: "terms mt-sm" }, p.terms.map((t) => el("li", { text: t.term })))),
+    el("div", {}, el("h3", { text: "Most distinctive words" }), p.terms.length
+      ? el("ul", { class: "terms mt-sm" }, p.terms.map((t) => el("li", { text: t.term })))
+      : el("p", { class: "small muted mt-xs", text: "No single word is common enough here: these books are in several scripts and were grouped by meaning, so read the typical books instead." })),
     el("div", {}, mapEl),
     el("div", {}, el("h3", { text: "Typical books" }), el("div", { class: "table-wrap mt-sm" }, el("table", {},
       el("thead", {}, el("tr", {}, el("th", { scope: "col", text: "Book" }), el("th", { scope: "col", class: "num", text: "Year" }), el("th", { scope: "col", text: "Script" }))),

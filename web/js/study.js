@@ -60,7 +60,7 @@ function draw() {
           st.relevance.map((v) => [v.field, `${fmt.f(v.missing_pct, 1)}%`, fmt.n(v.distinct), v.decision, v.reason]))),
       more("Features used",
         el("p", { class: "prose", text: fs === "A"
-          ? `Word 1-2-grams and character 3-5-grams, weighted by TF-IDF (terms in more than half the books of their own script dropped), reduced to ${r.dims} dimensions with truncated SVD, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.`
+          ? `Word 1-2-grams and character 3-5-grams, weighted by TF-IDF (terms found in more than 30% of one language’s books dropped as that language’s stopwords), reduced to ${r.dims} dimensions with truncated SVD, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.`
           : `LaBSE sentence embeddings (109 languages) of up to 4 evenly spaced 64-word chunks per book (128 word-pieces each), averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })))));
 
   // 3. distance
@@ -69,7 +69,7 @@ function draw() {
     ["cophenetic_complete", "Cophenetic correlation, complete linkage"], ["best_silhouette_average", "Best silhouette, average linkage"],
     ["knn_same_script", "10 nearest neighbours in the same script"], ["knn_same_classification", "10 nearest neighbours with the same catalogue subject"]];
   parts.push(section("distance", "Euclidean or Manhattan",
-    [strong(`${METRIC[r.distance.chosen]} was chosen`), `, winning ${r.distance.wins[r.distance.chosen]} of the four criteria set in advance (a tie would go to Euclidean, which Ward linkage needs). The last two rows are context, not criteria.`],
+    [strong(`${METRIC[r.distance.chosen]} was chosen`), `, winning ${({4: "all four", 3: "three", 2: "two", 1: "one", 0: "none"})[r.distance.wins[r.distance.chosen]]}${r.distance.wins[r.distance.chosen] === 4 ? "" : " of the four"} criteria set in advance (a tie would go to Euclidean, which Ward linkage needs). The last two rows are context, not criteria.`],
     el("div", { class: "more-wrap" }, more("The four criteria and two checks",
       table([["Measure"], ["Euclidean", 1], ["Manhattan", 1]],
         crit.map(([k, label]) => [label, fmt.f(dm.euclidean[k], 3), fmt.f(dm.cityblock[k], 3)]), { chosen: (i) => i < 4 && (dm[r.distance.chosen][crit[i][0]] ?? -1) >= (dm[r.distance.chosen === "euclidean" ? "cityblock" : "euclidean"][crit[i][0]] ?? -1) }),
@@ -79,7 +79,7 @@ function draw() {
   const silChart = el("div", { role: "figure", "aria-label": "Silhouette by number of clusters for three linkages" });
   const dendro = el("div", { role: "figure", "aria-label": "Dendrogram of the chosen linkage, last 30 merges" });
   parts.push(section("hier", "Hierarchical clustering",
-    [strong(`${hf.linkage} linkage with ${hf.k} groups`), ` scored the highest silhouette (${fmt.f(hf.silhouette, 3)}) among settings that pass the rule: at least three groups, none smaller than 1% of the books. `,
+    [strong(`${hf.linkage[0].toUpperCase() + hf.linkage.slice(1)} linkage with ${hf.k} groups`), ` scored the highest silhouette (${fmt.f(hf.silhouette, 3)}) among settings that pass the rule: at least three groups, none smaller than 1% of the books. `,
       `Text silhouettes are low by nature; above zero means books sit closer to their own group than to the next.`],
     el("div", { class: "two mt-xl" },
       el("div", {}, el("h3", { text: "Silhouette by k" }), silChart,
@@ -161,7 +161,7 @@ function draw() {
       el("li", { text: `OCR quality differs by script; weaker scripts lose more books to the readability filter and to DBSCAN noise.` }),
       el("li", { text: "The sample follows the Digital Library of India's own mix: some languages, eras and subjects are better represented than others." }),
       el("li", { text: "Five pages stand in for each book; a page from the preface or an index can pull a book toward the wrong group." }),
-      el("li", { text: "Group names are the most distinctive words, not subject headings. Read the typical books before trusting a name." }),
+      el("li", { text: "Group names are our reading of each group’s distinctive words and typical books, not subject headings. Read the typical books before trusting a name." }),
       el("li", { text: "Silhouette scores for text are low by nature; the groups are tendencies, and borders between them are uncertain." }))));
 
   root.replaceChildren(...parts);
