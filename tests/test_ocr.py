@@ -60,3 +60,15 @@ def test_rotation_fix_reads_rotated_page(tmp_path, monkeypatch, turn):
     assert res["ocr_model"] == "eng"
     assert "kingdoms" in res["text"].lower()
     assert res["mean_conf"] > 70
+
+
+@needs_tesseract
+def test_wrong_catalogue_tag_loses_the_confidence_check(tmp_path, monkeypatch):
+    """An English page catalogued as Hindi: OSD says Latin, and the English model also reads it
+    with higher confidence than the Hindi model, so English wins."""
+    text = "\n".join(["The history of the ancient kingdoms of southern India"] * 12)
+    _render(text).save(tmp_path / "page.png")
+    monkeypatch.setattr(ocr.config, "ROOT", tmp_path)
+    [res] = ocr.ocr_document("x", "hin", [(0, "page.png")])
+    assert res["ocr_model"] == "eng"
+    assert "kingdoms" in res["text"].lower()
