@@ -154,11 +154,20 @@ def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
     ap.add_argument("--ingest", action="store_true", help="load OCR files into SQLite instead of running OCR")
+    ap.add_argument("--watch", type=int, default=0, metavar="MINUTES",
+                    help="keep picking up newly harvested books; stop after this many idle minutes")
     args = ap.parse_args(argv)
     if args.ingest:
         ingest()
-    else:
-        run_ocr(args.workers)
+        return
+    idle_since = time.time()
+    while True:
+        if pending_documents():
+            run_ocr(args.workers)
+            idle_since = time.time()
+        if not args.watch or time.time() - idle_since > args.watch * 60:
+            break
+        time.sleep(30)
 
 
 if __name__ == "__main__":

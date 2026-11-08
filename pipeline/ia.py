@@ -65,6 +65,19 @@ class IAClient:
         path.write_text(json.dumps(keep, ensure_ascii=False), encoding="utf-8")
         return keep
 
+    def page_count_from_numbers(self, identifier: str, files: list[dict]) -> int | None:
+        """Old-format DLI items have no totalpages; their _page_numbers.json lists every leaf."""
+        name = next((f["name"] for f in files if f["name"].endswith("_page_numbers.json")), None)
+        if not name:
+            return None
+        cache = self.cache_dir / "page_counts" / f"{identifier}.txt"
+        if cache.exists():
+            return int(cache.read_text())
+        pages = self._get(config.IA_DOWNLOAD.format(id=identifier, name=name)).json().get("pages", [])
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(str(len(pages)))
+        return len(pages) or None
+
     def page_image(self, identifier: str, leaf: int, dest: Path, width: int = config.PAGE_WIDTH) -> Path:
         if dest.exists() and dest.stat().st_size > 0:
             return dest

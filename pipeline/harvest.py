@@ -62,7 +62,7 @@ def harvest_one(client: IAClient, con, lang: str, rank: int, row: dict) -> str:
     meta_all = client.metadata(ident)
     meta, files = meta_all["metadata"], meta_all["files"]
     dc = sampling.parse_dc(meta.get("description"))
-    total = sampling.total_pages_of(dc, meta)
+    total = sampling.total_pages_of(dc, meta) or client.page_count_from_numbers(ident, files)
     names = [f["name"] for f in files]
     ia_ocr = {
         "searchtext": next((n for n in names if n.endswith("_hocr_searchtext.txt.gz")), None),
