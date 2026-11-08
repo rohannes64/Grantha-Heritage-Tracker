@@ -23,7 +23,7 @@ import math
 import joblib
 import numpy as np
 import pandas as pd
-from scipy.cluster.hierarchy import cophenet, fcluster, linkage
+from scipy.cluster.hierarchy import cophenet, dendrogram, fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
@@ -331,6 +331,14 @@ def run_feature_set(fs, bundle, docs, rng) -> dict:
                  "median_conf_clustered": float(np.median(conf[noise == 0])) if (noise == 0).any() else None,
                  "auc_low_conf_predicts_noise": float(roc_auc_score(noise, -conf)) if 0 < noise.sum() < n else None}
 
+    L = linkages[hbest["linkage"]]
+    dg = dendrogram(L, truncate_mode="lastp", p=30, no_plot=True)
+    k = hbest["k"]
+    heights = L[:, 2]
+    cut = float((heights[-k] + heights[-(k - 1)]) / 2) if k >= 2 else None
+    dendro = {"icoord": np.round(dg["icoord"], 3).tolist(), "dcoord": np.round(dg["dcoord"], 4).tolist(),
+              "ivl": dg["ivl"], "cut": cut}
+
     p, view = pca_view(Z, fs, bundle)
     lsa = bundle["A"]["transform"]
     Xw = bundle["A"]["Xw"]
@@ -343,6 +351,7 @@ def run_feature_set(fs, bundle, docs, rng) -> dict:
         "distance": dist,
         "hierarchical": {"grid": hrows, "final": hbest, "rule_met": h_ok,
                          "labels": hlab.tolist(), "bootstrap_ari": summary(h_boot), "neighbours": h_neighbours,
+                         "dendrogram": dendro,
                          "effects": label_effects(hlab, docs),
                          "profiles": profiles(hlab, Z, Xw, inv, docs, hmetric)},
         "dbscan": {"grid": drows, "kdist": {str(k): v for k, v in curves.items()}, "final": dbest, "rule_met": d_ok,
