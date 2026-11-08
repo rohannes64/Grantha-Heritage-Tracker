@@ -1,0 +1,108 @@
+{
+  "weights": [
+    0.0,
+    0.25,
+    0.5,
+    1.0
+  ],
+  "columns": [
+    "num__year",
+    "num__log_pages",
+    "num__mean_conf",
+    "num__log_tokens",
+    "flag__year_missing",
+    "cat__script_Bengali",
+    "cat__script_Devanagari",
+    "cat__script_Gujarati",
+    "cat__script_Kannada",
+    "cat__script_Latin",
+    "cat__script_Tamil",
+    "cat__script_Telugu"
+  ],
+  "feature_sets": {
+    "A": {
+      "linkage": "ward",
+      "k": 7,
+      "rows": [
+        {
+          "weight": 0.0,
+          "silhouette": 0.4767526504922656,
+          "silhouette_text_space": 0.4767526504922656,
+          "nmi_script": 1.0,
+          "nmi_era": 0.005418348141396345,
+          "ari_vs_text_only": 1.0,
+          "largest_share": 0.19937936384794414
+        },
+        {
+          "weight": 0.25,
+          "silhouette": 0.4656850708025609,
+          "silhouette_text_space": 0.4767526504922656,
+          "nmi_script": 1.0,
+          "nmi_era": 0.005418348141396345,
+          "ari_vs_text_only": 1.0,
+          "largest_share": 0.19937936384794414
+        },
+        {
+          "weight": 0.5,
+          "silhouette": 0.4381833461078365,
+          "silhouette_text_space": 0.4767526504922656,
+          "nmi_script": 1.0,
+          "nmi_era": 0.005418348141396345,
+          "ari_vs_text_only": 1.0,
+          "largest_share": 0.19937936384794414
+        },
+        {
+          "weight": 1.0,
+          "silhouette": 0.36750378978438036,
+          "silhouette_text_space": 0.47329997246531885,
+          "nmi_script": 0.9934069922957035,
+          "nmi_era": 0.005839487611219255,
+          "ari_vs_text_only": 0.9929658311437558,
+          "largest_share": 0.2017067494181536
+        }
+      ]
+    },
+    "B": {
+      "linkage": "average",
+      "k": 3,
+      "rows": [
+        {
+          "weight": 0.0,
+          "silhouette": 0.107377346699154,
+          "silhouette_text_space": 0.107377346699154,
+          "nmi_script": 0.3789093251900786,
+          "nmi_era": 0.007782289867599812,
+          "ari_vs_text_only": 1.0,
+          "largest_share": 0.4061287820015516
+        },
+        {
+          "weight": 0.25,
+          "silhouette": 0.11954947233615192,
+          "silhouette_text_space": 0.06322912627192606,
+          "nmi_script": 0.390564276496985,
+          "nmi_era": 0.004068224804486114,
+          "ari_vs_text_only": 0.4097800579877262,
+          "largest_share": 0.8017843289371606
+        },
+        {
+          "weight": 0.5,
+          "silhouette": 0.10503581472592823,
+          "silhouette_text_space": -0.0319234027874688,
+          "nmi_script": 0.0045239008872619306,
+          "nmi_era": 0.006925553614111996,
+          "ari_vs_text_only": -0.0008017945258432327,
+          "largest_share": 0.9968968192397207
+        },
+        {
+          "weight": 1.0,
+          "silhouette": 0.2753065434266443,
+          "silhouette_text_space": -0.029568402898379784,
+          "nmi_script": 0.003971105112825655,
+          "nmi_era": 0.008641534097861846,
+          "ari_vs_text_only": 0.000510669294771663,
+          "largest_share": 0.9961210240496509
+        }
+      ]
+    }
+  }
+}
