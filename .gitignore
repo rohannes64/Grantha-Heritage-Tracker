@@ -2,8 +2,6 @@
 __pycache__/
 *.pyc
 .venv/
-data/raw/
-data/pages/
-data/cache/
-*.sqlite-journal
 .pytest_cache/
+# All harvested data, page images, caches, corpus database and logs
+data/

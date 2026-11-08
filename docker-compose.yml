@@ -1,0 +1,9 @@
+services:
+  pipeline:
+    build:
+      context: .
+      dockerfile: docker/pipeline.Dockerfile
+    image: heritage-topics-pipeline:dev
+    working_dir: /work
+    volumes:
+      - .:/work
