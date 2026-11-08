@@ -209,9 +209,15 @@ def summary(xs):
 
 # ---------------------------------------------------------------- 7. interpretation
 def distinctive_terms(Xw, vocab_inv, mask, top=12):
-    mean_in = np.asarray(Xw[mask].mean(axis=0)).ravel()
+    """Terms that set a group apart: in-group weight times its lift over the whole sample
+    (mean_in * log(mean_in / mean_all)), counting only terms found in >= 10% of the group's books,
+    so a rare word in one book cannot name a group and a common word everywhere scores near zero."""
+    sub = Xw[mask]
+    mean_in = np.asarray(sub.mean(axis=0)).ravel()
     mean_all = np.asarray(Xw.mean(axis=0)).ravel()
-    score = mean_in - mean_all
+    df_in = np.asarray((sub > 0).sum(axis=0)).ravel()
+    ok = (df_in >= max(3, 0.10 * mask.sum())) & (mean_in > mean_all)
+    score = np.where(ok, mean_in * np.log((mean_in + 1e-9) / (mean_all + 1e-9)), 0.0)
     order = np.argsort(score)[::-1][:top]
     return [{"term": vocab_inv[i], "score": round(float(score[i]), 5)} for i in order if score[i] > 0]
 

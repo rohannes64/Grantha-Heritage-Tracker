@@ -35,7 +35,8 @@ def test_study_end_to_end_recovers_planted_topics():
     toks, docs = corpus()
     lsa = features.TfidfLSA()
     lsa.svd.n_components = 20
-    Z, Xw = lsa.fit_transform(toks, docs["script"].tolist())
+    lsa.stop_cap = 0.5   # 3 planted topics: each topic word is in a third of its script's books
+    Z, Xw = lsa.fit_transform(toks, docs["script"].tolist())   # script stands in for language here
     assert Z.shape == (len(toks), 20)
     assert np.allclose(np.linalg.norm(Z, axis=1), 1, atol=1e-5)
     # a new document goes through the same transform
@@ -64,9 +65,13 @@ def test_study_end_to_end_recovers_planted_topics():
     json.loads(json.dumps(study.clean_json(res)))   # browser-safe JSON
 
 
-def test_script_stopwords_are_per_script():
-    toks = [["है", "राम"]] * 30 + [["the", "law"]] * 30 + [["है", "ग्रह"]] * 30
-    scripts = ["Devanagari"] * 30 + ["Latin"] * 30 + ["Devanagari"] * 30
-    stop = features.script_stopwords(toks, scripts)
-    assert "है" in stop          # in every Devanagari book, though only 2/3 of the corpus
-    assert "law" in stop and "राम" not in stop
+def test_stopwords_are_per_language():
+    hin = [["है", "राम"]] * 5 + [["है", "ग्रह"]] * 25
+    san = [["इति", "वा"]] * 30
+    eng = [["the", "law"]] * 30
+    toks = hin + san + eng
+    langs = ["hin"] * 30 + ["san"] * 30 + ["eng"] * 30
+    stop = features.language_stopwords(toks, langs)
+    assert "है" in stop and "इति" in stop     # function words of each language, each only 1/3 of the corpus
+    assert "the" in stop
+    assert "राम" not in stop                    # in 5 of 30 Hindi books: content, kept
