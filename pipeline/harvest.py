@@ -30,8 +30,11 @@ def build_frame(client: IAClient, lang: str) -> list[dict]:
             return list(csv.DictReader(f))
     query = f"collection:{config.COLLECTION} AND language:{lang} AND mediatype:texts"
     rows, seen, total = [], set(), 0
+    log(f"[{lang}] building sampling frame (one request per 10,000 items)...")
     for it in client.scrape(query, ["identifier", "date"]):
         total += 1
+        if total % 10000 == 0:
+            log(f"[{lang}]   {total} items listed")
         ident = it["identifier"]
         if ident in seen:
             continue
@@ -100,7 +103,18 @@ def harvest_one(client: IAClient, con, lang: str, rank: int, row: dict) -> str:
     _save_doc(con, doc)
     con.executemany("INSERT OR IGNORE INTO pages (identifier, leaf, position, image_path) VALUES (?,?,?,?)", pages)
     con.commit()
+    if doc["status"] == "harvested":
+        write_marker(ident, lang, [(leaf, rel) for _, leaf, _, rel in pages])
     return doc["status"]
+
+
+def write_marker(ident: str, lang: str, pages: list[tuple[int, str]]) -> None:
+    """`_doc.json` beside the pages tells the OCR step a book is complete (no DB access needed)."""
+    path = config.PAGES_DIR / ident / "_doc.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".part")
+    tmp.write_text(json.dumps({"identifier": ident, "lang_tag": lang, "pages": pages}), encoding="utf-8")
+    tmp.replace(path)
 
 
 def _save_doc(con, doc: dict) -> None:
@@ -142,9 +156,23 @@ def harvest_language(client: IAClient, con, lang: str, target: int) -> None:
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--stage", choices=["pilot", "full"], required=True)
+    ap.add_argument("--stage", choices=["pilot", "full"])
     ap.add_argument("--langs", default=",".join(config.LANGUAGES))
+    ap.add_argument("--markers", action="store_true",
+                    help="only (re)write _doc.json markers for books already harvested")
     args = ap.parse_args(argv)
+    if args.markers:
+        con = db.connect()
+        n = 0
+        for d in con.execute("SELECT identifier, lang_tag FROM documents WHERE status='harvested'").fetchall():
+            pages = [(r["leaf"], r["image_path"]) for r in con.execute(
+                "SELECT leaf, image_path FROM pages WHERE identifier=? ORDER BY leaf", (d["identifier"],))]
+            write_marker(d["identifier"], d["lang_tag"], pages)
+            n += 1
+        log(f"wrote {n} markers")
+        return
+    if not args.stage:
+        ap.error("--stage is required unless --markers is given")
     target = config.PILOT_PER_LANG if args.stage == "pilot" else config.FULL_PER_LANG
     langs = [l.strip() for l in args.langs.split(",") if l.strip()]
     unknown = [l for l in langs if l not in config.LANGUAGES]

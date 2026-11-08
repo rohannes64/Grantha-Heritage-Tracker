@@ -1,13 +1,15 @@
 """Step 2: OCR every harvested page with Tesseract.
 
-    python -m pipeline.ocr                 # all pages without text yet
+    python -m pipeline.ocr                 # OCR every complete book without output yet
     python -m pipeline.ocr --workers 10
+    python -m pipeline.ocr --ingest        # load the OCR files into SQLite (no other writer running)
 
 Per page: orientation/script detection (OSD), rotation fix, then OCR with the model for the
 document's script. The catalogue language tag is trusted only when OSD agrees with its script,
 because some tags are wrong (e.g. English books tagged Sanskrit).
 """
 import argparse
+import json
 import os
 import time
 import unicodedata
@@ -94,37 +96,69 @@ def ocr_document(identifier: str, lang_tag: str, pages: list[tuple[int, str]]) -
     return out
 
 
-def main(argv=None) -> None:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
-    args = ap.parse_args(argv)
-    con = db.connect()
-    rows = con.execute("""
-        SELECT p.identifier, d.lang_tag, p.leaf, p.image_path FROM pages p
-        JOIN documents d USING (identifier)
-        WHERE d.status='harvested' AND p.text IS NULL ORDER BY d.lang_tag, d.sample_rank, p.leaf""").fetchall()
-    docs: dict[str, tuple[str, list]] = {}
-    for r in rows:
-        docs.setdefault(r["identifier"], (r["lang_tag"], []))[1].append((r["leaf"], r["image_path"]))
-    print(f"OCR: {len(docs)} documents, {len(rows)} pages, {args.workers} workers", flush=True)
+OCR_DIR = config.DATA / "ocr"
+
+
+def pending_documents() -> list[dict]:
+    """Books whose pages are complete (`_doc.json` marker) and that have no OCR output yet."""
+    out = []
+    for marker in sorted(config.PAGES_DIR.glob("*/_doc.json")):
+        doc = json.loads(marker.read_text(encoding="utf-8"))
+        if not (OCR_DIR / f"{doc['identifier']}.json").exists():
+            out.append(doc)
+    return out
+
+
+def run_ocr(workers: int) -> None:
+    """OCR every pending book; one JSON file per book, written atomically. Never touches SQLite,
+    so it can run in Docker while the harvest (on the host) is still writing the database."""
+    docs = pending_documents()
+    OCR_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"OCR: {len(docs)} documents, {workers} workers", flush=True)
     t0, n = time.time(), 0
-    with ProcessPoolExecutor(max_workers=args.workers) as ex:
-        futs = {ex.submit(ocr_document, ident, lang, pages): ident for ident, (lang, pages) in docs.items()}
+    with ProcessPoolExecutor(max_workers=workers) as ex:
+        futs = {ex.submit(ocr_document, d["identifier"], d["lang_tag"], [tuple(p) for p in d["pages"]]):
+                d["identifier"] for d in docs}
         for fut in as_completed(futs):
+            ident = futs[fut]
             try:
                 results = fut.result()
             except Exception as e:
-                print(f"  {futs[fut]} failed: {e}", flush=True)
+                print(f"  {ident} failed: {e}", flush=True)
                 continue
-            con.executemany("""UPDATE pages SET ocr_model=:ocr_model, osd_script=:osd_script, text=:text,
-                               mean_conf=:mean_conf, n_words=:n_words, script_ratio=:script_ratio
-                               WHERE identifier=:identifier AND leaf=:leaf""", results)
-            con.commit()
+            tmp = OCR_DIR / f"{ident}.part"
+            tmp.write_text(json.dumps(results, ensure_ascii=False), encoding="utf-8")
+            tmp.replace(OCR_DIR / f"{ident}.json")
             n += 1
             if n % 20 == 0 or n == len(docs):
                 rate = (time.time() - t0) / n
                 print(f"  {n}/{len(docs)} documents, {rate:.1f}s each, ~{rate * (len(docs) - n) / 60:.0f} min left",
                       flush=True)
+
+
+def ingest() -> None:
+    """Load OCR JSON files into SQLite. Run only when nothing else is writing the database."""
+    con = db.connect()
+    n = 0
+    for path in sorted(OCR_DIR.glob("*.json")):
+        results = json.loads(path.read_text(encoding="utf-8"))
+        con.executemany("""UPDATE pages SET ocr_model=:ocr_model, osd_script=:osd_script, text=:text,
+                           mean_conf=:mean_conf, n_words=:n_words, script_ratio=:script_ratio
+                           WHERE identifier=:identifier AND leaf=:leaf""", results)
+        n += 1
+    con.commit()
+    print(f"ingested OCR for {n} documents", flush=True)
+
+
+def main(argv=None) -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
+    ap.add_argument("--ingest", action="store_true", help="load OCR files into SQLite instead of running OCR")
+    args = ap.parse_args(argv)
+    if args.ingest:
+        ingest()
+    else:
+        run_ocr(args.workers)
 
 
 if __name__ == "__main__":
