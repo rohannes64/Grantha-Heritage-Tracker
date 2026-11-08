@@ -23,6 +23,7 @@ from .study import clean_json
 PROCESSED = config.DATA / "processed"
 MODEL_DIR = config.DATA / "model"
 WEB_DATA = config.ROOT / "web" / "data"
+STUDY_DIR = config.REPORTS / "study"
 
 
 def archive_url(ident: str) -> str:
@@ -114,6 +115,8 @@ def main() -> None:
                       "tag_mismatch": int((all_docs["tag_matches_script"] == 0).sum())},
            "pilot": json.loads(pilot_path.read_text()) if pilot_path.exists() else None,
            "relevance": pd.read_csv(config.REPORTS / "variable_relevance.csv").to_dict("records")}
+    sens_path = STUDY_DIR / "sensitivity.json"
+    web["sensitivity"] = json.loads(sens_path.read_text()) if sens_path.exists() else None
     for f, r in st["results"].items():
         r = dict(r)
         r["dbscan"] = dict(r["dbscan"], kdist={k: downsample(v) for k, v in r["dbscan"]["kdist"].items()})

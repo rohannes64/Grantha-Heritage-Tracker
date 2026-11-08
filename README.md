@@ -50,6 +50,7 @@ docker compose run --rm pipeline python -m pipeline.quality
 docker compose run --rm pipeline python -m pipeline.preprocess
 docker compose run --rm pipeline python -m pipeline.features
 docker compose run --rm pipeline python -m pipeline.study
+docker compose run --rm pipeline python -m pipeline.sensitivity
 docker compose run --rm pipeline python -m pipeline.export
 docker compose run --rm pipeline python -m pipeline.figures
 ```
@@ -73,6 +74,7 @@ once built.
 | preprocess | multi-script cleaning, field relevance review, imputation, encoding, scaling, readability filter | `data/processed/`, `reports/preprocessing_log.md` |
 | features | TF-IDF + LSA and LaBSE embeddings, 100 dimensions each | `data/processed/features.joblib` |
 | study | distance study, hierarchical grid, DBSCAN grid, selection, stability, comparison, PCA, profiles | `reports/study/`, `data/processed/study.joblib` |
+| sensitivity | the encoded metadata added to the text features at three weights | `reports/study/sensitivity.json` |
 | export | model bundle for the app, study data for the website | `data/model/bundle.joblib`, `web/data/` |
 | figures | report figures | `reports/figures/` |
 

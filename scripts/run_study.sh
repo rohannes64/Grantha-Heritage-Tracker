@@ -8,6 +8,7 @@ run python -m pipeline.quality
 run python -m pipeline.preprocess
 run python -m pipeline.features
 run python -m pipeline.study
+run python -m pipeline.sensitivity
 run python -m pipeline.export
 run python -m pipeline.figures
 [ -f data/labse/config.json ] || run python -c "from sentence_transformers import SentenceTransformer as S; S('sentence-transformers/LaBSE', device='cpu').save('/work/data/labse')"
