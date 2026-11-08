@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heritage Topic Finder: check a page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="slab">
+  <div class="container">
+    <a class="wordmark" href="./">Heritage Topic Finder</a>
+    <nav aria-label="Main"><ul>
+      <li><a href="check.html" aria-current="page">Check a page</a></li>
+      <li><a href="browse.html">Browse groups</a></li>
+      <li><a href="study.html">The study</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>Check a page</h1>
+    <p>Upload a scan or paste text. The page is read, then compared with every book in the study. Nothing is stored.</p>
+  </div>
+
+  <div class="workbench">
+    <form class="check-form" id="check-form" novalidate>
+      <label class="drop" id="drop">
+        <input type="file" id="file" name="file" accept="image/*,.pdf,application/pdf">
+        <span>Drop a page image or PDF here, or choose a file</span>
+        <span class="small muted">Up to 5 pages and 20 MB</span>
+        <span class="file-name" id="file-name"></span>
+      </label>
+      <p class="or">or</p>
+      <div class="field">
+        <label for="text">Paste the page's text</label>
+        <textarea class="input" id="text" name="text" placeholder="Text copied from an OCR tool or typed out"></textarea>
+      </div>
+      <div class="field">
+        <label for="lang">Language of the page</label>
+        <select class="input" id="lang" name="lang">
+          <option value="auto">Detect from the page</option>
+          <option value="eng">English</option><option value="hin">Hindi</option><option value="san">Sanskrit</option>
+          <option value="ben">Bengali</option><option value="guj">Gujarati</option><option value="tel">Telugu</option>
+          <option value="kan">Kannada</option><option value="tam">Tamil</option>
+        </select>
+      </div>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <div class="actions"><button class="btn btn--primary" type="submit" id="submit">Check the page</button></div>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <div class="state" id="state-empty">
+        <h2>The result appears here</h2>
+        <p class="ink-2">The closest group from each method, how sure the match is, the five nearest archive books and where the page sits on the map.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+<script type="module" src="js/check.js"></script>
+</body>
+</html>

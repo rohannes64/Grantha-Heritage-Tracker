@@ -1,0 +1,78 @@
+/* Hallmark · shape: Narrative Workflow · genre: atmospheric · theme: Darkroom (deal 1/3, seed heritage-topic-finder-check-f3c4·d60aadc9·2026-11-08·r0) · job: try · draw: b81b24
+ * hero: Settled · nav: slab · footer: index columns · imagery: photographs (real archive page scans, hotlinked from the Internet Archive) and the product, live · signature: an unindexed 1904 Tamil page read live and placed beside its five nearest archive books · darkroom: amber
+ * axes: dark/display-condensed/chromatic-amber · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: P, a tool page argues little; the argument made is that a page is read best beside its neighbours, shown live rather than claimed */
+@import url("./tokens.css");
+@import url("./base.css");
+@import url("./components.css");
+
+/* ---------- hero: Settled ---------- */
+.hero { min-height: calc(100dvh - 73px); display: grid; align-items: center; padding-block: var(--space-2xl) var(--space-3xl); }
+.hero .container { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: var(--space-3xl); align-items: center; }
+.hero h1 { font-size: clamp(3rem, 5.4vw + 1rem, 6.25rem); max-width: 11ch; }
+.hero .lead { margin-top: var(--space-lg); color: var(--color-ink-2); max-width: 36ch; }
+.hero .actions { margin-top: var(--space-xl); }
+.plate { margin: 0; }
+.plate [data-slot] { aspect-ratio: 9 / 13; max-height: 72dvh; min-height: 440px; margin-inline: auto; }
+.plate [data-slot] > img { object-position: 50% 30%; filter: grayscale(1) contrast(1.25) brightness(0.9); }
+@media (max-width: 60rem) {
+  .hero { min-height: 0; }
+  .hero .container { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
+  .plate [data-slot] { min-height: 360px; max-height: 70dvh; }
+}
+
+/* ---------- stages ---------- */
+.stage { padding-block: var(--section-gap-s); border-top: var(--rule-hair) solid var(--color-rule); }
+.stage .container { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-2xl); align-items: start; }
+.stage h2 { font-size: var(--text-section); }
+.stage .stage-text p { margin-top: var(--space-md); color: var(--color-ink-2); max-width: 34ch; }
+.stage--first { padding-top: var(--section-gap); }
+@media (max-width: 60rem) { .stage .container { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); } }
+
+/* stage 1: the page and what OCR read, side by side */
+.readout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-xl); }
+.readout [data-slot] { aspect-ratio: 3 / 4; min-height: 380px; }
+.readout [data-slot] > img { object-position: 50% 18%; }
+.ocr-text { font-size: var(--text-lg); line-height: 1.7; white-space: pre-line; color: var(--color-ink); }
+.readout .sheet { margin-top: var(--space-lg); }
+@media (max-width: 48rem) { .readout { grid-template-columns: minmax(0, 1fr); } }
+
+/* stage 2: neighbours as a collector's sheet */
+.neighbours { margin: 0; padding: 0; list-style: none; counter-reset: n; }
+.neighbours li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: var(--space-md); align-items: baseline; padding: var(--space-md) 0; border-top: var(--rule-hair) solid var(--color-rule); }
+.neighbours li:last-child { border-bottom: var(--rule-hair) solid var(--color-rule); }
+.neighbours .figure { font-size: var(--text-3xl); color: var(--color-muted); }
+.neighbours h3 { font-size: var(--text-title); }
+.neighbours .why { margin-top: var(--space-2xs); font-size: var(--text-sm); color: var(--color-muted); }
+.neighbours .group-name { font-size: var(--text-sm); color: var(--color-ink-2); text-align: right; }
+.verdict { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-columns); margin-bottom: var(--space-xl); }
+.verdict .figure { font-size: var(--text-section); }
+
+/* stage 3: map */
+.map-frame { background: var(--color-paper-2); padding: var(--space-lg); }
+
+/* before and after: a statement split on a grained well */
+.split { padding-block: var(--section-gap); }
+.split .container { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; }
+.split .side { padding: var(--space-xl) var(--space-2xl) var(--space-xl) 0; }
+.split .side + .side { padding: var(--space-xl) 0 var(--space-xl) var(--space-2xl); border-left: var(--rule-hair) solid var(--color-rule); }
+.split h2 { font-size: var(--text-section); }
+.split p { margin-top: var(--space-md); color: var(--color-ink-2); max-width: 40ch; }
+.split .figure { display: block; font-size: clamp(5rem, 9vw, 10rem); margin-top: var(--space-lg); }
+@media (max-width: 48rem) { .split .container { grid-template-columns: minmax(0, 1fr); } .split .side, .split .side + .side { padding: var(--space-lg) 0; border-left: 0; } .split .side + .side { border-top: var(--rule-hair) solid var(--color-rule); } }
+
+/* what it reads: languages as a sheet */
+.langs { padding-block: var(--section-gap-l) var(--section-gap-s); }
+.langs .container { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-2xl); }
+.langs h2 { font-size: var(--text-section); }
+.langs p { margin-top: var(--space-md); color: var(--color-ink-2); max-width: 34ch; }
+@media (max-width: 60rem) { .langs .container { grid-template-columns: minmax(0, 1fr); } }
+
+/* close */
+.close { padding-block: var(--section-gap); border-top: var(--rule-hair) solid var(--color-rule); }
+.close .container { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-2xl); align-items: center; }
+.close h2 { font-size: var(--text-section); }
+.close .actions { margin-top: var(--space-xl); }
+.close figure { margin: 0; }
+.close img { width: 100%; height: auto; border: var(--rule-hair) solid var(--color-rule); }
+@media (max-width: 60rem) { .close .container { grid-template-columns: minmax(0, 1fr); } }

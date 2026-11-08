@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heritage Topic Finder: about</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="slab">
+  <div class="container">
+    <a class="wordmark" href="./">Heritage Topic Finder</a>
+    <nav aria-label="Main"><ul>
+      <li><a href="check.html">Check a page</a></li>
+      <li><a href="browse.html">Browse groups</a></li>
+      <li><a href="study.html">The study</a></li>
+      <li><a href="about.html" aria-current="page">About</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>About this project</h1>
+    <p>A student project for Smart India Hackathon problem SIH26096: group unindexed heritage scans by topic without labels, and let a new page be checked against those groups.</p>
+  </div>
+
+  <section class="study-section" aria-labelledby="data-h">
+    <h2 id="data-h">Where the books come from</h2>
+    <div class="two mt-lg">
+      <div class="prose">
+        <p>The National Digital Library of India gathers records from many libraries; the scans behind many of them come from the Digital Library of India, whose copies are served by the <a href="https://archive.org/details/digitallibraryindia">Internet Archive</a>. The sample was drawn from that collection with a fixed random seed, an equal share per language and per era, published up to 1960 or undated.</p>
+        <p>Five pages are taken from inside each book, away from covers, contents and indexes, and read with Tesseract 5 in the book's own script.</p>
+      </div>
+      <dl class="sheet">
+        <div><dt>Collection</dt><dd>digitallibraryindia, Internet Archive</dd></div>
+        <div><dt>Languages</dt><dd>English, Hindi, Sanskrit, Bengali, Gujarati, Telugu, Kannada, Tamil</dd></div>
+        <div><dt>Pages per book</dt><dd>5, at 15, 30, 50, 70 and 85% of the way through</dd></div>
+        <div><dt>OCR</dt><dd>Tesseract 5 with orientation and script detection</dd></div>
+        <div><dt>Methods</dt><dd>Hierarchical clustering (Ward, average, complete), DBSCAN, PCA, silhouette</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="study-section" aria-labelledby="rights-h">
+    <h2 id="rights-h">Rights</h2>
+    <p class="summary">The catalogue marks these scans' rights as not available. The project keeps only the text it read, the catalogue details and links back to the archive. Page images on this site are shown by link from the Internet Archive and are not copied or redistributed.</p>
+  </section>
+
+  <section class="study-section" aria-labelledby="limits-h">
+    <h2 id="limits-h">What it cannot do</h2>
+    <ul class="prose mt-lg">
+      <li>Read handwriting: the archive's "manuscripts" here are printed books.</li>
+      <li>Give a book a subject heading: groups are patterns of shared words, named after their most distinctive ones.</li>
+      <li>Promise a group is right: the study page reports how stable each grouping is and where it is unsure.</li>
+      <li>Read Urdu: Tesseract reads its script poorly, so it was left out of the sample.</li>
+    </ul>
+  </section>
+
+  <section class="study-section" id="team" aria-labelledby="team-h">
+    <h2 id="team-h">Team</h2>
+    <dl class="sheet mt-lg">
+      <div><dt>Data and OCR</dt><dd>Rajith Sundar</dd></div>
+      <div><dt>Clustering study</dt><dd>Etikala Sai Pranav</dd></div>
+      <div><dt>App and delivery</dt><dd>Vemuri Rohan</dd></div>
+    </dl>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

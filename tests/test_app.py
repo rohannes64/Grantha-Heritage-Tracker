@@ -15,6 +15,7 @@ def bundle():
     docs["total_pages"] = 100
     lsa = features.TfidfLSA()
     lsa.svd.n_components = 20
+    lsa.stop_cap = 0.5   # 3 planted topics: each topic word is in a third of its script's books
     Z, Xw = lsa.fit_transform(toks, docs["script"].tolist())
     feats = {"ids": docs["identifier"].tolist(), "A": {"Z": Z, "Xw": Xw, "transform": lsa, "explained_variance": .5}}
     res = study.run_feature_set("A", feats, docs, np.random.default_rng(0))

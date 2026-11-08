@@ -1,4 +1,5 @@
 services:
+  # Development: everything runs from the bind-mounted project folder.
   pipeline:
     build:
       context: .
@@ -7,3 +8,12 @@ services:
     working_dir: /work
     volumes:
       - .:/work
+
+  dev-app:
+    image: heritage-topics-pipeline:dev
+    working_dir: /work
+    volumes:
+      - .:/work
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
