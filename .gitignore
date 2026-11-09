@@ -7,3 +7,4 @@ __pycache__/
 /data/
 docs/build/node_modules/
 docs/build/render/
+graphify-out/
