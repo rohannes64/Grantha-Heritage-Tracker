@@ -40,8 +40,10 @@ because the old silhouette was mostly the distance between languages.
 
 ## Fix 2: choose a better encoder (preprocessing)
 
-Candidates: LaBSE (current), IndicSBERT, BGE-M3. (Multilingual-E5-large was listed and then dropped
-before it was run, at Karthik's call, to save time; it was not measured.)
+Candidates: LaBSE (current), IndicSBERT, BGE-M3, multilingual-E5-large. E5-large was dropped from the
+GPU run at Karthik's call to save time, but an earlier CPU run of it had kept going and finished on the
+first 325 labelled books. On those same 325 books, after centring: BGE-M3 66.8%, E5-large 65.8%,
+LaBSE 64.3%, IndicSBERT 63.1%. BGE-M3 leads on both label sets.
 Measure: after centring, the share of labelled train+validation books whose subject matches the majority of
 their 7 nearest neighbours (5-fold cross-validation, seed 2026). This is how much topic information the
 numbers carry, the ceiling any grouping of them can reach.
