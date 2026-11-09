@@ -8,7 +8,6 @@ reports
 docs
 scripts
 tests
-# Data: only the trained model bundle and the embedding model go into the app image.
+# Data: only the trained model bundle (with the chosen embedding model) goes into the app image.
 data/*
 !data/model
-!data/labse

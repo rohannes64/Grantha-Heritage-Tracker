@@ -1,13 +1,13 @@
-# Heritage Topic Finder: the runnable app (API + website), fully offline once built.
+# Grantha: the runnable app (API + website), fully offline once built.
 # Contains: Tesseract 5 with the 8 study languages, the trained model bundle, the study results,
-# the website, and the LaBSE model. No page scans are included.
+# the website, and the chosen sentence-embedding model (if any). No page scans are included.
 FROM python:3.12-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     OMP_THREAD_LIMIT=1 \
     HF_HOME=/tmp/hf \
-    HERITAGE_EMBED_MODEL=/srv/labse \
+    HERITAGE_MODEL_DIR=/srv/data/model/models \
     HF_HUB_OFFLINE=1 \
     TRANSFORMERS_OFFLINE=1
 
@@ -21,10 +21,10 @@ WORKDIR /srv
 COPY requirements-pipeline.txt requirements-ml.txt requirements-app.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt -r /tmp/requirements-ml.txt -r /tmp/requirements-app.txt
 
-# LaBSE as a plain folder (data/labse, saved by sentence-transformers), not the symlinked HF cache.
-# --chown on each COPY instead of a later `chown -R`, which would copy the 1.8 GB model into a second layer.
+# The export step puts the chosen embedding model in data/model/models/ as a plain folder (not the
+# symlinked Hugging Face cache). --chown on each COPY, not a later `chown -R`, which would copy
+# the model into a second layer.
 RUN useradd --create-home --uid 10001 reader
-COPY --chown=reader data/labse /srv/labse
 COPY --chown=reader pipeline /srv/pipeline
 COPY --chown=reader app /srv/app
 COPY --chown=reader web /srv/web

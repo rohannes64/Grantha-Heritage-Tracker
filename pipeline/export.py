@@ -4,12 +4,14 @@
 
 Writes
   data/model/bundle.joblib   everything the app needs to check a new document (no retraining)
-  web/data/study.json        all study results the Study page shows (both feature sets)
+  data/model/models/<name>   the chosen sentence-embedding model as a plain folder (if the set uses one)
+  web/data/study.json        all study results the Study page shows (every feature set)
   web/data/corpus.json       the clustered books, their groups and PCA positions (Browse page)
 Cluster names: reports/cluster_names.json ({"A_hier": {"0": "name", ...}, "B_dbscan": {...}}) if present,
 otherwise the three most distinctive terms.
 """
 import json
+import shutil
 
 import joblib
 import numpy as np
@@ -18,6 +20,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 
 from . import config, preprocess
+from .features import MODELS, model_slug
 from .study import clean_json
 
 PROCESSED = config.DATA / "processed"
@@ -93,9 +96,20 @@ def main() -> None:
     st = joblib.load(PROCESSED / "study.joblib")
     ids = feats["ids"]
     docs = pd.read_csv(PROCESSED / "docs.csv").set_index("identifier")
+    if feats.get("fit", "all") != "all" or st.get("fit", "all") != "all":
+        raise SystemExit("the app's model must be fitted on all usable books: run features --fit all, then study")
     bundle = build_bundle(feats, st, docs)
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(bundle, MODEL_DIR / "bundle.joblib")
+    # The chosen embedding model travels with the bundle as a plain folder (the app image copies data/model).
+    models_out = MODEL_DIR / "models"
+    shutil.rmtree(models_out, ignore_errors=True)
+    if bundle["feature_set"] in MODELS:
+        name = MODELS[bundle["feature_set"]]
+        src = config.DATA / "models" / model_slug(name)
+        if not (src / "config.json").exists():
+            raise SystemExit(f"save {name} to {src} first (see README)")
+        shutil.copytree(src, models_out / model_slug(name))
     fs = bundle["feature_set"]
     res = st["results"][fs]
     hl, dl = bundle["hier"]["labels"], bundle["dbscan"]["labels"]
@@ -112,11 +126,15 @@ def main() -> None:
                                        "usable": int(g["usable"].sum()),
                                        "median_conf": float(g["mean_conf"].median())}
                                       for l, g in all_docs.groupby("lang_tag")],
-                      "tag_mismatch": int((all_docs["tag_matches_script"] == 0).sum())},
+                      "tag_mismatch": int((all_docs["tag_matches_script"] == 0).sum()),
+                      "text_source": {k: int(v) for k, v in all_docs.loc[all_docs["usable"] == 1, "text_source"].value_counts().items()}
+                      if "text_source" in all_docs else None},
            "pilot": json.loads(pilot_path.read_text()) if pilot_path.exists() else None,
            "relevance": pd.read_csv(config.REPORTS / "variable_relevance.csv").to_dict("records")}
     sens_path = STUDY_DIR / "sensitivity.json"
     web["sensitivity"] = json.loads(sens_path.read_text()) if sens_path.exists() else None
+    ev = {s: config.REPORTS / "eval" / f"evaluation_{s}.json" for s in ("val", "test")}
+    web["evaluation"] = {s: json.loads(p.read_text(encoding="utf-8")) for s, p in ev.items() if p.exists()} or None
     for f, r in st["results"].items():
         r = dict(r)
         r["dbscan"] = dict(r["dbscan"], kdist={k: downsample(v) for k, v in r["dbscan"]["kdist"].items()})

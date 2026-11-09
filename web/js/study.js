@@ -7,10 +7,10 @@ try { st = await getJSON("data/study.json"); } catch (e) {
   throw e;
 }
 const METRIC = { euclidean: "Euclidean", cityblock: "Manhattan" };
-const NAME = { A: "TF-IDF + LSA", B: "LaBSE embeddings" };
+const NAME = { A: "TF-IDF + LSA", B: "LaBSE embeddings", C: "IndicSBERT embeddings" };
 let fs = params().get("set");
 if (!st.sets[fs]) fs = st.final;
-for (const k of ["A", "B"]) {
+for (const k of ["A", "B", "C"]) {
   const input = document.getElementById(`fs-${k.toLowerCase()}`);
   input.disabled = !st.sets[k];
   input.checked = k === fs;
@@ -39,7 +39,8 @@ function draw() {
   parts.push(section("sample", "The sample",
     [`${fmt.n(c.harvested)} scanned books were drawn at random from the Digital Library of India, stratified by language and era. `,
       strong(`${fmt.n(c.usable)} were readable enough to group`), `; the rest are kept, flagged and used to study OCR noise. `,
-      `${fmt.n(c.tag_mismatch)} books were catalogued under a language whose script did not match the page.`],
+      `${fmt.n(c.tag_mismatch)} books were catalogued under a language whose script did not match the page. `,
+      c.text_source ? `Each book is read from the archive's whole-book OCR where it exists (${fmt.n((c.text_source.hocr || 0) + (c.text_source.djvu || 0))} books); the rest use the 5 pages we read ourselves (${fmt.n(c.text_source.tesseract_pages || 0)}).` : ""],
     el("div", { class: "more-wrap" },
       more("Books per language",
         table([["Language"], ["Harvested", 1], ["Readable", 1], ["Readable share", 1], ["Median OCR confidence", 1]],
@@ -61,7 +62,7 @@ function draw() {
       more("Features used",
         el("p", { class: "prose", text: fs === "A"
           ? `Word 1-2-grams and character 3-5-grams, weighted by TF-IDF (terms found in more than 30% of one language’s books dropped as that language’s stopwords), reduced to ${r.dims} dimensions with truncated SVD, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.`
-          : `LaBSE sentence embeddings (109 languages) of up to 4 evenly spaced 64-word chunks per book (128 word-pieces each), averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })),
+          : `${fs === "B" ? "LaBSE sentence embeddings (109 languages)" : "IndicSBERT sentence embeddings (a model trained on Indian languages and English)"} of up to 10 evenly spaced 64-word chunks of each book's text (128 word-pieces each), averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })),
       st.sensitivity && st.sensitivity.feature_sets[fs] ? more("Encoded metadata added to the text: a sensitivity check",
         el("p", { class: "prose", text: "Year, page count, OCR confidence and token count were standardised, missing years median-filled with a flag, and script one-hot encoded. This block was added to the text features at three weights and the chosen hierarchical setting refitted. Weight 0 is the study as run." }),
         table([["Metadata weight", 1], ["Silhouette", 1], ["Follows script (NMI)", 1], ["Agreement with text-only groups (ARI)", 1], ["Largest group", 1]],
@@ -139,7 +140,12 @@ function draw() {
     el("div", { class: "more-wrap" }, more("Neighbouring settings",
       table([["Method"], ["Setting"], ["Agreement with the chosen one (ARI)", 1]],
         [...H.neighbours.map((n) => ["Hierarchical", `k = ${n.k}`, fmt.f(n.ari, 3)]),
-          ...D.neighbours.map((n) => ["Density-based", `MinPts ${n.min_pts}, eps ${fmt.f(n.eps, 4)}`, fmt.f(n.ari, 3)])])))));
+          ...D.neighbours.map((n) => ["Density-based", `MinPts ${n.min_pts}, eps ${fmt.f(n.eps, 4)}`, fmt.f(n.ari, 3)])])),
+      r.extras ? more("Further checks",
+        table([["Check"], ["Result", 1], ["What it shows"]], [
+          ["HDBSCAN (density with varying density)", `${r.extras.hdbscan.n_clusters} groups, ${fmt.p(r.extras.hdbscan.noise_share)} noise`, `agreement with the hierarchical groups: ${fmt.f(r.extras.hdbscan.ari_vs_hierarchical_non_noise, 2)} ARI`],
+          ["Silhouette within each script", fmt.f(r.extras.within_script_silhouette.weighted_mean, 3), "separation that does not come from scripts being far apart"],
+          ["Refit on books with OCR confidence 70+", fmt.f(r.extras.high_conf_refit.ari_vs_full, 2), `${fmt.n(r.extras.high_conf_refit.books)} books; 1 would mean the same groups return`]])) : null)));
 
   // 8. drivers
   const eff = (m) => [fmt.f(m.effects.nmi_script, 2), fmt.f(m.effects.nmi_era, 2), fmt.f(m.effects.nmi_classification, 2)];
@@ -158,9 +164,31 @@ function draw() {
 
   // 9. choice
   const sel_ = st.selection;
+  const ts = sel_.train_selection || sel_;
   parts.push(section("choice", "The model behind the app",
-    [`The app uses `, strong(NAME[sel_.chosen]), `. The rule, fixed in advance: among feature sets whose hierarchical groups have a silhouette above zero and a median bootstrap agreement of 0.5 or more, take the one whose groups depend least on script. `,
-      `Script dependence: ${Object.entries(sel_.nmi_script).map(([k, v]) => `${NAME[k]} ${fmt.f(v, 2)}`).join(", ")}.`]));
+    [`The app uses `, strong(NAME[sel_.chosen]), ` with ${hf.linkage} linkage and ${hf.k} groups. The rule, fixed before the results: among all feature sets and settings whose groups follow script with NMI of 0.5 or less and survive resampling (median bootstrap ARI of 0.5 or more), take the `, strong("highest silhouette"),
+      `. It was applied to the training books only, then the same setting was refitted on every book.`],
+    el("div", { class: "mt-xl" }, table([["Feature set"], ["Silhouette", 1], ["Follows script (NMI)", 1], ["Bootstrap ARI", 1], ["Passes the rule"]],
+      Object.keys(ts.silhouette || {}).map((k) => [NAME[k], fmt.f(ts.silhouette[k], 3), fmt.f(ts.nmi_script[k], 2), fmt.f(ts.boot_median[k], 2), ts.passes[k] ? "yes" : "no"]),
+      { chosen: (i) => Object.keys(ts.silhouette || {})[i] === sel_.chosen }))));
+
+  // 9b. accuracy on books the model never saw
+  const ev = st.evaluation && (st.evaluation.test || st.evaluation.val);
+  if (ev) {
+    const t1 = ev.T1_upload_check, t2 = ev.T2_subject;
+    const base = Math.max(t2.baseline_most_common || 0, t2.baseline_script_only || 0);
+    parts.push(section("accuracy", "Accuracy on unseen books",
+      [`Measured on ${fmt.n(ev.held_out_books)} ${ev.split === "test" ? "test" : "validation"} books that no fitting step saw. A single uploaded page lands in the same group as its whole book `, strong(fmt.p(t1.agreement)),
+        ` of the time (chance: ${fmt.p(t1.chance)}). Subject guessed from the group is right for ${fmt.p(t2.accuracy_groups)} of labelled books, against ${fmt.p(base)} for the best simple guess.`],
+      el("div", { class: "mt-xl" }, table([["Target"], ["Result", 1], ["Aim", 1], ["Met"]], [
+        ["Upload page lands with its own book", fmt.p(t1.agreement), "80%", ev.met.T1 ? "yes" : "no"],
+        ["Subject accuracy above the best simple guess", `${fmt.f(t2.points_above_best_baseline, 1)} points`, "10 points", ev.met.T2 ? "yes" : "no"],
+        ["Groups survive resampling (bootstrap ARI)", fmt.f(ev.T3_bootstrap_median, 2), "0.60", ev.met.T3 ? "yes" : "no"]])),
+      el("div", { class: "more-wrap" },
+        more("How these were measured",
+          el("p", { class: "prose", text: `Books were split 60/20/20 into train, validation and test by language with a fixed seed, and every fitting step used the train books only. Upload check: each of a held-out book's own Tesseract pages went through the same steps as an upload; ${fmt.n(t1.assigned)} pages were judged and ${fmt.n(t1.abstained)} (${fmt.p(t1.abstain_rate)}) had too little text and were declined, as the app would. Subject: ${fmt.n(t2.labelled_train)} labelled train books gave each group its most common subject, which was then tested on ${fmt.n(t2.labelled_heldout)} labelled held-out books. Simple guesses: always the most common subject (${fmt.p(t2.baseline_most_common)}), or the most common subject of the book's script (${fmt.p(t2.baseline_script_only)}). A permutation test gives p = ${fmt.f(t2.permutation_p, 4)}.` }),
+          table([["Group"], ["Subject it predicts"]], Object.entries(t2.group_to_subject || {}).map(([g, sub]) => [st.sets[sel_.chosen].hierarchical.names[g] || g, sub]))))));
+  }
 
   // 10. limits
   parts.push(section("limits", "Limits",
@@ -168,7 +196,8 @@ function draw() {
     el("ul", { class: "prose mt-lg" },
       el("li", { text: `OCR quality differs by script; weaker scripts lose more books to the readability filter and to DBSCAN noise.` }),
       el("li", { text: "The sample follows the Digital Library of India's own mix: some languages, eras and subjects are better represented than others." }),
-      el("li", { text: "Five pages stand in for each book; a page from the preface or an index can pull a book toward the wrong group." }),
+      el("li", { text: "Book text comes from the archive's own OCR where it exists, and from our 5 pages otherwise; the two agree closely but not perfectly." }),
+      el("li", { text: "The subject labels used to test accuracy were made by the project's assistant from titles, catalogue subjects and a snippet of text, and are for the team to spot-check." }),
       el("li", { text: "Group names are our reading of each group’s distinctive words and typical books, not subject headings. Read the typical books before trusting a name." }),
       el("li", { text: "Silhouette scores for text are low by nature; the groups are tendencies, and borders between them are uncertain." }))));
 
