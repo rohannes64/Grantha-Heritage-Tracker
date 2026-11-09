@@ -7,10 +7,10 @@ try { st = await getJSON("data/study.json"); } catch (e) {
   throw e;
 }
 const METRIC = { euclidean: "Euclidean", cityblock: "Manhattan" };
-const NAME = { A: "TF-IDF + LSA", B: "LaBSE embeddings", C: "IndicSBERT embeddings" };
+const NAME = { A: "TF-IDF + LSA", B: "LaBSE embeddings", C: "IndicSBERT embeddings", D: "BGE-M3 embeddings", G: "Gemini embeddings" };
 let fs = params().get("set");
 if (!st.sets[fs]) fs = st.final;
-for (const k of ["A", "B", "C"]) {
+for (const k of ["A", "G"]) {
   const input = document.getElementById(`fs-${k.toLowerCase()}`);
   input.disabled = !st.sets[k];
   input.checked = k === fs;
@@ -62,7 +62,13 @@ function draw() {
       more("Features used",
         el("p", { class: "prose", text: fs === "A"
           ? `Word 1-2-grams and character 3-5-grams, weighted by TF-IDF (terms found in more than 30% of one language’s books dropped as that language’s stopwords), reduced to ${r.dims} dimensions with truncated SVD, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.`
-          : `${fs === "B" ? "LaBSE sentence embeddings (109 languages)" : "IndicSBERT sentence embeddings (a model trained on Indian languages and English)"} of up to 10 evenly spaced 64-word chunks of each book's text (128 word-pieces each), averaged, reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })),
+          : `Gemini Embedding 001 (Google, task type "clustering") of up to 10 evenly spaced 64-word passages of each book's text, averaged. Each language's average position (from the fitted books) is then subtracted, so books group by content rather than by the language they are written in. Reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })),
+      st.encoders ? more("Choosing the encoder",
+        el("p", { class: "prose", text: `Each candidate encoder was scored on ${fmt.n(Object.values(st.encoders.encoders)[0].books)} labelled train and validation books (never test books): how often a book's subject matches the most common subject of its 7 nearest neighbours, before and after removing each language's average position. This is the most topic information the numbers carry. Rule: ${st.encoders.rule}.` }),
+        table([["Encoder"], ["As is", 1], ["Language removed", 1]],
+          Object.entries(st.encoders.encoders).sort((a, b) => b[1].knn_centred - a[1].knn_centred)
+            .map(([k, e]) => [NAME[k] || e.model, fmt.p(e.knn_plain), fmt.p(e.knn_centred)]),
+          { chosen: (i) => Object.entries(st.encoders.encoders).sort((a, b) => b[1].knn_centred - a[1].knn_centred)[i][0] === st.encoders.chosen })) : null,
       st.sensitivity && st.sensitivity.feature_sets[fs] ? more("Encoded metadata added to the text: a sensitivity check",
         el("p", { class: "prose", text: "Year, page count, OCR confidence and token count were standardised, missing years median-filled with a flag, and script one-hot encoded. This block was added to the text features at three weights and the chosen hierarchical setting refitted. Weight 0 is the study as run." }),
         table([["Metadata weight", 1], ["Silhouette", 1], ["Follows script (NMI)", 1], ["Agreement with text-only groups (ARI)", 1], ["Largest group", 1]],
@@ -179,15 +185,20 @@ function draw() {
     const base = Math.max(t2.baseline_most_common || 0, t2.baseline_script_only || 0);
     parts.push(section("accuracy", "Accuracy on unseen books",
       [`Measured on ${fmt.n(ev.held_out_books)} ${ev.split === "test" ? "test" : "validation"} books that no fitting step saw. A single uploaded page lands in the same group as its whole book `, strong(fmt.p(t1.agreement)),
-        ` of the time (chance: ${fmt.p(t1.chance)}). Subject guessed from the group is right for ${fmt.p(t2.accuracy_groups)} of labelled books, against ${fmt.p(base)} for the best simple guess.`],
+        ` of the time (chance: ${fmt.p(t1.chance)}). Subject guessed from the group is right for ${fmt.p(t2.accuracy_groups)} of labelled books, against ${fmt.p(base)} for the best simple guess.`,
+        t1.tagged && t2.tagged ? ` With "also close to" tags, a page's tags include its book's group ${fmt.p(t1.tagged.agreement_tagged)} of the time, and a book's subject is among its tags ${fmt.p(t2.tagged.accuracy_tagged)} of the time.` : ""],
       el("div", { class: "mt-xl" }, table([["Target"], ["Result", 1], ["Aim", 1], ["Met"]], [
         ["Upload page lands with its own book", fmt.p(t1.agreement), "80%", ev.met.T1 ? "yes" : "no"],
         ["Subject accuracy above the best simple guess", `${fmt.f(t2.points_above_best_baseline, 1)} points`, "10 points", ev.met.T2 ? "yes" : "no"],
         ["Groups survive resampling (bootstrap ARI)", fmt.f(ev.T3_bootstrap_median, 2), "0.60", ev.met.T3 ? "yes" : "no"]])),
+      t1.tagged && t2.tagged ? el("div", { class: "mt-lg" }, table([["With tags (no target)"], ["Result", 1], ["Tags per item", 1], ["Share of tags right", 1]], [
+        ["Page's tags include its book's group", fmt.p(t1.tagged.agreement_tagged), fmt.f(t1.tagged.tags_per_page, 2), "n/a"],
+        ["Book's subject is among its tags", fmt.p(t2.tagged.accuracy_tagged), fmt.f(t2.tagged.tags_per_book, 2), fmt.p(t2.tagged.tag_precision)]])) : null,
       el("div", { class: "more-wrap" },
         more("How these were measured",
           el("p", { class: "prose", text: `Books were split 60/20/20 into train, validation and test by language with a fixed seed, and every fitting step used the train books only. Upload check: each of a held-out book's own Tesseract pages went through the same steps as an upload; ${fmt.n(t1.assigned)} pages were judged and ${fmt.n(t1.abstained)} (${fmt.p(t1.abstain_rate)}) had too little text and were declined, as the app would. Subject: ${fmt.n(t2.labelled_train)} labelled train books gave each group its most common subject, which was then tested on ${fmt.n(t2.labelled_heldout)} labelled held-out books. Simple guesses: always the most common subject (${fmt.p(t2.baseline_most_common)}), or the most common subject of the book's script (${fmt.p(t2.baseline_script_only)}). A permutation test gives p = ${fmt.f(t2.permutation_p, 4)}.` }),
-          table([["Group"], ["Subject it predicts"]], Object.entries(t2.group_to_subject || {}).map(([g, sub]) => [st.sets[sel_.chosen].hierarchical.names[g] || g, sub]))))));
+          el("p", { class: "prose", text: `Tags: the nearest group, plus any group the item sits as close to as 9 in 10 of that group's own train books do, at most 3. The rule was fixed before it was measured. Fewer than half of all tags carry the right subject, so extra tags are a hint, not a second answer.` }),
+          table([["Group in the train-only fit"], ["Subject it predicts"]], Object.entries(t2.group_to_subject || {}).map(([g, sub]) => [`Group ${Number(g) + 1}`, sub]))))));
   }
 
   // 10. limits
@@ -199,7 +210,9 @@ function draw() {
       el("li", { text: "Book text comes from the archive's own OCR where it exists, and from our 5 pages otherwise; the two agree closely but not perfectly." }),
       el("li", { text: "The subject labels used to test accuracy were made by the project's assistant from titles, catalogue subjects and a snippet of text, and are for the team to spot-check." }),
       el("li", { text: "Group names are our reading of each group’s distinctive words and typical books, not subject headings. Read the typical books before trusting a name." }),
-      el("li", { text: "Silhouette scores for text are low by nature; the groups are tendencies, and borders between them are uncertain." }))));
+      el("li", { text: "Silhouette scores for text are low by nature; the groups are tendencies, and borders between them are uncertain." }),
+      el("li", { text: "The encoder is Google's Gemini Embedding 001, a closed model reached over the internet: checking a page needs a connection, the page's text is sent to Google, and Google may change or retire the model. The best open model tested (BGE-M3) was about 7 points lower." }),
+      el("li", { text: "A single uploaded page lands with its own book's group 72% of the time on test books, below the 80% aim, and the groups' stability under resampling (0.58) is just under its 0.60 aim." }))));
 
   root.replaceChildren(...parts);
 

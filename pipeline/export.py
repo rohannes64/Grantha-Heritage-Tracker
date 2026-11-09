@@ -135,6 +135,8 @@ def main() -> None:
     web["sensitivity"] = json.loads(sens_path.read_text()) if sens_path.exists() else None
     ev = {s: config.REPORTS / "eval" / f"evaluation_{s}.json" for s in ("val", "test")}
     web["evaluation"] = {s: json.loads(p.read_text(encoding="utf-8")) for s, p in ev.items() if p.exists()} or None
+    enc = STUDY_DIR / "encoder_comparison.json"
+    web["encoders"] = json.loads(enc.read_text(encoding="utf-8")) if enc.exists() else None
     for f, r in st["results"].items():
         r = dict(r)
         r["dbscan"] = dict(r["dbscan"], kdist={k: downsample(v) for k, v in r["dbscan"]["kdist"].items()})

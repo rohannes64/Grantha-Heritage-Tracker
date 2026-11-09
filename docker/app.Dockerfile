@@ -21,7 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /srv
 COPY requirements-pipeline.txt requirements-ml.txt requirements-app.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt -r /tmp/requirements-ml.txt -r /tmp/requirements-app.txt
+# LOCAL_ENCODER=1 adds PyTorch and sentence-transformers, needed only when the chosen encoder runs locally
+# (LaBSE, IndicSBERT, BGE-M3). The Gemini encoder runs on Google's API, so the default image leaves them out.
+ARG LOCAL_ENCODER=0
+RUN pip install --no-cache-dir -r /tmp/requirements-pipeline.txt -r /tmp/requirements-app.txt     && if [ "$LOCAL_ENCODER" = "1" ]; then pip install --no-cache-dir -r /tmp/requirements-ml.txt; fi
 
 # The export step puts the chosen embedding model in data/model/models/ as a plain folder (not the
 # symlinked Hugging Face cache). --chown on each COPY, not a later `chown -R`, which would copy
