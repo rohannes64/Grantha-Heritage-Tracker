@@ -7,6 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 run() { MSYS_NO_PATHCONV=1 docker compose run --rm -T pipeline "$@"; }
 run python -m pipeline.ocr --ingest
+run python -m pipeline.fulltext
 run python -m pipeline.quality
 run python -m pipeline.preprocess
 
@@ -22,6 +23,7 @@ fi
 run python -m pipeline.features --fit all
 run python -m pipeline.study
 run python -m pipeline.sensitivity
+run python -m pipeline.encoders
 run python -m pipeline.export
 run python -m pipeline.figures
 echo "STUDY RUN COMPLETE"
