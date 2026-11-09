@@ -34,6 +34,7 @@ from sklearn.metrics import (adjusted_rand_score, normalized_mutual_info_score, 
                              roc_auc_score, silhouette_score)
 
 from . import config
+from .features import SET_NAMES as FEATURE_NAMES, STUDY_SETS
 
 PROCESSED = config.DATA / "processed"
 STUDY = config.REPORTS / "study"
@@ -44,10 +45,6 @@ MINPTS = [5, 10, 15, 20]
 EPS_QUANTILES = [0.10, 0.25, 0.40, 0.55, 0.70]
 N_BOOT, BOOT_FRAC = 20, 0.8
 MAX_NOISE = 0.5
-FEATURE_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings", "D": "BGE-M3 embeddings"}
-# Feature sets the clustering study compares: the explainable TF-IDF baseline and the encoder chosen by
-# pipeline.encoders (most topic information after language centring; docs/accuracy_plan.md, round 1).
-STUDY_SETS = ("A", "D")
 MAX_SCRIPT_NMI = 0.5
 MIN_BOOT_ARI = 0.5
 MAX_BOOT_TRIES = 12       # candidates bootstrapped, best silhouette first, until one passes

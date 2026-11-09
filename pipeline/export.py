@@ -20,7 +20,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 
 from . import config, preprocess
-from .features import MODELS, model_slug
+from .features import LOCAL_MODELS, model_slug
 from .study import clean_json
 
 PROCESSED = config.DATA / "processed"
@@ -104,8 +104,8 @@ def main() -> None:
     # The chosen embedding model travels with the bundle as a plain folder (the app image copies data/model).
     models_out = MODEL_DIR / "models"
     shutil.rmtree(models_out, ignore_errors=True)
-    if bundle["feature_set"] in MODELS:
-        name = MODELS[bundle["feature_set"]]
+    if bundle["feature_set"] in LOCAL_MODELS:   # an API model (G) has no folder to ship
+        name = LOCAL_MODELS[bundle["feature_set"]]
         src = config.DATA / "models" / model_slug(name)
         if not (src / "config.json").exists():
             raise SystemExit(f"save {name} to {src} first (see README)")

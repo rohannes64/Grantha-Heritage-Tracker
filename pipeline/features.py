@@ -45,8 +45,13 @@ LANG_DF_CAP = 0.3
 EMBED_MODEL = "sentence-transformers/LaBSE"
 INDIC_MODEL = "l3cube-pune/indic-sentence-similarity-sbert"
 BGE_MODEL = "BAAI/bge-m3"
-MODELS = {"B": EMBED_MODEL, "C": INDIC_MODEL, "D": BGE_MODEL}
-SET_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings", "D": "BGE-M3 embeddings"}
+GEMINI_MODEL = "gemini-embedding-001"
+LOCAL_MODELS = {"B": EMBED_MODEL, "C": INDIC_MODEL, "D": BGE_MODEL}   # run on this machine
+MODELS = LOCAL_MODELS | {"G": GEMINI_MODEL}                           # G runs on Google's API
+# Feature sets the study compares: the explainable TF-IDF baseline and the encoder chosen by
+# pipeline.encoders (docs/accuracy_plan.md). Others are computed only on request (--only).
+STUDY_SETS = ("A", "G")
+SET_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings", "D": "BGE-M3 embeddings", "G": "Gemini embeddings"}
 CHUNK_TOKENS = 64          # words per chunk; ~128 word-pieces for Indian scripts
 MAX_CHUNKS = 10            # evenly spaced across the book's training text (CPU budget: ~4 chunks/s)
 MAX_SEQ = 128              # word-pieces per chunk; Indian-script words split into several
@@ -227,13 +232,79 @@ def load_inputs():
     return ids, toks, language, split
 
 
+class EmbeddingServiceError(RuntimeError):
+    """The embedding API could not be reached or refused the request."""
+
+
+class GeminiEmbedder(Embedder):
+    """Feature set G: Google's gemini-embedding-001 (task type CLUSTERING, 3072 dimensions) through the
+    Gemini API, same chunking, averaging, language centring and PCA as the local models.
+    The key is read from GEMINI_API_KEY (the git-ignored .env); it is never stored in the bundle."""
+    URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents"
+    BATCH = 100        # the API's limit per call
+    PARALLEL = 4       # calls in flight at once (429s are retried with backoff)
+
+    @property
+    def model(self):
+        raise AttributeError("Gemini runs on Google's API; there is no local model")
+
+    def _call(self, texts: list[str]) -> np.ndarray:
+        import time
+        import requests
+        key = os.environ.get("GEMINI_API_KEY")
+        if not key:
+            raise EmbeddingServiceError("GEMINI_API_KEY is not set (put it in the project's .env)")
+        body = {"requests": [{"model": f"models/{GEMINI_MODEL}", "content": {"parts": [{"text": t}]},
+                              "taskType": "CLUSTERING"} for t in texts]}
+        for attempt in range(6):
+            try:
+                r = requests.post(self.URL, json=body, headers={"x-goog-api-key": key}, timeout=60)
+            except requests.RequestException as e:
+                if attempt == 5:
+                    raise EmbeddingServiceError(f"embedding service unreachable: {type(e).__name__}") from e
+                time.sleep(2 ** attempt)
+                continue
+            if r.status_code == 200:
+                return np.asarray([e["values"] for e in r.json()["embeddings"]], dtype=np.float32)
+            if r.status_code in (429, 500, 503) and attempt < 5:
+                time.sleep(2 ** attempt)
+                continue
+            raise EmbeddingServiceError(f"embedding service answered HTTP {r.status_code}")
+        raise EmbeddingServiceError("embedding service kept refusing")
+
+    def raw(self, token_lists, batch_size: int = BATCH, progress: bool = False) -> np.ndarray:
+        doc_chunks = [chunks_of(t) for t in token_lists]
+        flat = [c for cs in doc_chunks for c in cs]
+        from concurrent.futures import ThreadPoolExecutor
+        starts = list(range(0, len(flat), batch_size))
+        parts, done = [None] * len(starts), 0
+        with ThreadPoolExecutor(self.PARALLEL) as ex:   # a few calls in flight; results kept in order
+            futures = {ex.submit(self._call, flat[s:s + batch_size]): j for j, s in enumerate(starts)}
+            from concurrent.futures import as_completed
+            for f in as_completed(futures):
+                parts[futures[f]] = normalize(f.result())
+                done += 1
+                if progress and (done % 10 == 0 or done == len(starts)):
+                    print(f"embedded {min(done * batch_size, len(flat))}/{len(flat)} passages", flush=True)
+        emb = np.vstack(parts) if parts else np.zeros((0, 3072), np.float32)
+        out, i = [], 0
+        for cs in doc_chunks:
+            out.append(emb[i:i + len(cs)].mean(axis=0) if cs else np.zeros(emb.shape[1], np.float32))
+            i += len(cs)
+        return normalize(np.vstack(out))
+
+
+def make_embedder(fs: str) -> Embedder:
+    return GeminiEmbedder(MODELS[fs]) if fs == "G" else Embedder(MODELS[fs])
+
+
 def raw_embeddings(fs: str, ids: list[str], toks) -> np.ndarray:
     """Chunk embeddings averaged per book, before PCA. Cached per model and corpus (no fitting here)."""
     cache = PROCESSED / f"embeddings_raw_{fs}.npy"
     cache_ids = PROCESSED / f"embeddings_ids_{fs}.json"
     if cache.exists() and cache_ids.exists() and json.loads(cache_ids.read_text()) == ids:
         return np.load(cache)
-    E = Embedder(MODELS[fs]).raw(toks, progress=True)
+    E = make_embedder(fs).raw(toks, progress=True)
     np.save(cache, E)
     cache_ids.write_text(json.dumps(ids))
     return E
@@ -269,10 +340,10 @@ def main(argv=None) -> None:
         print(f"A: {Z.shape}, SVD explains {bundle['A']['explained_variance']:.1%} of TF-IDF variance, "
               f"{len(lsa.stop)} per-language stopwords", flush=True)
     for fs in MODELS:
-        if args.only not in (None, fs):
+        if args.only != fs and (args.only is not None or fs not in STUDY_SETS):
             continue
         E = raw_embeddings(fs, ids, toks)
-        emb = Embedder(MODELS[fs])
+        emb = make_embedder(fs)
         lang = np.asarray(languages)
         Z = emb.fit_transform_raw(E[fit], lang[fit])
         bundle[fs] = {"Z": Z, "transform": emb, "explained_variance": float(emb.pca.explained_variance_ratio_.sum()),

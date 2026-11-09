@@ -3,6 +3,19 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def load_env(path: Path = ROOT / ".env") -> None:
+    """KEY=value lines from the git-ignored .env into the environment; variables already set win.
+    Secrets (GEMINI_API_KEY) live only there, never in code."""
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+load_env()
 DATA = ROOT / "data"
 DB_PATH = Path(os.environ.get("HERITAGE_DB", DATA / "corpus.sqlite"))  # override for dry runs on a snapshot
 FRAME_DIR = DATA / "frame"      # full sampling frame per language (identifiers + dates)
