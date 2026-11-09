@@ -1,6 +1,8 @@
-# Grantha: the runnable app (API + website), fully offline once built.
+# Grantha: the runnable app (API + website).
 # Contains: Tesseract 5 with the 8 study languages, the trained model bundle, the study results,
-# the website, and the chosen sentence-embedding model (if any). No page scans are included.
+# the website, and the chosen sentence-embedding model if it runs locally. No page scans are included.
+# With the Gemini encoder (feature set G) a check needs internet and GEMINI_API_KEY, which docker compose
+# passes in at run time from .env (.env is in .dockerignore, so it never enters the image).
 FROM python:3.12-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
