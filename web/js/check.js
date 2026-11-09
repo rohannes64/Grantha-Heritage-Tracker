@@ -82,7 +82,9 @@ async function render(r) {
         el("span", { class: "figure", text: h.name }),
         el("span", { class: "level", text: lvl }),
         el("span", { class: "small muted", text: lvlWhy }),
-        h.runner_up_name ? el("span", { class: "small muted", text: `Next closest: ${h.runner_up_name}` }) : null),
+        (h.also_close_to && h.also_close_to.length)
+          ? el("span", { class: "small", text: `Also close to: ${h.also_close_to.map((a) => a.name).join("; ")}` })
+          : (h.runner_up_name ? el("span", { class: "small muted", text: `Next closest: ${h.runner_up_name}` }) : null)),
       el("div", {},
         el("span", { class: "label", text: "Density-based clustering" }),
         el("span", { class: "figure", text: d.in_dense_group ? d.name : "No dense group" }),

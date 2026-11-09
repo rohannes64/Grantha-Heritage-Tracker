@@ -1,4 +1,4 @@
-"""Step 5: the clustering study, run identically on feature sets A and B.
+"""Step 5: the clustering study, run identically on feature sets A, B and C.
 
     python -m pipeline.study
 
@@ -10,12 +10,15 @@
 6. Direct comparison of the two methods (ARI, NMI, cross-table) and PCA to 2-D.
 7. Interpretation: cluster profiles, distinctive terms, PCA loadings, language and OCR effects.
 
-Selection rules
-- Hierarchical: highest silhouette among settings with k >= 3 and every cluster >= max(10, 1% of books).
-- DBSCAN: highest silhouette (non-noise points) among settings with >= 2 clusters and <= 50% noise.
-- Final feature set for the app: the one whose final hierarchical grouping depends least on script
-  (lower NMI with detected script), provided its silhouette > 0 and median bootstrap ARI >= 0.5;
-  otherwise the other set.
+Selection rules (docs/evaluation_plan.md, fixed before the version 2 results)
+- A hierarchical setting is valid with k >= 3 and every cluster >= max(10, 1% of books).
+- Final choice, silhouette-based as the brief asks: among all feature sets and valid settings whose
+  groups depend on script with NMI <= 0.5 and whose median bootstrap ARI is >= 0.5, the one with the
+  highest silhouette. If none passes: lowest script NMI among settings with silhouette > 0, flagged.
+- DBSCAN: highest silhouette (non-noise points) among settings with >= 2 clusters and <= 50% noise,
+  on the chosen feature set's chosen metric.
+- Extras reported, never used to choose: HDBSCAN, silhouette within each script, and the chosen
+  setting refitted on books with OCR confidence >= 70.
 """
 import json
 import math
@@ -25,12 +28,13 @@ import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import cophenet, dendrogram, fcluster, linkage
 from scipy.spatial.distance import squareform
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, HDBSCAN
 from sklearn.decomposition import PCA
 from sklearn.metrics import (adjusted_rand_score, normalized_mutual_info_score, pairwise_distances,
                              roc_auc_score, silhouette_score)
 
 from . import config
+from .features import SET_NAMES as FEATURE_NAMES, STUDY_SETS
 
 PROCESSED = config.DATA / "processed"
 STUDY = config.REPORTS / "study"
@@ -41,7 +45,10 @@ MINPTS = [5, 10, 15, 20]
 EPS_QUANTILES = [0.10, 0.25, 0.40, 0.55, 0.70]
 N_BOOT, BOOT_FRAC = 20, 0.8
 MAX_NOISE = 0.5
-FEATURE_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings"}
+MAX_SCRIPT_NMI = 0.5
+MIN_BOOT_ARI = 0.5
+MAX_BOOT_TRIES = 12       # candidates bootstrapped, best silhouette first, until one passes
+HIGH_CONF = 70.0
 
 
 def top_class(series: pd.Series) -> pd.Series:
@@ -150,6 +157,76 @@ def pick(rows, key="silhouette"):
         return max(valid, key=lambda r: r[key]), True
     usable = [r for r in rows if r[key] is not None]
     return (max(usable, key=lambda r: r[key]) if usable else None), False
+
+
+def pick_hierarchical(rows, linkages, D_by_metric, scripts, rng, fixed=None):
+    """Highest-silhouette valid setting whose groups follow script with NMI <= 0.5 and survive
+    bootstrap resampling (median ARI >= 0.5). Returns (row, labels, bootstrap ARIs, rule_met).
+    fixed=(linkage, k): use that setting (the final refit reuses the setting chosen on train books)."""
+    for r in rows:
+        if r["silhouette"] is None:
+            r["nmi_script"] = None
+            continue
+        lab = fcluster(linkages[r["linkage"]], r["k"], "maxclust")
+        r["nmi_script"] = float(normalized_mutual_info_score(scripts, lab))
+    if fixed:
+        r = next(r for r in rows if r["linkage"] == fixed[0] and r["k"] == fixed[1])
+        lab = fcluster(linkages[r["linkage"]], r["k"], "maxclust") - 1
+        boot = bootstrap_hier(D_by_metric[r["metric"]], r["linkage"], r["k"], lab, rng)
+        r["boot_median"] = float(np.median(boot))
+        met = bool(r["valid"] and r["nmi_script"] <= MAX_SCRIPT_NMI and r["boot_median"] >= MIN_BOOT_ARI)
+        return r, lab, boot, met
+    ok = sorted([r for r in rows if r["valid"] and r["silhouette"] is not None and r["nmi_script"] <= MAX_SCRIPT_NMI],
+                key=lambda r: r["silhouette"], reverse=True)
+    for r in ok[:MAX_BOOT_TRIES]:
+        lab = fcluster(linkages[r["linkage"]], r["k"], "maxclust") - 1
+        boot = bootstrap_hier(D_by_metric[r["metric"]], r["linkage"], r["k"], lab, rng)
+        r["boot_median"] = float(np.median(boot))
+        if r["boot_median"] >= MIN_BOOT_ARI:
+            return r, lab, boot, True
+    # fallback: lowest script NMI among settings with silhouette > 0 (reported as a rule failure)
+    pos = [r for r in rows if r["valid"] and (r["silhouette"] or 0) > 0] or [r for r in rows if (r["silhouette"] or 0) > 0]
+    r = min(pos, key=lambda r: r["nmi_script"])
+    lab = fcluster(linkages[r["linkage"]], r["k"], "maxclust") - 1
+    boot = bootstrap_hier(D_by_metric[r["metric"]], r["linkage"], r["k"], lab, rng)
+    r["boot_median"] = float(np.median(boot))
+    return r, lab, boot, False
+
+
+def within_script_silhouette(D, labels, scripts) -> dict:
+    """Silhouette inside each script (books of one script only), so separation between scripts
+    cannot inflate it. Weighted mean over scripts with >= 30 books and >= 2 groups present."""
+    per, weights = {}, {}
+    for sc in sorted(set(scripts)):
+        m = scripts == sc
+        if m.sum() < 30 or len(set(labels[m])) < 2:
+            continue
+        per[sc] = float(silhouette_score(D[np.ix_(m, m)], labels[m], metric="precomputed"))
+        weights[sc] = int(m.sum())
+    mean = float(np.average(list(per.values()), weights=list(weights.values()))) if per else None
+    return {"by_script": per, "books": weights, "weighted_mean": mean}
+
+
+def hdbscan_row(D, hlab) -> dict:
+    n = D.shape[0]
+    lab = HDBSCAN(min_cluster_size=min_cluster_size(n), metric="precomputed", copy=True).fit_predict(D)  # copy: it edits D in place otherwise
+    clusters = sorted(set(lab) - {-1})
+    mask = lab != -1
+    sil = (float(silhouette_score(D[np.ix_(mask, mask)], lab[mask], metric="precomputed"))
+           if len(clusters) >= 2 and mask.sum() > len(clusters) else None)
+    return {"min_cluster_size": min_cluster_size(n), "n_clusters": len(clusters), "noise_share": float(np.mean(~mask)),
+            "silhouette": sil, "ari_vs_hierarchical_non_noise": float(adjusted_rand_score(hlab[mask], lab[mask])) if mask.sum() > 1 else None,
+            "labels": lab.tolist()}
+
+
+def high_conf_refit(Z, conf, method, metric, k, hlab) -> dict:
+    """The chosen setting refitted on books whose OCR confidence is >= 70: do the same groups return?"""
+    m = conf >= HIGH_CONF
+    if m.sum() < 50:
+        return {"books": int(m.sum()), "ari_vs_full": None}
+    L = linkage(squareform(pairwise_distances(Z[m], metric=metric), checks=False), method=method)
+    lab = fcluster(L, k, "maxclust") - 1
+    return {"books": int(m.sum()), "share": float(m.mean()), "ari_vs_full": float(adjusted_rand_score(hlab[m], lab))}
 
 
 # ---------------------------------------------------------------- 3. DBSCAN
@@ -276,7 +353,7 @@ def pca_view(Z, feature_set, bundle):
 
 
 # ---------------------------------------------------------------- run
-def run_feature_set(fs, bundle, docs, rng) -> dict:
+def run_feature_set(fs, bundle, docs, rng, fixed=None) -> dict:
     Z = bundle[fs]["Z"].astype(np.float64)
     n = len(Z)
     scripts = docs["script"].to_numpy()
@@ -287,13 +364,15 @@ def run_feature_set(fs, bundle, docs, rng) -> dict:
     chosen = dist["chosen"]
     print(f"[{fs}] distance: chosen {METRICS[chosen]} (wins {dist['wins']})", flush=True)
     D = {m: pairwise_distances(Z, metric=m) for m in METRICS}
+    for m in D:
+        np.fill_diagonal(D[m], 0.0)   # float rounding can leave ~1e-8 on the diagonal; silhouette rejects it
 
     hrows, linkages = hierarchical_grid(D, chosen)
-    hbest, h_ok = pick(hrows)
+    hbest, hlab, h_boot, h_ok = pick_hierarchical(hrows, linkages, D, scripts, rng, fixed)
     hmetric = hbest["metric"]
-    hlab = fcluster(linkages[hbest["linkage"]], hbest["k"], "maxclust") - 1
-    print(f"[{fs}] hierarchical: {hbest['linkage']} k={hbest['k']} silhouette={hbest['silhouette']:.3f}"
-          f"{'' if h_ok else ' (NO setting met the validity rule; best overall shown)'}", flush=True)
+    print(f"[{fs}] hierarchical: {hbest['linkage']} k={hbest['k']} silhouette={hbest['silhouette']:.3f} "
+          f"script NMI={hbest['nmi_script']:.2f} bootstrap={hbest['boot_median']:.2f}"
+          f"{'' if h_ok else ' (NO setting met the selection rule; fallback shown)'}", flush=True)
 
     drows, curves = dbscan_grid(D[chosen])
     dbest, d_ok = pick(drows)
@@ -305,7 +384,6 @@ def run_feature_set(fs, bundle, docs, rng) -> dict:
           f"{'' if d_ok else ' (NO setting met the validity rule)'}", flush=True)
 
     # stability
-    h_boot = bootstrap_hier(D[hmetric], hbest["linkage"], hbest["k"], hlab, rng)
     d_boot = bootstrap_dbscan(D[chosen], dbest["eps"], dbest["min_pts"], dlab, rng)
     h_neighbours = []
     for k in (hbest["k"] - 1, hbest["k"] + 1):
@@ -350,6 +428,14 @@ def run_feature_set(fs, bundle, docs, rng) -> dict:
     dendro = {"icoord": np.round(dg["icoord"], 3).tolist(), "dcoord": np.round(dg["dcoord"], 4).tolist(),
               "ivl": dg["ivl"], "cut": cut}
 
+    extras = {"hdbscan": hdbscan_row(D[chosen], hlab),
+              "within_script_silhouette": within_script_silhouette(D[hmetric], hlab, scripts),
+              "high_conf_refit": high_conf_refit(Z, conf, hbest["linkage"], hmetric, hbest["k"], hlab)}
+    print(f"[{fs}] extras: HDBSCAN {extras['hdbscan']['n_clusters']} clusters, "
+          f"{extras['hdbscan']['noise_share']:.0%} noise; within-script silhouette "
+          f"{extras['within_script_silhouette']['weighted_mean']}; high-confidence refit ARI "
+          f"{extras['high_conf_refit']['ari_vs_full']}", flush=True)
+
     p, view = pca_view(Z, fs, bundle)
     lsa = bundle["A"]["transform"]
     Xw = bundle["A"]["Xw"]
@@ -369,22 +455,26 @@ def run_feature_set(fs, bundle, docs, rng) -> dict:
                    "labels": dlab.tolist(), "bootstrap_ari": summary(d_boot), "neighbours": d_neighbours,
                    "effects": label_effects(dlab, docs), "ocr_noise": ocr_noise,
                    "profiles": profiles(dlab, Z, Xw, inv, docs, chosen)},
-        "comparison": comparison, "pca": view,
+        "comparison": comparison, "pca": view, "extras": extras,
     }
     res["_models"] = {"pca": p, "linkage": linkages[hbest["linkage"]]}
     return res
 
 
 def choose_feature_set(results) -> dict:
-    ok = {}
-    for fs, r in results.items():
-        h = r["hierarchical"]
-        ok[fs] = (h["final"]["silhouette"] or 0) > 0 and h["bootstrap_ari"]["median"] >= 0.5
-    candidates = [fs for fs in results if ok[fs]] or list(results)
-    best = min(candidates, key=lambda fs: results[fs]["hierarchical"]["effects"]["nmi_script"])
-    return {"chosen": best, "meets_quality_bar": ok,
-            "nmi_script": {fs: r["hierarchical"]["effects"]["nmi_script"] for fs, r in results.items()},
-            "rule": "lowest NMI with script among sets with silhouette > 0 and median bootstrap ARI >= 0.5"}
+    ok = {fs: bool(r["hierarchical"]["rule_met"]) for fs, r in results.items()}
+    sil = {fs: r["hierarchical"]["final"]["silhouette"] for fs, r in results.items()}
+    nmi = {fs: r["hierarchical"]["effects"]["nmi_script"] for fs, r in results.items()}
+    passing = [fs for fs in results if ok[fs]]
+    if passing:
+        best, rule_met = max(passing, key=lambda fs: sil[fs]), True
+    else:
+        pos = [fs for fs in results if (sil[fs] or 0) > 0] or list(results)
+        best, rule_met = min(pos, key=lambda fs: nmi[fs]), False
+    return {"chosen": best, "rule_met": rule_met, "passes": ok, "silhouette": sil, "nmi_script": nmi,
+            "boot_median": {fs: r["hierarchical"]["bootstrap_ari"]["median"] for fs, r in results.items()},
+            "rule": "highest silhouette among feature sets and valid settings whose groups follow script with "
+                    f"NMI <= {MAX_SCRIPT_NMI} and whose median bootstrap ARI >= {MIN_BOOT_ARI}"}
 
 
 def main() -> None:
@@ -392,15 +482,28 @@ def main() -> None:
     docs = pd.read_csv(PROCESSED / "docs.csv").set_index("identifier").loc[bundle["ids"]].reset_index()
     rng = np.random.default_rng(config.SEED)
     STUDY.mkdir(parents=True, exist_ok=True)
-    results = {fs: run_feature_set(fs, bundle, docs, rng) for fs in ("A", "B") if fs in bundle}
+    fit = bundle.get("fit", "all")
+    train_sel = STUDY / "selection_train.json"
+    fixed = json.loads(train_sel.read_text()) if fit == "all" and train_sel.exists() else None
+    results = {}
+    for fs in STUDY_SETS:
+        if fs in bundle:
+            keep = (fixed["setting"]["linkage"], fixed["setting"]["k"]) if fixed and fixed["chosen"] == fs else None
+            results[fs] = run_feature_set(fs, bundle, docs, rng, keep)
     selection = choose_feature_set(results)
+    if fixed:   # final refit: the feature set and setting chosen on the train books, not re-chosen
+        selection.update({"chosen": fixed["chosen"], "chosen_on": "train books (docs/evaluation_plan.md)",
+                          "train_selection": fixed})
     print(f"final feature set: {selection['chosen']} ({FEATURE_NAMES[selection['chosen']]})", flush=True)
     models = {fs: r.pop("_models") for fs, r in results.items()}
     for fs, r in results.items():
         (STUDY / f"results_{fs}.json").write_text(json.dumps(clean_json(r)), encoding="utf-8")
     (STUDY / "selection.json").write_text(json.dumps(clean_json(selection), indent=2), encoding="utf-8")
-    joblib.dump({"results": results, "models": models, "selection": selection, "ids": bundle["ids"]},
-                PROCESSED / "study.joblib")
+    if fit == "train":
+        fin = results[selection["chosen"]]["hierarchical"]["final"]
+        train_sel.write_text(json.dumps(clean_json(selection | {"setting": fin}), indent=2), encoding="utf-8")
+    joblib.dump({"results": results, "models": models, "selection": selection, "ids": bundle["ids"],
+                 "fit": bundle.get("fit", "all")}, PROCESSED / "study.joblib")
 
 
 if __name__ == "__main__":

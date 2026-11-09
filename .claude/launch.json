@@ -4,7 +4,7 @@
     {
       "name": "heritage-app",
       "runtimeExecutable": "docker",
-      "runtimeArgs": ["compose", "up", "dev-app"],
+      "runtimeArgs": ["compose", "--profile", "dev", "up", "dev-app"],
       "port": 8000
     }
   ]

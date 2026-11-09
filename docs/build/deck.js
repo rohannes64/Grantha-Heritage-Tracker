@@ -1,4 +1,4 @@
-// Builds docs/Heritage_Topic_Finder_Deck.pptx. Run from the project root: node docs/build/deck.js
+// Builds docs/Grantha_Deck.pptx. Run from the project root: node docs/build/deck.js
 const fs = require("fs");
 const path = require("path");
 const pptxgen = require("pptxgenjs");
@@ -19,7 +19,7 @@ const FONT = "Arial";
 
 const pptx = new pptxgen();
 pptx.layout = "LAYOUT_WIDE";            // 13.33 x 7.5 in
-pptx.title = "Heritage Topic Finder";
+pptx.title = "Grantha";
 pptx.author = "Rajith Sundar, Etikala Sai Pranav, Vemuri Rohan";
 
 const SW = 13.33, M = 0.6;
@@ -30,7 +30,7 @@ function slide(title, notes) {
   if (title) {
     s.addText(title, { x: M, y: 0.4, w: SW - 2 * M, h: 0.8, fontFace: FONT, fontSize: 30, bold: true, color: C.ink, margin: 0 });
   }
-  s.addText("Heritage Topic Finder  ·  SIH26096", { x: M, y: 7.0, w: 6, h: 0.3, fontFace: FONT, fontSize: 10, color: C.mute, margin: 0 });
+  s.addText("Grantha  ·  SIH26096", { x: M, y: 7.0, w: 6, h: 0.3, fontFace: FONT, fontSize: 10, color: C.mute, margin: 0 });
   if (notes) s.addNotes(notes);
   return s;
 }
@@ -62,7 +62,7 @@ function table(s, rows, { x = M, y = 1.5, w = SW - 2 * M, colW, size = 14, hi } 
 {
   const s = pptx.addSlide();
   s.background = { color: C.bg };
-  s.addText("Heritage Topic Finder", { x: M, y: 2.0, w: 12, h: 1.2, fontFace: FONT, fontSize: 48, bold: true, color: C.ink, margin: 0 });
+  s.addText("Grantha", { x: M, y: 2.0, w: 12, h: 1.2, fontFace: FONT, fontSize: 48, bold: true, color: C.ink, margin: 0 });
   s.addText("An unsupervised grouping study of heritage documents by topic", { x: M, y: 3.2, w: 12, h: 0.6, fontFace: FONT, fontSize: 22, color: C.amber, margin: 0 });
   s.addText("SIH26096  ·  Hierarchical and density clustering, PCA visualisation", { x: M, y: 3.9, w: 12, h: 0.5, fontFace: FONT, fontSize: 16, color: C.ink2, margin: 0 });
   s.addText("Rajith Sundar  ·  Etikala Sai Pranav  ·  Vemuri Rohan", { x: M, y: 5.6, w: 12, h: 0.5, fontFace: FONT, fontSize: 16, color: C.ink, margin: 0 });
@@ -281,4 +281,4 @@ function table(s, rows, { x = M, y = 1.5, w = SW - 2 * M, colW, size = 14, hi } 
   { y: 1.6, colW: [1.6, 3.5, 3.5, 3.5], size: 15 });
 }
 
-pptx.writeFile({ fileName: path.join(ROOT, "docs", "Heritage_Topic_Finder_Deck.pptx") }).then((p) => console.log("wrote", p));
+pptx.writeFile({ fileName: path.join(ROOT, "docs", "Grantha_Deck.pptx") }).then((p) => console.log("wrote", p));

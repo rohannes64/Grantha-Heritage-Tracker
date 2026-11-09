@@ -1,4 +1,4 @@
-"""Heritage Topic Finder web app (FastAPI). Serves the API and the static site in web/.
+"""Grantha web app (FastAPI). Serves the API and the static site in web/.
 
     uvicorn app.main:app --host 0.0.0.0 --port 8000
 """
@@ -13,6 +13,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from pipeline import config
+from pipeline.features import LOCAL_MODELS, EmbeddingServiceError
 
 from .checker import Checker
 from .ocr_input import OCRInputError, images_from_upload, ocr_images
@@ -36,19 +37,22 @@ def study() -> dict:
 async def lifespan(_app):
     if BUNDLE.exists():
         checker()          # load models once, so the first check is not slow
-        if checker().b["feature_set"] == "B":
-            checker().b["transform"].model  # load the embedding model too
+        if checker().b["feature_set"] in LOCAL_MODELS:
+            checker().b["transform"].model  # load a local embedding model too (an API model has none)
     yield
 
 
-app = FastAPI(title="Heritage Topic Finder", version="1.0", lifespan=lifespan,
+app = FastAPI(title="Grantha", version="1.0", lifespan=lifespan,
               description="Check a heritage document against topic groups learned from Digital Library of India scans.")
 
 
 @app.get("/api/health")
 def health():
     ok = BUNDLE.exists()
-    return {"status": "ok" if ok else "no-model", "documents": len(checker().docs) if ok else 0}
+    fs = checker().b["feature_set"] if ok else None
+    return {"status": "ok" if ok else "no-model", "documents": len(checker().docs) if ok else 0,
+            "feature_set": fs, "needs_internet": fs == "G",
+            "embedding_key_set": bool(os.environ.get("GEMINI_API_KEY")) if fs == "G" else None}
 
 
 def _final():
@@ -114,7 +118,11 @@ async def check(file: UploadFile | None = File(None), text: str | None = Form(No
         raw = text[:MAX_TEXT]
         script = config.LANGUAGES[lang]["script"] if lang else None
         conf = None
-    result = checker().check_text(raw, script=script, ocr_conf=conf)
+    try:
+        result = checker().check_text(raw, script=script, ocr_conf=conf, lang=ocr["model"] if ocr else lang)
+    except EmbeddingServiceError as e:
+        raise HTTPException(503, "The topic model runs on Google's Gemini service, which cannot be reached "
+                                 f"right now ({e}). Please try again later.") from e
     result["input"] = "scan" if file is not None else "text"
     if ocr:
         result["ocr"] = {k: ocr[k] for k in ("model", "pages", "script_detected")} | {"preview": ocr["text"][:1200]}

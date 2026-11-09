@@ -7,6 +7,8 @@ Every choice made between OCR output and the clustering features, with counts.
 - Harvested books with OCR: 3000
 - Usable for clustering: 2578 (rule: word-weighted mean OCR confidence >= 50 and >= 100 clean tokens)
 - Excluded as unreadable OCR: 422. They stay in the table and are used in the OCR-noise analysis; they are not silently dropped.
+- Training text per usable book: hocr 2020, djvu 327, tesseract_pages 231 (hocr/djvu = the archive's whole-book OCR; tesseract_pages = our 5 pages, where the archive has none). The first and last 5% of a book's text are skipped and 40 windows of 100 tokens are taken evenly across the rest.
+- Split (stratified by language, seed 2026): train 1548, test 515, val 515. In the evaluation run every fitting step uses train books only; see docs/evaluation_plan.md.
 
 | Language tag | Harvested | Usable | Usable % | Median conf | Tag matches detected script |
 |---|---|---|---|---|---|
@@ -34,7 +36,7 @@ Every choice made between OCR output and the clustering features, with counts.
 | year | 18.6 | 162 | keep (numeric) | publication era shapes vocabulary and spelling; median-imputed with a missing flag |
 | total_pages | 0.0 | 737 | keep as log10 (numeric) | book length; heavy right tail, so log-transformed |
 | mean_conf | 0.3 | 2988 | keep (numeric) | OCR quality; needed to study whether noise drives clusters |
-| n_tokens | 0.0 | 1241 | keep as log10 (numeric) | amount of usable text |
+| n_tokens | 0.0 | 439 | keep as log10 (numeric) | amount of usable text |
 | script | 0.0 | 7 | keep (one-hot) | detected script; the only categorical field encoded |
 | lang_tag | 0.0 | 8 | drop | catalogue tag; replaced by detected script because some tags are wrong |
 | era | 0.0 | 5 | drop from features | derived from year (redundant); kept for profiles and sampling |

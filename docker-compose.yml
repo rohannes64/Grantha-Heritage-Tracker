@@ -4,7 +4,11 @@ services:
     build:
       context: .
       dockerfile: docker/app.Dockerfile
-    image: heritage-topics:1.0
+    image: grantha:2.0
+    # The Gemini API key is read at run time from the git-ignored .env; it is never baked into the image.
+    env_file:
+      - path: .env
+        required: false
     ports:
       - "8000:8000"
     restart: unless-stopped
@@ -18,6 +22,8 @@ services:
       dockerfile: docker/pipeline.Dockerfile
     image: heritage-topics-pipeline:dev
     working_dir: /work
+    environment:
+      HERITAGE_MODEL_DIR: /work/data/models
     volumes:
       - .:/work
 
@@ -26,6 +32,11 @@ services:
     profiles: ["dev"]
     image: heritage-topics-pipeline:dev
     working_dir: /work
+    environment:
+      HERITAGE_MODEL_DIR: /work/data/model/models
+    env_file:
+      - path: .env
+        required: false
     volumes:
       - .:/work
     ports:

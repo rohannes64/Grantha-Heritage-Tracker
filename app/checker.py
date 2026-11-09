@@ -14,7 +14,7 @@ import joblib
 import numpy as np
 from sklearn.metrics import pairwise_distances
 
-from pipeline import config, text
+from pipeline import config, tags as tagging, text
 from pipeline.features import apply_stopwords
 
 MIN_TOKENS_TO_ASSIGN = 20      # below this, no assignment at all
@@ -50,11 +50,11 @@ class Checker:
     def load(cls, path=config.DATA / "model" / "bundle.joblib") -> "Checker":
         return cls(joblib.load(path))
 
-    def features(self, tokens: list[str]) -> np.ndarray:
+    def features(self, tokens: list[str], lang: str | None = None, script: str | None = None) -> np.ndarray:
         t = self.b["transform"]
         if self.b["feature_set"] == "A":
             return t.transform([tokens])[0]
-        return t.transform([tokens])
+        return t.transform([tokens], langs=[lang], scripts=[script])
 
     def shared_terms(self, tokens: list[str], idx: int, top: int = 8) -> list[str]:
         lsa = self.b["lsa"]
@@ -64,7 +64,8 @@ class Checker:
         order = np.argsort(prod.data)[::-1][:top]
         return [self.word_terms[prod.col[i]] for i in order]
 
-    def check_text(self, raw: str, script: str | None = None, ocr_conf: float | None = None) -> dict:
+    def check_text(self, raw: str, script: str | None = None, ocr_conf: float | None = None,
+                   lang: str | None = None) -> dict:
         script = script or detect_script(raw)
         tokens = text.remove_stopwords(text.clean_tokens(raw, script))
         th = self.b["thresholds"]
@@ -79,7 +80,7 @@ class Checker:
             return base | {"status": "abstain",
                            "message": "Too little readable text to compare this document with the archive."}
 
-        z = self.features(tokens).reshape(1, -1).astype(np.float64)
+        z = self.features(tokens, lang, script).reshape(1, -1).astype(np.float64)
         h, d = self.b["hier"], self.b["dbscan"]
 
         dc = pairwise_distances(z, h["centroids"], metric=h["metric"])[0]
@@ -94,6 +95,9 @@ class Checker:
         else:
             level = "outside"
         runner_up = int(np.argsort(dc)[1]) if len(dc) > 1 else None
+        p90 = np.array([h["spread"][int(g)]["p90"] for g in range(len(dc))])
+        also = [{"cluster": g, "name": h["names"][str(g)], "distance": float(dc[g])}
+                for g in tagging.tags(dc[None], p90)[0][1:]]
 
         dcore = pairwise_distances(z, self.core_Z, metric=d["metric"])[0]
         j = int(np.argmin(dcore))
@@ -112,7 +116,8 @@ class Checker:
             "hierarchical": {"cluster": c, "name": h["names"][str(c)], "distance": float(dc[c]), "level": level,
                              "spread": sp, "runner_up": runner_up,
                              "runner_up_name": None if runner_up is None else h["names"][str(runner_up)],
-                             "runner_up_distance": None if runner_up is None else float(dc[runner_up])},
+                             "runner_up_distance": None if runner_up is None else float(dc[runner_up]),
+                             "also_close_to": also},
             "dbscan": {"cluster": dlab, "name": d["names"].get(str(dlab)) if dlab != -1 else None,
                        "nearest_core_distance": float(dcore[j]), "eps": d["eps"], "in_dense_group": in_dense},
             "matches": matches,

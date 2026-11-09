@@ -82,7 +82,7 @@ class D:
 def level0():
     d = D(12, 4.6, "DFD Level 0: context diagram")
     d.entity("user", 16, 22, "Archivist /\nresearcher", w=18, h=16)
-    d.process("sys", 60, 22, "0", "Heritage\nTopic Finder", r=13)
+    d.process("sys", 60, 22, "0", "Grantha", r=13)
     d.entity("ia", 104, 22, "Internet Archive\n(DLI mirror)", w=20, h=10)
     d.flow("user", "e", "sys", "w", "scan, PDF or text, language", oa=6, ob=6)
     d.flow("sys", "w", "user", "e", "group, confidence, 5 nearest books, map")

@@ -1,0 +1,337 @@
+{
+  "base": "http://localhost:8001",
+  "passed": 65,
+  "total": 66,
+  "checks": [
+    {
+      "check": "health",
+      "ok": true,
+      "detail": "{\"status\":\"ok\",\"documents\":2578,\"feature_set\":\"G\",\"needs_internet\":true,\"embeddi"
+    },
+    {
+      "check": "clusters (hierarchical)",
+      "ok": true,
+      "detail": "6 groups"
+    },
+    {
+      "check": "one group (hierarchical)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "clusters (dbscan)",
+      "ok": true,
+      "detail": "12 groups"
+    },
+    {
+      "check": "one group (dbscan)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "unknown group is 404",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "unknown method is 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "unknown document is 404",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "study results",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "ben scan (auto)",
+      "ok": true,
+      "detail": "dli.bengal.10689.10874: read as ben, conf 79, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "ben scan (ben)",
+      "ok": true,
+      "detail": "dli.bengal.10689.10874: read as ben, conf 79, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "ben scan (auto)",
+      "ok": true,
+      "detail": "dli.bengal.10689.1593: read as ben, conf 78, status ok, group Religion and philosophy"
+    },
+    {
+      "check": "ben scan (ben)",
+      "ok": true,
+      "detail": "dli.bengal.10689.1593: read as ben, conf 78, status ok, group Religion and philosophy"
+    },
+    {
+      "check": "ben scan (auto)",
+      "ok": true,
+      "detail": "dli.bengal.10689.1828: read as ben, conf 81, status caution, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "ben scan (ben)",
+      "ok": true,
+      "detail": "dli.bengal.10689.1828: read as ben, conf 81, status caution, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "eng scan (auto)",
+      "ok": true,
+      "detail": "dli.csl.8673: read as eng, conf 89, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "eng scan (eng)",
+      "ok": true,
+      "detail": "dli.csl.8673: read as eng, conf 89, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "eng scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.176982: read as eng, conf 91, status ok, group Science, medicine and technical works"
+    },
+    {
+      "check": "eng scan (eng)",
+      "ok": true,
+      "detail": "dli.ernet.176982: read as eng, conf 91, status ok, group Science, medicine and technical works"
+    },
+    {
+      "check": "eng scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.180241: read as eng, conf 95, status ok, group Christian scriptures and hymns"
+    },
+    {
+      "check": "eng scan (eng)",
+      "ok": true,
+      "detail": "dli.ernet.180241: read as eng, conf 95, status ok, group Christian scriptures and hymns"
+    },
+    {
+      "check": "guj scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.251084: read as guj, conf 79, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "guj scan (guj)",
+      "ok": true,
+      "detail": "dli.ernet.251084: read as guj, conf 79, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "guj scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.251325: read as guj, conf 76, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "guj scan (guj)",
+      "ok": true,
+      "detail": "dli.ernet.251325: read as guj, conf 76, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "guj scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.251638: read as guj, conf 80, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "guj scan (guj)",
+      "ok": true,
+      "detail": "dli.ernet.251638: read as guj, conf 80, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "hin scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.243238: read as hin, conf 87, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "hin scan (hin)",
+      "ok": true,
+      "detail": "dli.ernet.243238: read as hin, conf 87, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "hin scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.287258: read as hin, conf 87, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "hin scan (hin)",
+      "ok": true,
+      "detail": "dli.ernet.287258: read as hin, conf 87, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "hin scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.358774: read as hin, conf 87, status ok, group Religion and philosophy"
+    },
+    {
+      "check": "hin scan (hin)",
+      "ok": true,
+      "detail": "dli.ernet.358774: read as hin, conf 87, status ok, group Religion and philosophy"
+    },
+    {
+      "check": "kan scan (auto)",
+      "ok": true,
+      "detail": "dli.CiXIV101: read as kan, conf 79, status ok, group Christian scriptures and hymns"
+    },
+    {
+      "check": "kan scan (kan)",
+      "ok": true,
+      "detail": "dli.CiXIV101: read as kan, conf 79, status ok, group Christian scriptures and hymns"
+    },
+    {
+      "check": "kan scan (auto)",
+      "ok": true,
+      "detail": "dli.CiXIV290-26: read as kan, conf 72, status caution, group Science, medicine and technical works"
+    },
+    {
+      "check": "kan scan (kan)",
+      "ok": true,
+      "detail": "dli.CiXIV290-26: read as kan, conf 72, status caution, group Science, medicine and technical works"
+    },
+    {
+      "check": "kan scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.554299: read as kan, conf 93, status caution, group Politics, society and public life"
+    },
+    {
+      "check": "kan scan (kan)",
+      "ok": true,
+      "detail": "dli.ernet.554299: read as kan, conf 93, status caution, group Politics, society and public life"
+    },
+    {
+      "check": "san scan (auto)",
+      "ok": false,
+      "detail": "dli.ernet.242077: read as hin, conf 70, status caution, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "san scan (san)",
+      "ok": true,
+      "detail": "dli.ernet.242077: read as san, conf 67, status caution, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "san scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.477328: read as san, conf 69, status caution, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "san scan (san)",
+      "ok": true,
+      "detail": "dli.ernet.477328: read as san, conf 69, status caution, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "san scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.477487: read as san, conf 69, status ok, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "san scan (san)",
+      "ok": true,
+      "detail": "dli.ernet.477487: read as san, conf 69, status ok, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "tam scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.384240: read as tam, conf 62, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tam scan (tam)",
+      "ok": true,
+      "detail": "dli.ernet.384240: read as tam, conf 62, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tam scan (auto)",
+      "ok": true,
+      "detail": "dli.ministry.27439: read as tam, conf 75, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tam scan (tam)",
+      "ok": true,
+      "detail": "dli.ministry.27439: read as tam, conf 75, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tam scan (auto)",
+      "ok": true,
+      "detail": "dli.ministry.30917: read as tam, conf 69, status ok, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "tam scan (tam)",
+      "ok": true,
+      "detail": "dli.ministry.30917: read as tam, conf 69, status ok, group Poetry, epics and classical literature"
+    },
+    {
+      "check": "tel scan (auto)",
+      "ok": true,
+      "detail": "dli.ernet.386770: read as tel, conf 58, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tel scan (tel)",
+      "ok": true,
+      "detail": "dli.ernet.386770: read as tel, conf 58, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tel scan (auto)",
+      "ok": true,
+      "detail": "dli.ministry.28205: read as tel, conf 53, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tel scan (tel)",
+      "ok": true,
+      "detail": "dli.ministry.28205: read as tel, conf 53, status ok, group Modern fiction and stories"
+    },
+    {
+      "check": "tel scan (auto)",
+      "ok": true,
+      "detail": "in.ernet.dli.2015.328374: read as tel, conf 78, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "tel scan (tel)",
+      "ok": true,
+      "detail": "in.ernet.dli.2015.328374: read as tel, conf 78, status ok, group Politics, society and public life"
+    },
+    {
+      "check": "Tamil page with English chosen",
+      "ok": true,
+      "detail": "status caution, conf 28"
+    },
+    {
+      "check": "two-page PDF",
+      "ok": true,
+      "detail": "pages 2, status ok"
+    },
+    {
+      "check": "pasted text",
+      "ok": true,
+      "detail": "status ok"
+    },
+    {
+      "check": "blank page abstains",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "too little text abstains",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "unsupported file is 400",
+      "ok": true,
+      "detail": "{\"detail\":\"the file is not an image or PDF we can read\"}"
+    },
+    {
+      "check": "file over 20 MB is 413",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "nothing sent is 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "unknown language is 400",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

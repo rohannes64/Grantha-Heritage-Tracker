@@ -1,4 +1,4 @@
-// Builds docs/Heritage_Topic_Finder_Report.docx from the study outputs in reports/ and web/data/.
+// Builds docs/Grantha_Report.docx from the study outputs in reports/ and web/data/.
 // Run from the project root:  node docs/build/report.js
 const fs = require("fs");
 const path = require("path");
@@ -91,7 +91,7 @@ const content = [];
 
 // Title page
 content.push(
-  new Paragraph({ spacing: { before: 2400, after: 200 }, alignment: AlignmentType.CENTER, children: [new TextRun({ text: "Heritage Topic Finder", bold: true, size: 56, font: FONT })] }),
+  new Paragraph({ spacing: { before: 2400, after: 200 }, alignment: AlignmentType.CENTER, children: [new TextRun({ text: "Grantha", bold: true, size: 56, font: FONT })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 600 }, children: [new TextRun({ text: "An Unsupervised Grouping Study of Heritage Documents by Topic", size: 30 })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: "Project report, SIH26096", size: 24 })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: "Course outcomes CO2, CO3. Units III and IV: hierarchical and density clustering, PCA visualisation", size: 20 })] }),
@@ -353,19 +353,22 @@ content.push(H1("10. Team contributions"),
 // References
 content.push(H1("References"),
   ...[
-    "Feng, F., Yang, Y., Cer, D., Arivazhagan, N., Wang, W. (2022). Language-agnostic BERT Sentence Embedding. Proceedings of ACL.",
-    "Ester, M., Kriegel, H.-P., Sander, J., Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. Proceedings of KDD.",
-    "Deerwester, S., Dumais, S. T., Furnas, G. W., Landauer, T. K., Harshman, R. (1990). Indexing by latent semantic analysis. Journal of the American Society for Information Science.",
-    "Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. Journal of Computational and Applied Mathematics.",
-    "Hubert, L., Arabie, P. (1985). Comparing partitions. Journal of Classification.",
-    "Ward, J. H. (1963). Hierarchical grouping to optimize an objective function. Journal of the American Statistical Association.",
-    "Smith, R. (2007). An overview of the Tesseract OCR engine. Proceedings of ICDAR.",
-    "Aggarwal, C. C., Hinneburg, A., Keim, D. A. (2001). On the surprising behavior of distance metrics in high dimensional space. Proceedings of ICDT.",
-    "Internet Archive. Digital Library of India collection (digitallibraryindia). https://archive.org/details/digitallibraryindia",
+    "Aggarwal, C. C., Hinneburg, A., Keim, D. A. (2001). On the surprising behavior of distance metrics in high dimensional space. Database Theory (ICDT 2001), LNCS 1973, 420–434. Springer. https://doi.org/10.1007/3-540-44503-X_27",
+    "Campello, R. J. G. B., Moulavi, D., Sander, J. (2013). Density-based clustering based on hierarchical density estimates. Advances in Knowledge Discovery and Data Mining (PAKDD 2013), LNCS 7819, 160–172. Springer. https://doi.org/10.1007/978-3-642-37456-2_14",
+    "Deerwester, S., Dumais, S. T., Furnas, G. W., Landauer, T. K., Harshman, R. (1990). Indexing by latent semantic analysis. Journal of the American Society for Information Science, 41(6), 391–407.",
+    "Deode, S., Gadre, J., Kajale, A., Joshi, A., Joshi, R. (2023). L3Cube-IndicSBERT: A simple approach for learning cross-lingual sentence representations using multilingual BERT. arXiv:2304.11434.",
+    "Ester, M., Kriegel, H.-P., Sander, J., Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. Proceedings of the Second International Conference on Knowledge Discovery and Data Mining (KDD-96), 226–231. AAAI Press.",
+    "Feng, F., Yang, Y., Cer, D., Arivazhagan, N., Wang, W. (2022). Language-agnostic BERT sentence embedding. Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), 878–891. https://doi.org/10.18653/v1/2022.acl-long.62",
+    "Hubert, L., Arabie, P. (1985). Comparing partitions. Journal of Classification, 2(1), 193–218. https://doi.org/10.1007/BF01908075",
+    "Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. Journal of Computational and Applied Mathematics, 20, 53–65. https://doi.org/10.1016/0377-0427(87)90125-7",
+    "Smith, R. (2007). An overview of the Tesseract OCR engine. Proceedings of the Ninth International Conference on Document Analysis and Recognition (ICDAR 2007), vol. 2, 629–633. IEEE. https://doi.org/10.1109/ICDAR.2007.4376991",
+    "Vinh, N. X., Epps, J., Bailey, J. (2010). Information theoretic measures for clusterings comparison: variants, properties, normalization and correction for chance. Journal of Machine Learning Research, 11, 2837–2854.",
+    "Ward, J. H. (1963). Hierarchical grouping to optimize an objective function. Journal of the American Statistical Association, 58(301), 236–244. https://doi.org/10.1080/01621459.1963.10500845",
+    "Internet Archive. Digital Library of India collection (digitallibraryindia). https://archive.org/details/digitallibraryindia (accessed November 2026).",
   ].map((t, k) => (k === 0 && newList(), numbered(t))));
 
 const doc = new Document({
-  creator: "Heritage Topic Finder team", title: "Heritage Topic Finder: project report",
+  creator: "Grantha team", title: "Grantha: project report",
   styles: {
     default: { document: { run: { font: FONT, size: 22 } } },
     paragraphStyles: [
@@ -385,10 +388,10 @@ const doc = new Document({
   sections: [{
     properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } },
     footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: "Heritage Topic Finder, SIH26096    ", size: 16, color: "808080" }), new TextRun({ children: [PageNumber.CURRENT], size: 16, color: "808080" })] })] }) },
+      children: [new TextRun({ text: "Grantha, SIH26096    ", size: 16, color: "808080" }), new TextRun({ children: [PageNumber.CURRENT], size: 16, color: "808080" })] })] }) },
     children: content,
   }],
 });
 
-const out = path.join(ROOT, "docs", "Heritage_Topic_Finder_Report.docx");
+const out = path.join(ROOT, "docs", "Grantha_Report.docx");
 Packer.toBuffer(doc).then((buf) => { fs.writeFileSync(out, buf); console.log("wrote", out, figNo, "figures", tabNo, "tables"); });

@@ -1,0 +1,74 @@
+{
+  "split": "test",
+  "date": "2026-11-09",
+  "feature_set": "G",
+  "feature_name": "Gemini embeddings",
+  "setting": {
+    "linkage": "average",
+    "metric": "euclidean",
+    "k": 6,
+    "silhouette": 0.07160089727811299,
+    "nmi_script": 0.05589367965450248
+  },
+  "held_out_books": 515,
+  "targets": {
+    "T1_page_agreement": 0.8,
+    "T2_points_above_baseline": 10.0,
+    "T3_bootstrap_ari": 0.6
+  },
+  "T1_upload_check": {
+    "pages": 2575,
+    "assigned": 2494,
+    "abstained": 81,
+    "abstain_rate": 0.03145631067961163,
+    "agreement": 0.7245388933440257,
+    "agreement_confident_pages": 0.7415295256534365,
+    "agreement_caution_pages": 0.6425233644859814,
+    "caution_pages": 428,
+    "tagged": {
+      "agreement_tagged": 0.8247794707297514,
+      "tags_per_page": 1.4831595829991981,
+      "rule": "main group + groups within their own 90% spread, at most 3"
+    },
+    "chance": 0.18007648445272384
+  },
+  "T2_subject": {
+    "labelled_train": 336,
+    "labelled_heldout": 75,
+    "tagged": {
+      "accuracy_tagged": 0.72,
+      "tags_per_book": 1.5733333333333333,
+      "distinct_subjects_per_book": 1.52,
+      "tag_precision": 0.4915254237288136
+    },
+    "accuracy_groups": 0.5866666666666667,
+    "baseline_most_common": 0.36,
+    "baseline_script_only": 0.48,
+    "points_above_best_baseline": 10.666666666666668,
+    "permutation_p": 0.0004997501249375312,
+    "nmi_groups_subjects_heldout": 0.4789605519195178,
+    "group_to_subject": {
+      "0": "society, law and economics",
+      "1": "literature",
+      "2": "literature",
+      "3": "science, medicine and technology",
+      "4": "language and grammar",
+      "5": "religion and philosophy"
+    },
+    "subject_counts_heldout": {
+      "literature": 27,
+      "history, biography and geography": 4,
+      "other": 6,
+      "religion and philosophy": 24,
+      "science, medicine and technology": 6,
+      "language and grammar": 3,
+      "society, law and economics": 5
+    }
+  },
+  "T3_bootstrap_median": 0.5841697999294675,
+  "met": {
+    "T1": false,
+    "T2": true,
+    "T3": false
+  }
+}
