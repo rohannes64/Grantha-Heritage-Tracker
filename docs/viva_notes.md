@@ -1,161 +1,153 @@
-# Viva Q&A notes: Grantha (SIH26096)
+# Viva Q&A notes: Grantha (SIH26096), version 2
 
 Short answers with the real numbers. Each section belongs to the person who answers it; anyone may answer the general part.
 Figures are in `reports/figures/`; every number comes from `reports/` and can be checked on the Study page.
+How the numbers were reached: `docs/accuracy_plan.md` and `docs/evaluation_log.md`.
 
 ---
 
 ## General (anyone)
 
 **What does the project do, in one sentence?**
-It groups 2,578 old printed Indian books by topic without any labels, and lets a person upload a page from an unindexed scan to see which group it falls into and which archive books it sits closest to.
+It groups 2,578 old printed Indian books in 8 languages by topic without any labels, and lets a person upload a page from an unindexed scan to see which group it falls into and which archive books, often in other languages, it sits closest to.
 
 **Who would use it, and why?**
-Archivists, librarians and researchers who hold a scan with no subject heading. Today that scan is read alone. The app puts it next to its nearest neighbours in the archive (with links), names the group it falls into, and says how sure the match is.
+Archivists, librarians and researchers who hold a scan with no subject heading. The app puts it next to its nearest neighbours in the archive, with links, names its group and says how sure the match is. The Gyan Bharatam Mission's call for automated manuscript cataloguing shows the need is current.
 
 **What is the input and what is the output?**
-Input: a page image, a PDF (first 5 pages) or pasted text, in English, Hindi, Sanskrit, Bengali, Gujarati, Telugu, Kannada or Tamil. Output: the group from hierarchical clustering with a closeness level, the DBSCAN verdict ("within reach of a dense group" or "noise"), the 5 closest archive books with the words they share, and the page's place on the PCA map. It abstains if fewer than 20 usable words are read.
+Input: a page image, a PDF (first 5 pages) or pasted text. Output: the hierarchical group with a closeness level and any other groups it is "also close to", the DBSCAN verdict (a dense group or noise), the 5 closest archive books with shared words, and the page's place on the PCA map. It abstains under 20 usable words.
 
 **Does checking a new page retrain anything?**
-No. The saved transformers turn the text into the same 100-dimensional features. Hierarchical: nearest centroid, with the distance compared with that group's own spread (median, 90th percentile, maximum). DBSCAN: the page joins a group only if it is within eps of one of that group's core books.
+No. The page is embedded, centred by its OCR language and projected with the saved PCA. Hierarchical: nearest group centre, compared with that group's own spread. DBSCAN: it joins a group only within eps of a core book.
 
 **What did you find?**
-Word-based features (TF-IDF + LSA) group books by script, not topic: the 7 hierarchical groups match the 7 scripts exactly (NMI 1.00). Multilingual LaBSE embeddings cross languages (NMI with script 0.38) and give three groups: English-language books, religious and classical texts, and modern prose. The groups are weak (silhouette 0.107) but stable (bootstrap ARI 0.71).
+Done naively, clustering finds languages, not topics: TF-IDF groups match the scripts exactly (NMI 1.00), and our first multilingual version beat a "guess the subject from the script" baseline by only 3 points. Removing each language's average position from the embeddings, and choosing the encoder that carries the most topic information, turns the groups into topics: 6 groups (modern fiction; politics and public life; science and medicine; poetry and epics; Christian scriptures; religion and philosophy), each across several languages, with script NMI 0.05. On test books measured once, the group predicts the subject 58.7% of the time against 48.0% for the best simple guess.
+
+**Is this really unsupervised?**
+Yes. Hierarchical clustering and DBSCAN never see a label. 704 subject labels exist only to measure the groups afterwards and to compare encoders; they never form or choose groups. The encoders are pre-trained by others and used as fixed text-to-number converters.
 
 **Biggest limitation?**
-The groups are tendencies, not categories. Silhouette is low, DBSCAN on LaBSE leaves 37% of books as noise, and the "religious and classical" group also has older books and lower OCR confidence, so era and OCR quality are partly mixed with topic.
+The encoder is Google's Gemini Embedding 001, a closed online model: checking a page needs the internet and sends its text to Google. The best open model (BGE-M3) was about 7 points lower. Two targets were missed narrowly (page-to-book 72.5% vs 80%; stability 0.58 vs 0.60).
 
 ---
 
 ## Data and OCR (Rajith Sundar)
 
 **Where does the data come from?**
-The Digital Library of India scans mirrored on the Internet Archive (collection `digitallibraryindia`, about 578,000 items). Public, no key. We download single pages (`/page/n<k>_w1200.jpg`), never whole PDFs.
+The Digital Library of India scans mirrored on the Internet Archive (collection `digitallibraryindia`). In our 8 languages there are about 434,000 books published up to 1960 or undated (English 253,682 down to Tamil 4,644). Public, no key. Links for all 3,000 sampled books: `reports/dataset_links.csv`.
 
 **How was the sample drawn?**
-For each of 8 languages, a sampling frame of books published up to 1960 or undated, then a seeded draw (seed 2026) stratified round-robin over 5 era bands (pre-1900, 1900–19, 1920–39, 1940–60, undated). 375 books per language, 3,000 in all. 5 body pages per book at 15/30/50/70/85% through, so covers, contents and indexes are skipped.
+For each language a seeded draw (seed 2026) round-robin over 5 era bands (pre-1900, 1900–19, 1920–39, 1940–60, undated): 375 books per language, 3,000 in all, so English (58% of the pool) does not dominate.
 
-**Why not NDLI directly?**
-NDLI aggregates metadata and has no public bulk API. The DLI scans are the files behind many NDLI records.
+**What text does each book contribute?**
+The archive's own whole-book OCR (hOCR or djvu text) for 2,971 books: first and last 5% trimmed (covers, indexes), 40 evenly spaced windows of 100 tokens kept. Five pages per book were also read with our Tesseract, to measure OCR quality and to test uploads; books without archive text use those pages.
+
+**How was the data split?**
+Before any result: 60/20/20 into train, validation and test, by language, fixed seed. Of 2,578 usable books: 1,548 train, 515 validation, 515 test. Every fitting step uses train books only; the test books were evaluated once.
 
 **How was OCR done?**
-Tesseract 5 in Docker with the 8 language models. OSD turns each page upright and guesses the script. If that guess disagrees with the catalogue's language, the middle page is read with both models and the one with higher mean confidence wins.
-
-**Why that confidence check?**
-The pilot showed OSD calls most Gujarati pages Bengali or Latin: only 3 of 50 Gujarati books were read with the Gujarati model, at median confidence 36. With the check, 43 of 50 are, and the language's median confidence is 70. Some Gujarati-tagged books really are printed in Devanagari, and those correctly keep the Hindi model.
+Tesseract 5 in Docker with 8 language models. OSD turns each page upright and guesses the script. If that disagrees with the catalogue's language, the middle page is read with both models and the more confident wins: Gujarati went from 3 to 43 of 50 pilot books read with the Gujarati model.
 
 **How good is the OCR?**
-Pilot (50 books per language), median word confidence: English 92, Hindi 76, Kannada 76, Bengali 73, Gujarati 70, Tamil 64, Sanskrit 62, Telugu 55. Agreement with the archive's own OCR is 86–99%.
-
-**Telugu fails your usability rule. Why keep it?**
-Its median confidence is 55, below the rule's 60, but its text agrees 86% with the archive's own OCR. So Tesseract's confidence runs low for Telugu rather than the text being bad. We kept it and say so; dropping a language was left to the team lead.
+Pilot median word confidence: English 92, Hindi 76, Kannada 76, Bengali 73, Gujarati 70, Tamil 64, Sanskrit 62, Telugu 55. Telugu fails our rule (60) but agrees 86% with the archive's own OCR, so its confidence runs low rather than its text being bad; it was kept.
 
 **What counts as a usable book?**
-Word-weighted mean confidence of at least 50 and at least 100 clean tokens. 2,578 of 3,000 pass (86%). The other 422 stay in the database, flagged, not silently dropped.
+OCR confidence of at least 50 and at least 100 clean tokens: 2,578 of 3,000 (86%). The other 422 stay in the database, flagged.
 
-**How did you handle missing values?**
-`year` is missing for 19% of usable books: filled with the median (1923) plus a `year_missing` flag, so undated books are not mistaken for typical-year books. Unusable OCR is flagged, not imputed.
+**Missing values, encoding, scaling?**
+Year missing for about a fifth: median fill plus a `year_missing` flag. Script one-hot. Year, page count, OCR confidence and length standardised. Each book's language (its OCR model) is also used to remove that language's average position from its embedding.
 
-**Encoding and scaling?**
-Year, log page count, mean OCR confidence and log token count are standardised (zero mean, unit variance) so year, in the hundreds, does not outweigh confidence, in the tens. Script is one-hot encoded (7 scripts). Era is derived from year, so it is used only to describe groups and to stratify the sample.
+**Variable relevance: what did you drop?**
+The `subject` field holds the scanning centre, not a topic: dropped as leakage. Title, creator, publisher: display only. `classification` (49% missing): only an outside check. Full table: `reports/variable_relevance.csv`.
 
-**Variable relevance: what did you drop and why?**
-The archive's `subject` field turned out to hold the scanning centre ("Banasthali", "IIIT"), not a topic, so it was dropped as leakage, along with `scanning_centre` and `source_library`. Title, creator and publisher are free text, mostly unique, and missing for a new scan: display only. `classification` (49% missing) is kept only as an outside check. The full table is in `reports/variable_relevance.csv`.
+**Was the encoded metadata used?**
+In a sensitivity check: added to the text features at weight 1 it puts 91% of books in one group. So the study clusters text alone.
 
-**Was the encoded metadata used at all?**
-Yes, in a sensitivity check. Added to the LaBSE features at weight 0.5, it merges almost every book into one group (99.7%). So the study clusters text alone.
-
-**How is Indian-script text tokenised?**
-With the regex `[\p{L}\p{M}]+`, which keeps vowel signs inside the word. The default `\w+` splits Indic words at vowel signs. Tokens mixing scripts are dropped as OCR noise.
-
-**Stopwords for 8 languages?**
-No hand-written lists. A term that appears in more than 30% of one language's books is that language's stopword (694 in all). This is reproducible and checkable.
+**Tokenising Indian scripts? Stopwords?**
+`[\p{L}\p{M}]+` keeps vowel signs inside words (`\w+` splits them). Stopwords per language: a term in more than 30% of that language's books. No hand-written lists.
 
 **Rights?**
-The catalogue marks these scans' rights as not available. We keep only OCR text, catalogue fields and links; no scans are redistributed, including in the Docker image.
+Marked "not available". We keep only text, catalogue fields and links; no scans in the repository or the Docker image. Book text is sent to Google's API to be embedded.
 
 ---
 
 ## ML study (Etikala Sai Pranav)
 
+**What went wrong in the first version, and why?**
+Multilingual encoders place each language in its own region, so the largest distances between books are language distances, and clustering finds languages first. Silhouette made it worse: language groups are far apart, so they scored higher (0.14) than topic groups (0.06–0.07).
+
+**How did you fix it without labels?**
+Two steps. (1) Subtract each language's mean embedding, computed on the training books, and rescale; a new page is centred by the language Tesseract read it in. Script NMI fell from 0.38 to 0.05. (2) Choose the encoder by how much topic information it carries.
+
+**How did you choose the encoder?**
+On labelled train and validation books only (never test): how often a book's subject matches the most common subject of its 7 nearest neighbours, 5-fold cross-validated. This is the most any grouping of those numbers could achieve. After removing the language: Gemini 75.0%, BGE-M3 68.2%, LaBSE 64.9%, IndicSBERT 64.5%; multilingual-E5-large 65.8% on an earlier 325-book set. Rule fixed in advance: highest wins, within 2 points the smaller model. Reproducible: `python -m pipeline.encoders`.
+
 **What are the two feature sets?**
-A: TF-IDF on word 1–2-grams plus character 3–5-grams, reduced with truncated SVD to 100 dimensions (33% of variance), rows L2-normalised. B: LaBSE sentence embeddings of 4 evenly spaced 64-word chunks per book, averaged, PCA to 100 dimensions (84% of variance), rows normalised.
+A: TF-IDF on word 1–2-grams plus character 3–5-grams, SVD to 100 dimensions. G: Gemini Embedding 001 of 10 evenly spaced 64-word passages per book, averaged, language mean removed, PCA to 100 dimensions (77% of variance).
 
-**Why character n-grams?**
-They tolerate OCR errors: a misread letter breaks a word but keeps most of its character 3–5-grams.
+**Euclidean or Manhattan?**
+Four criteria fixed in advance (relative contrast, cophenetic correlation for average and complete linkage, best silhouette with average linkage); majority wins, tie to Euclidean. Euclidean wins 3 of 4 on both sets. With unit-length rows, Euclidean distance is a monotone function of cosine similarity.
 
-**Why LaBSE?**
-It maps 109 languages, including all 8 here, into one space where translations sit close together. That is what lets a Tamil and a Telugu book on the same subject land near each other.
+**Which linkages, and how was the final setting chosen?**
+Ward, average and complete, k = 2 to 15; valid if k ≥ 3 and every group ≥ max(10 books, 1%). Final rule, fixed in advance: highest silhouette among settings whose groups follow script with NMI ≤ 0.5 and whose median bootstrap ARI ≥ 0.5. On the train books TF-IDF (silhouette 0.228) fails because its groups are scripts (NMI 0.65); Gemini average linkage with k = 6 (0.072) wins. Silhouette chose 6 groups by itself; we set no floor.
 
-**Euclidean or Manhattan, and how did you decide?**
-Four criteria, fixed in advance: relative contrast (farthest vs nearest neighbour), cophenetic correlation for average and for complete linkage, and best silhouette with average linkage. Majority wins; a tie goes to Euclidean because Ward needs it. B: Euclidean wins all four (cophenetic average 0.76 vs 0.67, complete 0.69 vs 0.45, silhouette 0.119 vs 0.063, contrast 0.81 vs 0.71). A: Euclidean wins 3 of 4; Manhattan has the higher contrast. Since the rows are unit length, Euclidean distance is a monotone function of cosine similarity, which suits text.
-
-**Which linkages?**
-Ward, average and complete, each for k = 2 to 15. A setting is valid if k ≥ 3 and every group holds at least max(10 books, 1%). The best valid silhouette wins. B: average k=3 (0.107) beats Ward k=3 (0.099) and complete k=4 (0.089). A: all three give the same 7 script groups (0.477).
+**Then you refitted on all books?**
+Yes, with the same setting (average, k = 6), not re-chosen: silhouette 0.064. On all books k = 5 would score marginally higher (0.066), but re-choosing on data that includes the test books is what the plan forbids.
 
 **Why is the silhouette so low?**
-Text embeddings of whole books are high-dimensional and topics overlap; values of 0.05–0.25 are normal for text. Above zero means books sit closer to their own group than to the next one. We report it plainly and pair it with stability.
+The topics overlap: devotional poetry is religion and literature. The elbow method shows the same: within-group spread falls smoothly with no sharp elbow. Low silhouette here means honest, overlapping topics, not a failure.
 
-**How did you set DBSCAN's parameters?**
-MinPts in {5, 10, 15, 20}. For each, eps comes from the k-distance curve (distance to the (MinPts−1)th neighbour): its 10/25/40/55/70% quantiles plus the knee, 24 combinations in all. Valid if at least 2 clusters and at most 50% noise; best silhouette on clustered books wins. B: MinPts 20, eps 1.029, 2 clusters, 37% noise, silhouette 0.062. A: MinPts 15, eps 0.484, 8 clusters, 15% noise, silhouette 0.512.
+**DBSCAN?**
+MinPts 5/10/15/20; eps from each k-distance curve (5 quantiles plus the knee): 24 combinations, 9 valid. Chosen: MinPts 15, eps 0.798, 11 dense groups, 47% noise. Its groups are narrower: medicine, Hindu and Jain philosophy, modern prose fiction, classical Tamil and Kannada poetry, regional dynastic history, Indology, administration reports, the national movement (Gandhi, Nehru, Tilak), English fiction, Buddhist scriptures, Kannada Christian texts. HDBSCAN agrees with the hierarchical groups on the books it clusters (ARI 0.84).
 
-**How do hierarchical and DBSCAN compare?**
-On A they agree almost completely (ARI 0.98 on non-noise books): both find scripts. On B they barely agree (ARI 0.08, NMI 0.18). DBSCAN finds one large dense core and one small dense group of modern fiction (Bengali and Kannada, median year 1938), and calls the sparse rest noise. Hierarchical clustering must place every book, so it cuts the continuum into three parts.
+**How do the two methods compare?**
+ARI 0.34, NMI 0.56 on books DBSCAN groups: DBSCAN keeps the dense cores of topics and calls the overlapping middle noise; hierarchical clustering must place every book.
 
 **How stable are the groups?**
-Twenty reruns on random 80% samples, compared by ARI with the full-data labels. B hierarchical: median 0.71 (10th–90th percentile 0.66–0.73). B DBSCAN: median 0.57 (0.52–0.87). Neighbouring settings: hierarchical k=4 agrees at 0.81 and k=2 at 0.41; DBSCAN is sensitive to eps (ARI 0.09 and 0.17 one grid step either way). A is near-perfectly stable (1.00 and 0.92), as script groups would be.
+Bootstrap (20 reruns on 80% samples): hierarchical median 0.58 on train books, 0.51 on all books; neighbouring k = 5 and 7 agree at 0.96–0.98. DBSCAN 0.70. Topic groups are less stable than script groups (TF-IDF: 1.00) because overlapping topics move between neighbours.
 
-**How did you choose the final feature set?**
-A rule fixed before the run: among sets whose hierarchical groups have silhouette > 0 and median bootstrap ARI ≥ 0.5, take the one whose groups depend least on script (lowest NMI with script). Both pass; B wins (0.38 vs 1.00).
+**How did you measure accuracy?**
+Targets fixed before any result: T1, a single uploaded page lands with its own book's group ≥ 80%; T2, the group predicts subject ≥ 10 points better than the better of "most common subject" and "subject from script"; T3, bootstrap ARI ≥ 0.60. Revisions on validation only (2 rounds used); test once.
 
-**What does PCA show?**
-2-D projections for the maps: 23% of variance for B, 26% for A. On A the scripts form separate lines; on B English sits apart and the Indian-language books form one continuum from classical to modern. The maps show shape, not exact distances.
+**Results on test books?**
+T2 met: 58.7% vs 48.0% (+10.7, p = 0.0005). T1 missed: 72.5%, about 4 times chance (18%); a page must pick 1 of 6 groups from noisier OCR than its book. T3 missed: 0.58. Validation agreed within about 2 points, so no overfitting. The test rests on 75 labelled books (about ±6 points).
 
-**How did you name the groups?**
-By reading each group's distinctive terms (ranked by lift, so common words do not win) and its most typical books (closest to the centroid). For example, the classical group's typical books are a Telugu Ramayana, the Bhagavad Gita, a Bhagavatam and a Tamil purana. No language model was used.
+**What are the tags?**
+A rule fixed before measuring it: the nearest group, plus any group the item sits as close to as 9 in 10 of that group's own books (at most 3). With tags, a page's tags include its book's group 82.5% of the time (1.48 tags), and a book's subject is among its tags 72.0% of the time, but only 49% of tags are right, so they are hints. Strict scores are always reported beside them.
 
-**Does OCR quality drive DBSCAN noise?**
-Not among usable books: low confidence predicts noise with AUC 0.54 for B and 0.46 for A, close to chance. The readability filter had already removed the worst scans. Across groups, though, OCR quality differs (63 vs 76 median confidence for the classical vs modern groups).
+**Where do the misses come from?**
+About 30% are religion against literature (epics, devotional poetry), which a second labeller would often call the other way; the "other" category (magazines, music, encyclopaedias) cannot be found by topic; accuracy is lower for noisy OCR and for Sanskrit and Tamil.
 
-**What would you do with more time?**
-Use more pages per book, test IndicSBERT against LaBSE, run HDBSCAN for varying density, and get a few hundred books labelled by subject experts to measure the groups against.
+**Who made the subject labels?**
+The project's assistant, from title, catalogue subject and a text snippet, marked for team spot-check. They only measure.
 
 ---
 
 ## App and delivery (Vemuri Rohan)
 
 **Architecture?**
-FastAPI serves a JSON API and a static website from one process. The model bundle (joblib) holds the fitted transformers, centroids, group spreads, DBSCAN core books and the PCA. Tesseract and LaBSE run inside the same container.
+FastAPI serves a JSON API and a static website. The model bundle holds the fitted TF-IDF, the Gemini embedder settings with each language's mean, the PCA, group centres and spreads, and DBSCAN core books. Tesseract runs in the container; embedding goes to Google's API.
 
-**Endpoints?**
-`POST /api/check` (file or text, language or `auto`), `GET /api/clusters`, `/api/clusters/{id}`, `/api/documents/{id}`, `/api/study`, `/api/health`.
+**Where is the API key?**
+In a git-ignored `.env` file, passed to the container at run time by `docker compose`. It is never in the code, the repository or the image. If Google cannot be reached, the check page says so (HTTP 503).
 
 **How does "detect the language" work?**
-OSD guesses the script; that model reads the first page. If its mean confidence is 70 or more it stands, otherwise all 8 models read the first page and the most confident wins. We added this after OSD called a real Tamil scan Latin (confidence 23, wrong group); now it reads as Tamil at 73.
+OSD guesses the script; if that model reads page 1 at confidence 70 or more it stands, otherwise all 8 models read page 1 and the most confident wins.
 
 **How is closeness reported?**
-The page's distance to the nearest centroid is compared with that group's own books: "sits well inside" if it is closer than the median book, "inside" if within the 90th percentile, "at the edge" if within the farthest book, and "outside every group" beyond that. DBSCAN says whether the page is within eps of a core book.
+Distance to the nearest centroid against that group's own books: "sits well inside" (closer than its median book), "inside" (90th percentile), "at the edge" (farthest book), "outside every group". Plus "also close to" for other groups by the tag rule.
 
-**When does it refuse to answer?**
-Under 20 usable words it abstains. Under 100 words, or OCR confidence below 50 (the bar archive books had to meet), it answers with a caution.
-
-**How fast is it?**
-About 6 seconds for a one-page scan on CPU, most of it OCR.
-
-**Why a static site and no framework?**
-Five pages, no build step, nothing to break offline. Charts are hand-built SVG.
-
-**UI choices?**
-A dark theme fitted to the subject (warm black, paper-white text, one amber accent). Each Study section opens with a plain-language finding, with the numbers in collapsible panels; limits are shown on the page. Lint-checked with Hallmark.
+**When does it refuse?**
+Under 20 usable words it abstains; under 100 words or OCR confidence below 50 it cautions.
 
 **Docker?**
-`docker compose up` runs image `heritage-topics:1.0` (6.1 GB: PyTorch CPU, LaBSE 1.8 GB, Tesseract with 8 languages). It runs with no network: tested with `--network none` (health, pages, and a Tamil scan check in 6 s). A second `pipeline` service reproduces the whole study.
-
-**Why 6 GB when the plan said 2–3?**
-PyTorch and LaBSE together are about 3 GB. LaBSE is copied in as a plain folder because the Hugging Face cache uses symlinks that a Windows build context cannot send.
+`docker compose up` runs `grantha:2.0`, 1.11 GB (version 1 was 6.1 GB, because PyTorch and LaBSE were inside it). A build switch adds PyTorch back if a local encoder is used. A `pipeline` service reproduces the whole study.
 
 **Tests?**
-30 pytest tests: sampling, OCR (rotation, wrong-tag routing, auto language), text cleaning, the study on a synthetic corpus, the checker and the API.
+40 pytest tests (study on a synthetic corpus, language centring, the tag rule, the Gemini client with the network faked, OCR, the API). App checks against the container: 65 of 66 passed, including real scans in all 8 languages, a two-page PDF and every error path. The one failure: a Sanskrit page on detect was read with the Hindi model (same script, slightly more confident); its group was the same.
+
+**UI choices?**
+A dark theme fitted to the subject. Each Study section opens with a plain-language finding; numbers in collapsible panels; limits on the page, including the closed-model trade-off and the missed targets.
 
 **Is any user data stored?**
-No. Uploads are read in memory and discarded.
+No. Uploads are read in memory and discarded; the text is sent to Google only to be embedded.

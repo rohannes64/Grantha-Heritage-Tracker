@@ -132,7 +132,7 @@ def level2_p3():
     d.process("p32", 40, 16, "3.2", "Review fields,\nimpute, encode")
     d.process("p33", 68, 29, "3.3", "Usability\nfilter")
     d.process("p34", 96, 42, "3.4", "TF-IDF\n+ LSA (A)")
-    d.process("p35", 96, 16, "3.5", "LaBSE\n+ PCA (B)")
+    d.process("p35", 96, 16, "3.5", "Gemini embed.\n+ centring, PCA")
     d.store("d3", 122, 29, "D3", "Features", w=18)
     d.flow("d2", "e", "p31", "w", "OCR text")
     d.flow("d1", "e", "p32", "w", "catalogue fields")
