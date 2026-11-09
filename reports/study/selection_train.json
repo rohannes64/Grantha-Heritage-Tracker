@@ -1,37 +1,33 @@
 {
-  "chosen": "B",
+  "chosen": "G",
   "rule_met": true,
   "passes": {
     "A": false,
-    "B": true,
-    "C": false
+    "G": true
   },
   "silhouette": {
     "A": 0.2283635534849247,
-    "B": 0.13904833318301327,
-    "C": 0.08707245064527698
+    "G": 0.07160089727811299
   },
   "nmi_script": {
     "A": 0.6462136215508058,
-    "B": 0.3779088047587302,
-    "C": 0.5578203405627545
+    "G": 0.05589367965450248
   },
   "boot_median": {
     "A": 1.0,
-    "B": 0.7847144798473731,
-    "C": 0.2537225507071039
+    "G": 0.5841697999294675
   },
   "rule": "highest silhouette among feature sets and valid settings whose groups follow script with NMI <= 0.5 and whose median bootstrap ARI >= 0.5",
   "setting": {
     "linkage": "average",
     "metric": "euclidean",
-    "k": 3,
-    "k_actual": 3,
-    "silhouette": 0.13904833318301327,
-    "largest_share": 0.4263565891472868,
-    "smallest": 305,
+    "k": 6,
+    "k_actual": 6,
+    "silhouette": 0.07160089727811299,
+    "largest_share": 0.22545219638242894,
+    "smallest": 157,
     "valid": true,
-    "nmi_script": 0.3779088047587302,
-    "boot_median": 0.7847144798473731
+    "nmi_script": 0.05589367965450248,
+    "boot_median": 0.5841697999294675
   }
 }

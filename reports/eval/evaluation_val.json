@@ -1,14 +1,14 @@
 {
   "split": "val",
   "date": "2026-11-09",
-  "feature_set": "B",
-  "feature_name": "LaBSE embeddings",
+  "feature_set": "G",
+  "feature_name": "Gemini embeddings",
   "setting": {
     "linkage": "average",
     "metric": "euclidean",
-    "k": 3,
-    "silhouette": 0.13904833318301327,
-    "nmi_script": 0.3779088047587302
+    "k": 6,
+    "silhouette": 0.07160089727811299,
+    "nmi_script": 0.05589367965450248
   },
   "held_out_books": 515,
   "targets": {
@@ -21,40 +21,43 @@
     "assigned": 2503,
     "abstained": 72,
     "abstain_rate": 0.027961165048543735,
-    "agreement": 0.9033160207750699,
-    "agreement_confident_pages": 0.9138915318744053,
-    "agreement_caution_pages": 0.8478802992518704,
+    "agreement": 0.7043547742708749,
+    "agreement_confident_pages": 0.7202664129400571,
+    "agreement_caution_pages": 0.6209476309226932,
     "caution_pages": 401,
-    "chance": 0.36243898937697383
+    "chance": 0.18007648445272384
   },
   "T2_subject": {
-    "labelled_train": 232,
-    "labelled_heldout": 93,
-    "accuracy_groups": 0.40860215053763443,
-    "baseline_most_common": 0.20430107526881722,
-    "baseline_script_only": 0.3763440860215054,
-    "points_above_best_baseline": 3.2258064516129057,
+    "labelled_train": 336,
+    "labelled_heldout": 293,
+    "accuracy_groups": 0.590443686006826,
+    "baseline_most_common": 0.3174061433447099,
+    "baseline_script_only": 0.4641638225255973,
+    "points_above_best_baseline": 12.627986348122866,
     "permutation_p": 0.0004997501249375312,
-    "nmi_groups_subjects_heldout": 0.2222828907542509,
+    "nmi_groups_subjects_heldout": 0.3688530692511689,
     "group_to_subject": {
       "0": "society, law and economics",
-      "1": "religion and philosophy",
-      "2": "literature"
+      "1": "literature",
+      "2": "literature",
+      "3": "science, medicine and technology",
+      "4": "language and grammar",
+      "5": "religion and philosophy"
     },
     "subject_counts_heldout": {
-      "science, medicine and technology": 12,
-      "history, biography and geography": 13,
-      "religion and philosophy": 39,
-      "literature": 19,
-      "society, law and economics": 6,
-      "language and grammar": 2,
-      "other": 2
+      "science, medicine and technology": 32,
+      "history, biography and geography": 35,
+      "literature": 93,
+      "religion and philosophy": 94,
+      "society, law and economics": 15,
+      "language and grammar": 11,
+      "other": 13
     }
   },
-  "T3_bootstrap_median": 0.7847144798473731,
+  "T3_bootstrap_median": 0.5841697999294675,
   "met": {
-    "T1": true,
-    "T2": false,
-    "T3": true
+    "T1": false,
+    "T2": true,
+    "T3": false
   }
 }
