@@ -1,0 +1,60 @@
+{
+  "split": "val",
+  "date": "2026-11-09",
+  "feature_set": "B",
+  "feature_name": "LaBSE embeddings",
+  "setting": {
+    "linkage": "average",
+    "metric": "euclidean",
+    "k": 3,
+    "silhouette": 0.13904833318301327,
+    "nmi_script": 0.3779088047587302
+  },
+  "held_out_books": 515,
+  "targets": {
+    "T1_page_agreement": 0.8,
+    "T2_points_above_baseline": 10.0,
+    "T3_bootstrap_ari": 0.6
+  },
+  "T1_upload_check": {
+    "pages": 2575,
+    "assigned": 2503,
+    "abstained": 72,
+    "abstain_rate": 0.027961165048543735,
+    "agreement": 0.9033160207750699,
+    "agreement_confident_pages": 0.9138915318744053,
+    "agreement_caution_pages": 0.8478802992518704,
+    "caution_pages": 401,
+    "chance": 0.36243898937697383
+  },
+  "T2_subject": {
+    "labelled_train": 232,
+    "labelled_heldout": 93,
+    "accuracy_groups": 0.40860215053763443,
+    "baseline_most_common": 0.20430107526881722,
+    "baseline_script_only": 0.3763440860215054,
+    "points_above_best_baseline": 3.2258064516129057,
+    "permutation_p": 0.0004997501249375312,
+    "nmi_groups_subjects_heldout": 0.2222828907542509,
+    "group_to_subject": {
+      "0": "society, law and economics",
+      "1": "religion and philosophy",
+      "2": "literature"
+    },
+    "subject_counts_heldout": {
+      "science, medicine and technology": 12,
+      "history, biography and geography": 13,
+      "religion and philosophy": 39,
+      "literature": 19,
+      "society, law and economics": 6,
+      "language and grammar": 2,
+      "other": 2
+    }
+  },
+  "T3_bootstrap_median": 0.7847144798473731,
+  "met": {
+    "T1": true,
+    "T2": false,
+    "T3": true
+  }
+}

@@ -36,10 +36,10 @@ LOG = config.ROOT / "docs" / "evaluation_log.md"
 TARGETS = {"T1_page_agreement": 0.80, "T2_points_above_baseline": 10.0, "T3_bootstrap_ari": 0.60}
 
 
-def transform(fs, tf, token_lists):
+def transform(fs, tf, token_lists, langs=None):
     if fs == "A":
         return tf.transform(token_lists)[0]
-    return tf.transform(token_lists)
+    return tf.transform(token_lists, langs=langs)
 
 
 def nearest(Z, centroids, metric):
@@ -52,7 +52,7 @@ def upload_check(fs, tf, centroids, metric, book_group: dict, con) -> dict:
     q = f"SELECT identifier, leaf, text, mean_conf, ocr_model FROM pages WHERE identifier IN ({','.join('?' * len(ids))})"
     pages = pd.read_sql_query(q, con, params=ids)
     pages = pages[pages["text"].notna()]
-    toks, keep, caution = [], [], []
+    toks, keep, caution, langs = [], [], [], []
     for r in pages.itertuples():
         script = MODEL_SCRIPT.get(r.ocr_model, "Latin")
         t = text.remove_stopwords(text.clean_tokens(r.text, script))
@@ -60,8 +60,9 @@ def upload_check(fs, tf, centroids, metric, book_group: dict, con) -> dict:
             continue
         toks.append(t)
         keep.append(r.identifier)
+        langs.append(r.ocr_model)
         caution.append(bool((r.mean_conf or 0) < MIN_DOC_CONF or len(t) < 100))
-    groups = nearest(transform(fs, tf, toks), centroids, metric)
+    groups = nearest(transform(fs, tf, toks, langs), centroids, metric)
     agree = np.array([g == book_group[i] for g, i in zip(groups, keep)])
     caution = np.array(caution)
     return {"pages": int(len(pages)), "assigned": int(len(keep)), "abstained": int(len(pages) - len(keep)),

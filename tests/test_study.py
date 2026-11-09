@@ -114,3 +114,28 @@ def test_pick_hierarchical_skips_settings_that_only_find_script():
     best, lab, boot, ok = study.pick_hierarchical(rows, linkages, D, scripts, rng)
     assert best["nmi_script"] <= study.MAX_SCRIPT_NMI or not ok
     assert best["k"] != 2   # k=2 is exactly the script split (and invalid anyway, k >= 3)
+
+
+def test_language_centring_removes_language_offset_and_resolves_unknown_language():
+    from sklearn.preprocessing import normalize
+    rng = np.random.default_rng(1)
+    topic = rng.normal(size=(2, 16))
+    offset = {"hin": rng.normal(size=16) * 3, "san": rng.normal(size=16) * 3, "eng": rng.normal(size=16) * 3}
+    rows, langs, topics = [], [], []
+    for l in offset:
+        for i in range(40):
+            t = i % 2
+            rows.append(offset[l] + topic[t] + rng.normal(scale=0.3, size=16))
+            langs.append(l); topics.append(t)
+    E = normalize(np.array(rows))
+    emb = features.Embedder()
+    emb.pca.n_components = 4
+    Z = emb.fit_transform_raw(E, langs)
+    from sklearn.metrics import normalized_mutual_info_score as nmi
+    from scipy.cluster.hierarchy import fcluster, linkage
+    g = fcluster(linkage(Z, "ward"), 2, "maxclust")
+    assert nmi(topics, g) > 0.9 and nmi(langs, g) < 0.1      # groups follow topic, not language
+    # an unlabelled Devanagari row is centred by the Devanagari language it is closest to
+    assert emb.resolve_languages(E[:1], None, ["Devanagari"]) == ["hin"]
+    assert emb.resolve_languages(E[45:46], None, ["Devanagari"]) == ["san"]
+    assert emb.resolve_languages(E[100:101], None, None) == ["eng"]

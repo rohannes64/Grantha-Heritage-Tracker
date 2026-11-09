@@ -46,6 +46,10 @@ SET_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embe
 CHUNK_TOKENS = 64          # words per chunk; ~128 word-pieces for Indian scripts
 MAX_CHUNKS = 10            # evenly spaced across the book's training text (CPU budget: ~4 chunks/s)
 MAX_SEQ = 128              # word-pieces per chunk; Indian-script words split into several
+# Multilingual embeddings place each language in its own region, so groups follow language before topic.
+# Subtracting each language's mean (fitted on the fit books only) removes that offset; a new document is
+# centred by its OCR language. Validation round 1 (docs/evaluation_log.md): script NMI 0.38 -> 0.04.
+CENTRE_BY_LANGUAGE = True
 
 
 def word_analyzer(tokens: list[str]) -> list[str]:
@@ -129,6 +133,7 @@ class Embedder:
     def __init__(self, model_name: str = EMBED_MODEL, seed: int = config.SEED):
         self.model_name = model_name
         self.pca = PCA(N_COMPONENTS, random_state=seed)
+        self.lang_means: dict[str, np.ndarray] = {}   # per-language centre of the fitted books
         self._model = None
 
     def __getstate__(self):
@@ -153,11 +158,48 @@ class Embedder:
             i += len(cs)
         return normalize(np.vstack(out))
 
-    def fit_transform_raw(self, E: np.ndarray) -> np.ndarray:
+    def fit_centring(self, E: np.ndarray, langs) -> None:
+        langs = np.asarray(langs)
+        self.lang_means = {l: E[langs == l].mean(axis=0) for l in np.unique(langs) if (langs == l).sum() >= 20}
+
+    def resolve_languages(self, E: np.ndarray, langs=None, scripts=None) -> list:
+        """The language each row is centred by. A known language is used as given. Otherwise the row takes
+        the language whose centre it is closest to (cosine), among the languages of its script if known:
+        multilingual embeddings separate languages very clearly, which is why they need centring."""
+        means = getattr(self, "lang_means", {})
+        out = []
+        for i, e in enumerate(E):
+            l = langs[i] if langs is not None else None
+            if l in means:
+                out.append(l)
+                continue
+            s = scripts[i] if scripts is not None else None
+            cands = [k for k in means if s is None or config.LANGUAGES.get(k, {}).get("script") == s] or list(means)
+            out.append(max(cands, key=lambda k: float(e @ means[k]) / (np.linalg.norm(means[k]) + 1e-12)) if cands else None)
+        return out
+
+    def centre(self, E: np.ndarray, langs=None, scripts=None) -> np.ndarray:
+        """Remove each book's language offset so groups follow content, not the language it is written in."""
+        means = getattr(self, "lang_means", {})
+        if not means:
+            return E
+        E = E.copy()
+        for i, l in enumerate(self.resolve_languages(E, langs, scripts)):
+            if l is not None:
+                E[i] -= means[l]
+        return normalize(E)
+
+    def fit_transform_raw(self, E: np.ndarray, langs=None) -> np.ndarray:
+        if CENTRE_BY_LANGUAGE and langs is not None:
+            self.fit_centring(E, langs)
+            E = self.centre(E, langs)
         return normalize(self.pca.fit_transform(E)).astype(np.float32)
 
-    def transform(self, token_lists) -> np.ndarray:
-        return normalize(self.pca.transform(self.raw(token_lists))).astype(np.float32)
+    def transform_raw(self, E: np.ndarray, langs=None, scripts=None) -> np.ndarray:
+        return normalize(self.pca.transform(self.centre(E, langs, scripts))).astype(np.float32)
+
+    def transform(self, token_lists, langs=None, scripts=None) -> np.ndarray:
+        return self.transform_raw(self.raw(token_lists), langs, scripts)
 
 
 def load_inputs():
@@ -216,10 +258,12 @@ def main(argv=None) -> None:
             continue
         E = raw_embeddings(fs, ids, toks)
         emb = Embedder(MODELS[fs])
-        Z = emb.fit_transform_raw(E[fit])
-        bundle[fs] = {"Z": Z, "transform": emb, "explained_variance": float(emb.pca.explained_variance_ratio_.sum())}
+        lang = np.asarray(languages)
+        Z = emb.fit_transform_raw(E[fit], lang[fit])
+        bundle[fs] = {"Z": Z, "transform": emb, "explained_variance": float(emb.pca.explained_variance_ratio_.sum()),
+                      "centred_by_language": bool(emb.lang_means)}
         if hold_toks:
-            bundle["holdout"][fs] = normalize(emb.pca.transform(E[~fit])).astype(np.float32)
+            bundle["holdout"][fs] = emb.transform_raw(E[~fit], lang[~fit])
         print(f"{fs}: {Z.shape}, PCA keeps {bundle[fs]['explained_variance']:.1%} of embedding variance", flush=True)
     joblib.dump(bundle, out_path)
 

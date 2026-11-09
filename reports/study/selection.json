@@ -1,12 +1,25 @@
 {
   "chosen": "B",
-  "meets_quality_bar": {
-    "A": true,
-    "B": true
+  "rule_met": true,
+  "passes": {
+    "A": false,
+    "B": true,
+    "C": false
+  },
+  "silhouette": {
+    "A": 0.2283635534849247,
+    "B": 0.13904833318301327,
+    "C": 0.08707245064527698
   },
   "nmi_script": {
-    "A": 1.0,
-    "B": 0.3789093251900786
+    "A": 0.6462136215508058,
+    "B": 0.3779088047587302,
+    "C": 0.5578203405627545
   },
-  "rule": "lowest NMI with script among sets with silhouette > 0 and median bootstrap ARI >= 0.5"
+  "boot_median": {
+    "A": 1.0,
+    "B": 0.7847144798473731,
+    "C": 0.2537225507071039
+  },
+  "rule": "highest silhouette among feature sets and valid settings whose groups follow script with NMI <= 0.5 and whose median bootstrap ARI >= 0.5"
 }
