@@ -32,7 +32,7 @@ def run() -> dict:
     M = M / np.sqrt(M.shape[1])
     docs = pd.read_csv(PROCESSED / "docs.csv").set_index("identifier").loc[ids]
     out = {"weights": WEIGHTS, "columns": meta["columns"], "feature_sets": {}}
-    for fs in ("A", "B"):
+    for fs in ("A", "B", "C"):
         if fs not in feats:
             continue
         fin = st["results"][fs]["hierarchical"]["final"]

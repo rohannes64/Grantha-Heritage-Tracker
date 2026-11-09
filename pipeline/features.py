@@ -1,12 +1,19 @@
-"""Step 4: two feature sets for the same usable books, both 100-dimensional with unit-length rows.
+"""Step 4: three feature sets for the same usable books, all 100-dimensional with unit-length rows.
 
-    python -m pipeline.features            # both sets
-    python -m pipeline.features --only A   # TF-IDF + LSA only (no embedding model needed)
+    python -m pipeline.features --fit train   # evaluation run: fit on train books, transform the rest
+    python -m pipeline.features --fit all     # final run: fit on every usable book (the app's model)
+    python -m pipeline.features --only A      # one set only
+
+The bundle's "ids" are the books the transforms were fitted on (and that the study clusters);
+"holdout" holds the other usable books, transformed with the same fitted transforms, for evaluation.
 
 A. TF-IDF + LSA: word 1-2-grams and character 3-5-grams (robust to OCR errors), each L2-normalised
    and weighted equally, reduced with TruncatedSVD (latent semantic analysis), rows re-normalised.
 B. Multilingual sentence embeddings (LaBSE, 109 languages incl. all 8 here): each book's clean text
    is cut into chunks, embedded, averaged; reduced with PCA to 100 dimensions, rows re-normalised.
+C. IndicSBERT (l3cube-pune/indic-sentence-similarity-sbert): the same recipe with a sentence model
+   trained on Indian languages (Hindi, Marathi, Kannada, Tamil, Telugu, Malayalam, Gujarati, Odia,
+   Punjabi, Bengali and English). Sanskrit is read through its Devanagari script.
 
 Stopwords: per-language document frequency. A term found in more than 30% of the books *of its own
 language* (the OCR model: eng, hin, san, ben, guj, tel, kan, tam) is dropped. A corpus-wide cap
@@ -17,6 +24,7 @@ import argparse
 import json
 import os
 from collections import Counter, defaultdict
+from pathlib import Path
 
 import joblib
 import numpy as np
@@ -32,8 +40,11 @@ PROCESSED = config.DATA / "processed"
 N_COMPONENTS = 100
 LANG_DF_CAP = 0.3
 EMBED_MODEL = "sentence-transformers/LaBSE"
+INDIC_MODEL = "l3cube-pune/indic-sentence-similarity-sbert"
+MODELS = {"B": EMBED_MODEL, "C": INDIC_MODEL}
+SET_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings"}
 CHUNK_TOKENS = 64          # words per chunk; ~128 word-pieces for Indian scripts
-MAX_CHUNKS = 4             # evenly spaced across the book's 5 pages (CPU budget: ~4 chunks/s)
+MAX_CHUNKS = 10            # evenly spaced across the book's training text (CPU budget: ~4 chunks/s)
 MAX_SEQ = 128              # word-pieces per chunk; Indian-script words split into several
 
 
@@ -99,6 +110,19 @@ def chunks_of(tokens: list[str]) -> list[str]:
     return [" ".join(p) for p in pieces]
 
 
+def model_slug(name: str) -> str:
+    return name.replace("/", "__")
+
+
+def local_model_path(name: str) -> str:
+    """HERITAGE_MODEL_DIR/<slug>: a plain saved copy of the model (the app image uses one, since the
+    Hugging Face cache relies on symlinks that a Windows build context cannot send). Else the hub name."""
+    base = os.environ.get("HERITAGE_MODEL_DIR")
+    if base and (Path(base) / model_slug(name) / "config.json").exists():
+        return str(Path(base) / model_slug(name))
+    return name
+
+
 class Embedder:
     """Feature set B. The sentence-transformers model is loaded lazily (it is ~1.8 GB)."""
 
@@ -114,9 +138,7 @@ class Embedder:
     def model(self):
         if self._model is None:
             from sentence_transformers import SentenceTransformer
-            # HERITAGE_EMBED_MODEL: a plain local copy of the same model (the app image uses one,
-            # since the Hugging Face cache relies on symlinks that a Windows build context cannot send).
-            self._model = SentenceTransformer(os.environ.get("HERITAGE_EMBED_MODEL", self.model_name), device="cpu")
+            self._model = SentenceTransformer(local_model_path(self.model_name), device="cpu")
             self._model.max_seq_length = MAX_SEQ
         return self._model
 
@@ -139,47 +161,66 @@ class Embedder:
 
 
 def load_inputs():
-    docs = pd.read_csv(PROCESSED / "docs.csv")
+    docs = pd.read_csv(PROCESSED / "docs.csv").set_index("identifier")
     rows = [json.loads(l) for l in (PROCESSED / "tokens.jsonl").open(encoding="utf-8")]
     ids = [r["identifier"] for r in rows]
     toks = [r["tokens"] for r in rows]
-    language = docs.set_index("identifier").loc[ids, "ocr_model"].tolist()   # eng, hin, san, ...
-    return ids, toks, language
+    language = docs.loc[ids, "ocr_model"].tolist()   # eng, hin, san, ...
+    split = docs.loc[ids, "split"].tolist()
+    return ids, toks, language, split
+
+
+def raw_embeddings(fs: str, ids: list[str], toks) -> np.ndarray:
+    """Chunk embeddings averaged per book, before PCA. Cached per model and corpus (no fitting here)."""
+    cache = PROCESSED / f"embeddings_raw_{fs}.npy"
+    cache_ids = PROCESSED / f"embeddings_ids_{fs}.json"
+    if cache.exists() and cache_ids.exists() and json.loads(cache_ids.read_text()) == ids:
+        return np.load(cache)
+    E = Embedder(MODELS[fs]).raw(toks, progress=True)
+    np.save(cache, E)
+    cache_ids.write_text(json.dumps(ids))
+    return E
 
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--only", choices=["A", "B"])
+    ap.add_argument("--only", choices=["A", "B", "C"])
+    ap.add_argument("--fit", choices=["train", "all"], default="all")
     args = ap.parse_args(argv)
-    ids, toks, languages = load_inputs()
+    ids, toks, languages, split = load_inputs()
+    fit = np.array([args.fit == "all" or s == "train" for s in split])
+    fit_ids = [i for i, f in zip(ids, fit) if f]
+    hold_ids = [i for i, f in zip(ids, fit) if not f]
+    fit_toks = [t for t, f in zip(toks, fit) if f]
+    hold_toks = [t for t, f in zip(toks, fit) if not f]
     out_path = PROCESSED / "features.joblib"
     bundle = joblib.load(out_path) if out_path.exists() else {}
-    if bundle.get("ids") not in (None, ids):
-        bundle = {}  # corpus changed: recompute everything
-    bundle["ids"] = ids
+    if bundle.get("ids") != fit_ids or bundle.get("fit") != args.fit:
+        bundle = {}  # corpus or fit set changed: recompute everything
+    bundle.update({"ids": fit_ids, "fit": args.fit})
+    bundle.setdefault("holdout", {})["ids"] = hold_ids
+    print(f"fit on {len(fit_ids)} books ({args.fit}); {len(hold_ids)} held out", flush=True)
     if args.only in (None, "A"):
         lsa = TfidfLSA()
-        Z, Xw = lsa.fit_transform(toks, languages)
+        Z, Xw = lsa.fit_transform(fit_toks, [l for l, f in zip(languages, fit) if f])
         bundle["A"] = {"Z": Z, "Xw": Xw, "transform": lsa,
                        "explained_variance": float(lsa.svd.explained_variance_ratio_.sum()),
                        "n_stopwords": len(lsa.stop),
                        "vocab_word": len(lsa.word.vocabulary_), "vocab_char": len(lsa.char.vocabulary_)}
+        if hold_toks:
+            bundle["holdout"]["A"] = lsa.transform(hold_toks)[0]
         print(f"A: {Z.shape}, SVD explains {bundle['A']['explained_variance']:.1%} of TF-IDF variance, "
               f"{len(lsa.stop)} per-language stopwords", flush=True)
-    if args.only in (None, "B"):
-        emb = Embedder()
-        cache = PROCESSED / "embeddings_raw.npy"
-        cache_ids = PROCESSED / "embeddings_ids.json"
-        if cache.exists() and cache_ids.exists() and json.loads(cache_ids.read_text()) == ids:
-            E = np.load(cache)
-        else:
-            E = emb.raw(toks, progress=True)
-            np.save(cache, E)
-            cache_ids.write_text(json.dumps(ids))
-        Z = emb.fit_transform_raw(E)
-        bundle["B"] = {"Z": Z, "transform": emb,
-                       "explained_variance": float(emb.pca.explained_variance_ratio_.sum())}
-        print(f"B: {Z.shape}, PCA keeps {bundle['B']['explained_variance']:.1%} of embedding variance", flush=True)
+    for fs in ("B", "C"):
+        if args.only not in (None, fs):
+            continue
+        E = raw_embeddings(fs, ids, toks)
+        emb = Embedder(MODELS[fs])
+        Z = emb.fit_transform_raw(E[fit])
+        bundle[fs] = {"Z": Z, "transform": emb, "explained_variance": float(emb.pca.explained_variance_ratio_.sum())}
+        if hold_toks:
+            bundle["holdout"][fs] = normalize(emb.pca.transform(E[~fit])).astype(np.float32)
+        print(f"{fs}: {Z.shape}, PCA keeps {bundle[fs]['explained_variance']:.1%} of embedding variance", flush=True)
     joblib.dump(bundle, out_path)
 
 

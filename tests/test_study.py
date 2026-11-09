@@ -50,10 +50,13 @@ def test_study_end_to_end_recovers_planted_topics():
     assert h["rule_met"]
     labels = np.array(h["labels"])
     from sklearn.metrics import adjusted_rand_score
-    # TF-IDF vocabularies differ by script, so it recovers topic x script (the language-split effect
-    # the study measures on real data): 3 planted topics x 2 scripts = 6 groups.
-    assert adjusted_rand_score(docs["topic"] + "/" + docs["script"], labels) > 0.9
-    assert res["hierarchical"]["effects"]["nmi_script"] > 0.3
+    # TF-IDF vocabularies differ by script, so groups split topic x script (the language-split effect
+    # the study measures on real data). The selection rule caps how much groups may follow script
+    # (NMI <= 0.5), so the chosen groups must each hold one planted topic, while some follow script.
+    purity = pd.crosstab(labels, docs["topic"]).max(axis=1).sum() / len(labels)
+    assert purity > 0.95
+    assert adjusted_rand_score(docs["topic"] + "/" + docs["script"], labels) > 0.8
+    assert 0.2 < res["hierarchical"]["effects"]["nmi_script"] <= study.MAX_SCRIPT_NMI
     assert h["bootstrap_ari"]["median"] > 0.8
     assert res["distance"]["chosen"] in ("euclidean", "cityblock")
     assert len(res["dbscan"]["grid"]) >= 3 * len(study.MINPTS)       # brief asks for >= 3 eps/MinPts combos
@@ -75,3 +78,39 @@ def test_stopwords_are_per_language():
     assert "है" in stop and "इति" in stop     # function words of each language, each only 1/3 of the corpus
     assert "the" in stop
     assert "राम" not in stop                    # in 5 of 30 Hindi books: content, kept
+
+
+def _res(sil, nmi, boot, rule_met):
+    return {"hierarchical": {"rule_met": rule_met, "final": {"silhouette": sil}, "effects": {"nmi_script": nmi},
+                             "bootstrap_ari": {"median": boot}}}
+
+
+def test_final_choice_is_highest_silhouette_among_sets_passing_the_rule():
+    # A: script groups (high silhouette, fails the rule); B and C pass; C has the higher silhouette.
+    r = {"A": _res(0.48, 1.00, 1.0, False), "B": _res(0.11, 0.38, 0.71, True), "C": _res(0.14, 0.30, 0.65, True)}
+    sel = study.choose_feature_set(r)
+    assert sel["chosen"] == "C" and sel["rule_met"]
+
+
+def test_final_choice_falls_back_to_lowest_script_dependence_and_says_so():
+    r = {"A": _res(0.48, 1.00, 1.0, False), "B": _res(0.11, 0.60, 0.4, False)}
+    sel = study.choose_feature_set(r)
+    assert sel["chosen"] == "B" and not sel["rule_met"]
+
+
+def test_pick_hierarchical_skips_settings_that_only_find_script():
+    rng = np.random.default_rng(0)
+    # two scripts far apart, and within each, two topics close together
+    pts, scripts = [], []
+    for s, sx in (("Latin", 0.0), ("Devanagari", 10.0)):
+        for t, ty in ((0, 0.0), (1, 1.5)):
+            pts.append(rng.normal([sx, ty], 0.2, size=(30, 2)))
+            scripts += [s] * 30
+    Z = np.vstack(pts)
+    scripts = np.array(scripts)
+    from sklearn.metrics import pairwise_distances
+    D = {m: pairwise_distances(Z, metric=m) for m in study.METRICS}
+    rows, linkages = study.hierarchical_grid(D, "euclidean")
+    best, lab, boot, ok = study.pick_hierarchical(rows, linkages, D, scripts, rng)
+    assert best["nmi_script"] <= study.MAX_SCRIPT_NMI or not ok
+    assert best["k"] != 2   # k=2 is exactly the script split (and invalid anyway, k >= 3)
