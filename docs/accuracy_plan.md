@@ -72,3 +72,18 @@ app checks against the container.
 On the current encoder even a supervised 7-nearest-neighbour guess reaches about 64% subject accuracy
 (seven broad subjects, noisy OCR of eight languages, many books mixing subjects). Unsupervised groups cannot
 pass that ceiling, so the aim is to approach it and to say so plainly.
+
+## Round 2: multi-tags (fixed 2026-11-09, before any round-2 result)
+
+Round 1 met T2 and missed T1 (0.704) and T3 (0.58). Round 2 adds tags, without changing any target.
+
+- Main tag: the nearest group centre, as now. Every strict score (T1, T2, T3) stays as defined.
+- Extra tags: a group is also a tag if the item is within that group's own 90th-percentile distance (how far
+  9 in 10 of the group's train books sit from its centre). At most 3 tags in total, nearest first. No labels
+  are used to set this; it comes from the train books' distances alone.
+- Reported alongside the strict scores, as secondary measures with no targets of their own:
+  - T1 tagged: the book's group is among the uploaded page's tags; average tags per page.
+  - T2 tagged: the book's subject is among the subjects of its tags (each group's subject from train, as in T2);
+    average tags per book; and tag precision (share of all tags whose subject is right), so over-tagging shows.
+- T3 is unchanged (tags do not change the groups).
+- The app shows the main group and "also close to" groups by the same rule.
