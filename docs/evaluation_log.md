@@ -19,3 +19,4 @@ Round 2 (validation, 2026-11-09): same model as round 1, plus multi-tags by the 
 docs/accuracy_plan.md. Strict scores unchanged (T1 0.704, T2 0.590, T3 0.58). Tagged, as secondary measures:
 the uploaded page's tags include its book's group 0.818 of the time (1.48 tags per page); the book's subject
 is among its tags' subjects 0.700 of the time (1.61 tags per book, tag precision 0.46).
+| 2026-11-09 | test | G average k=6 | 0.725 (chance 0.18, abstain 3%); tagged 0.825 at 1.48 tags | 0.587 vs 0.480; tagged 0.720 at 1.57 tags, precision 0.49 | 0.58 | T1✗ T2✓ T3✗ |

@@ -243,6 +243,7 @@ class GeminiEmbedder(Embedder):
     URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents"
     BATCH = 100        # the API's limit per call
     PARALLEL = 4       # calls in flight at once (429s are retried with backoff)
+    TRIES = 10         # waits 1, 2, 4 ... 60 s: rides out a per-minute quota (about 4 minutes in all)
 
     @property
     def model(self):
@@ -256,18 +257,18 @@ class GeminiEmbedder(Embedder):
             raise EmbeddingServiceError("GEMINI_API_KEY is not set (put it in the project's .env)")
         body = {"requests": [{"model": f"models/{GEMINI_MODEL}", "content": {"parts": [{"text": t}]},
                               "taskType": "CLUSTERING"} for t in texts]}
-        for attempt in range(6):
+        for attempt in range(self.TRIES):
             try:
                 r = requests.post(self.URL, json=body, headers={"x-goog-api-key": key}, timeout=60)
             except requests.RequestException as e:
-                if attempt == 5:
+                if attempt == self.TRIES - 1:
                     raise EmbeddingServiceError(f"embedding service unreachable: {type(e).__name__}") from e
                 time.sleep(2 ** attempt)
                 continue
             if r.status_code == 200:
                 return np.asarray([e["values"] for e in r.json()["embeddings"]], dtype=np.float32)
-            if r.status_code in (429, 500, 503) and attempt < 5:
-                time.sleep(2 ** attempt)
+            if r.status_code in (429, 500, 503) and attempt < self.TRIES - 1:
+                time.sleep(min(60, 2 ** attempt) + float(np.random.random()))   # per-minute quotas reset within 60 s
                 continue
             raise EmbeddingServiceError(f"embedding service answered HTTP {r.status_code}")
         raise EmbeddingServiceError("embedding service kept refusing")
