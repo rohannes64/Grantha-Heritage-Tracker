@@ -4,7 +4,7 @@
 
 Outputs (data/processed/):
   docs.csv            one row per harvested book: metadata, OCR quality, usability flag
-  tokens.jsonl        cleaned tokens per usable book
+  tokens.jsonl        cleaned training tokens per usable book (whole-book archive text where available)
   metadata.joblib     fitted encoder/scaler for the metadata block + the encoded matrix
 Report: reports/preprocessing_log.md (every decision, with counts).
 """
@@ -28,6 +28,14 @@ OUT = config.DATA / "processed"
 MIN_DOC_CONF = 50.0      # word-weighted mean Tesseract confidence across the book's pages
 MIN_DOC_TOKENS = 100     # clean tokens left after filtering
 
+# Whole-book text (pipeline.fulltext). Covers, contents and indexes sit at the ends of a book, so the
+# first and last 5% of the text are skipped; then 40 windows of 100 tokens are taken evenly across
+# the rest. That reads the whole book's spread without letting long books swamp the vocabulary.
+FULLTEXT = config.DATA / "fulltext"
+TRIM_SHARE = 0.05
+WINDOWS, WINDOW_TOKENS = 40, 100
+SPLITS = (("train", 0.6), ("val", 0.2), ("test", 0.2))
+
 NUMERIC = ["year", "log_pages", "mean_conf", "log_tokens"]
 CATEGORICAL = ["script"]
 
@@ -41,6 +49,41 @@ def load(con) -> pd.DataFrame:
     return docs, pages
 
 
+def windows(tokens: list[str], n: int = WINDOWS, size: int = WINDOW_TOKENS) -> list[str]:
+    if len(tokens) <= n * size:
+        return tokens
+    starts = np.linspace(0, len(tokens) - size, n).round().astype(int)
+    return [t for s in starts for t in tokens[s:s + size]]
+
+
+def fulltext_tokens(ident: str, script: str) -> tuple[str, list[str]]:
+    """(source, training tokens) from the archive's whole-book OCR; ("none", []) if there is none."""
+    path = FULLTEXT / f"{ident}.json"
+    if not path.exists():
+        return "none", []
+    d = json.loads(path.read_text(encoding="utf-8"))
+    raw = d.get("text") or ""
+    if d.get("source") == "none" or not raw.strip():
+        return "none", []
+    cut = int(len(raw) * TRIM_SHARE)
+    toks = text.remove_stopwords(text.clean_tokens(raw[cut:len(raw) - cut], script))
+    return d["source"], windows(toks)
+
+
+def assign_splits(df: pd.DataFrame, seed: int = config.SEED) -> pd.Series:
+    """Train/val/test for usable books, stratified by catalogue language, fixed by the seed."""
+    rng = np.random.default_rng(seed)
+    split = pd.Series(None, index=df.index, dtype=object)
+    for _, g in df[df["usable"] == 1].groupby("lang_tag"):
+        idx = rng.permutation(g.index.to_numpy())
+        n_train = int(round(SPLITS[0][1] * len(idx)))
+        n_val = int(round(SPLITS[1][1] * len(idx)))
+        split[idx[:n_train]] = "train"
+        split[idx[n_train:n_train + n_val]] = "val"
+        split[idx[n_train + n_val:]] = "test"
+    return split
+
+
 def doc_level(docs: pd.DataFrame, pages: pd.DataFrame) -> pd.DataFrame:
     ocrd = pages[pages["text"].notna()]
     rows = []
@@ -49,11 +92,15 @@ def doc_level(docs: pd.DataFrame, pages: pd.DataFrame) -> pd.DataFrame:
         conf = (g["mean_conf"].fillna(0) * words).sum() / words.sum() if words.sum() else None
         model = g["ocr_model"].mode().iat[0]
         script = MODEL_SCRIPT.get(model, "Latin")
-        tokens = text.remove_stopwords(
+        page_tokens = text.remove_stopwords(
             [t for page in g.sort_values("leaf")["text"] for t in text.clean_tokens(page, script)])
+        source, full = fulltext_tokens(ident, script)
+        if len(full) < len(page_tokens):        # archive text missing or thinner than our own pages
+            source, full = "tesseract_pages", page_tokens
         rows.append({"identifier": ident, "ocr_model": model, "script": script, "pages_ocrd": len(g),
                      "mean_conf": conf, "ocr_words": int(words.sum()),
-                     "script_ratio": g["script_ratio"].mean(), "n_tokens": len(tokens), "tokens_list": tokens})
+                     "script_ratio": g["script_ratio"].mean(), "n_page_tokens": len(page_tokens),
+                     "text_source": source, "n_tokens": len(full), "tokens_list": full})
     lvl = pd.DataFrame(rows)
     out = docs.merge(lvl, on="identifier", how="inner")
     out["log_pages"] = np.log10(out["total_pages"].astype(float))
@@ -63,6 +110,7 @@ def doc_level(docs: pd.DataFrame, pages: pd.DataFrame) -> pd.DataFrame:
     out["tag_matches_script"] = (out["tag_script"] == out["script"]).astype(int)
     out["usable"] = ((out["mean_conf"].fillna(0) >= MIN_DOC_CONF) &
                      (out["n_tokens"] >= MIN_DOC_TOKENS)).astype(int)
+    out["split"] = assign_splits(out)
     return out
 
 
@@ -110,7 +158,13 @@ def write_log(df: pd.DataFrame, rel: pd.DataFrame, enc: ColumnTransformer) -> No
          f"- Usable for clustering: {len(usable)} "
          f"(rule: word-weighted mean OCR confidence >= {MIN_DOC_CONF:.0f} and >= {MIN_DOC_TOKENS} clean tokens)",
          f"- Excluded as unreadable OCR: {len(df) - len(usable)}. They stay in the table and are used in the "
-         "OCR-noise analysis; they are not silently dropped.", "",
+         "OCR-noise analysis; they are not silently dropped.",
+         "- Training text per usable book: " + ", ".join(f"{k} {v}" for k, v in usable["text_source"].value_counts().items())
+         + " (hocr/djvu = the archive's whole-book OCR; tesseract_pages = our 5 pages, where the archive has none). "
+         f"The first and last {TRIM_SHARE:.0%} of a book's text are skipped and {WINDOWS} windows of {WINDOW_TOKENS} "
+         "tokens are taken evenly across the rest.",
+         "- Split (stratified by language, seed 2026): " + ", ".join(f"{k} {v}" for k, v in usable["split"].value_counts().items())
+         + ". In the evaluation run every fitting step uses train books only; see docs/evaluation_plan.md.", "",
          "| Language tag | Harvested | Usable | Usable % | Median conf | Tag matches detected script |",
          "|---|---|---|---|---|---|"]
     for lang, g in df.groupby("lang_tag"):
