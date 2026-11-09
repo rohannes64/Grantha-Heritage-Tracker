@@ -51,12 +51,22 @@ def main() -> None:
     rows = {}
     for fs, name in MODELS.items():
         cache, ids_path = PROCESSED / f"embeddings_raw_{fs}.npy", PROCESSED / f"embeddings_ids_{fs}.json"
-        if not cache.exists():
+        # an encoder that was only benchmarked has vectors for the labelled books alone (same order as keep)
+        bench = config.DATA / "logs" / f"exp_{name.replace('/', '__')}.npy"
+        if cache.exists():
+            ids = json.loads(ids_path.read_text())
+        elif bench.exists():
+            ids = json.loads((PROCESSED / "embeddings_ids_B.json").read_text())
+        else:
             continue
-        ids = json.loads(ids_path.read_text())
         keep = [i for i in ids if i in lab.index and docs.loc[i, "split"] in ("train", "val")]
-        pos = {d: k for k, d in enumerate(ids)}
-        E = np.load(cache)[[pos[i] for i in keep]]
+        if cache.exists():
+            pos = {d: k for k, d in enumerate(ids)}
+            E = np.load(cache)[[pos[i] for i in keep]]
+        else:
+            E = np.load(bench)
+            if len(E) != len(keep):
+                continue
         y, langs = lab[keep].values, docs.loc[keep, "ocr_model"].values
         rows[fs] = {"model": name, "name": SET_NAMES[fs], "params_m": PARAMS_M.get(fs), "books": len(keep),
                     "knn_plain": knn_cv(normalize(E), y), "knn_centred": knn_cv(centred(E, langs), y)}

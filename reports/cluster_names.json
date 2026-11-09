@@ -29,5 +29,27 @@
     "-1": "Not in any dense group (noise)",
     "0": "Main body: classical and scholarly books",
     "1": "Modern fiction and stories"
+  },
+  "G_hier": {
+    "0": "Modern fiction and stories",
+    "1": "Politics, society and public life",
+    "2": "Science, medicine and technical works",
+    "3": "Poetry, epics and classical literature",
+    "4": "Christian scriptures and hymns",
+    "5": "Religion and philosophy"
+  },
+  "G_dbscan": {
+    "-1": "Not in a dense group",
+    "0": "Medicine and health",
+    "1": "Hindu and Jain religious philosophy",
+    "2": "Modern prose fiction",
+    "3": "Classical Tamil and Kannada poetry",
+    "4": "Kings, kingdoms and regional history",
+    "5": "Indology and ancient Indian history",
+    "6": "Government and administration reports",
+    "7": "The national movement (Gandhi, Nehru, Tilak)",
+    "8": "English fiction",
+    "9": "Buddhist scriptures",
+    "10": "Christian scriptures (Kannada)"
   }
 }

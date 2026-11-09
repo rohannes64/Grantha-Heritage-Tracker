@@ -6,16 +6,50 @@
     "G": true
   },
   "silhouette": {
-    "A": 0.2283635534849247,
-    "G": 0.07160089727811299
+    "A": 0.23101526370010422,
+    "G": 0.06392428606881888
   },
   "nmi_script": {
-    "A": 0.6462136215508058,
-    "G": 0.05589367965450248
+    "A": 0.5726209934183256,
+    "G": 0.05265876931040313
   },
   "boot_median": {
     "A": 1.0,
-    "G": 0.5841697999294675
+    "G": 0.5132369529130749
   },
-  "rule": "highest silhouette among feature sets and valid settings whose groups follow script with NMI <= 0.5 and whose median bootstrap ARI >= 0.5"
+  "rule": "highest silhouette among feature sets and valid settings whose groups follow script with NMI <= 0.5 and whose median bootstrap ARI >= 0.5",
+  "chosen_on": "train books (docs/evaluation_plan.md)",
+  "train_selection": {
+    "chosen": "G",
+    "rule_met": true,
+    "passes": {
+      "A": false,
+      "G": true
+    },
+    "silhouette": {
+      "A": 0.2283635534849247,
+      "G": 0.07160089727811299
+    },
+    "nmi_script": {
+      "A": 0.6462136215508058,
+      "G": 0.05589367965450248
+    },
+    "boot_median": {
+      "A": 1.0,
+      "G": 0.5841697999294675
+    },
+    "rule": "highest silhouette among feature sets and valid settings whose groups follow script with NMI <= 0.5 and whose median bootstrap ARI >= 0.5",
+    "setting": {
+      "linkage": "average",
+      "metric": "euclidean",
+      "k": 6,
+      "k_actual": 6,
+      "silhouette": 0.07160089727811299,
+      "largest_share": 0.22545219638242894,
+      "smallest": 157,
+      "valid": true,
+      "nmi_script": 0.05589367965450248,
+      "boot_median": 0.5841697999294675
+    }
+  }
 }

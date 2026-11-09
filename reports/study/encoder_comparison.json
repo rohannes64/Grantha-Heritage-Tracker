@@ -1,0 +1,48 @@
+{
+  "encoders": {
+    "B": {
+      "model": "sentence-transformers/LaBSE",
+      "name": "LaBSE embeddings",
+      "params_m": 471,
+      "books": 629,
+      "knn_plain": 0.6089015873015874,
+      "knn_centred": 0.6486603174603174
+    },
+    "C": {
+      "model": "l3cube-pune/indic-sentence-similarity-sbert",
+      "name": "IndicSBERT embeddings",
+      "params_m": 238,
+      "books": 629,
+      "knn_plain": 0.5580571428571429,
+      "knn_centred": 0.6454730158730159
+    },
+    "D": {
+      "model": "BAAI/bge-m3",
+      "name": "BGE-M3 embeddings",
+      "params_m": 568,
+      "books": 629,
+      "knn_plain": 0.6074285714285714,
+      "knn_centred": 0.6821206349206349
+    },
+    "G": {
+      "model": "gemini-embedding-001",
+      "name": "Gemini embeddings",
+      "params_m": null,
+      "books": 629,
+      "knn_plain": 0.6392253968253968,
+      "knn_centred": 0.7504126984126984
+    }
+  },
+  "chosen": "G",
+  "rule": "highest centred 7-NN subject accuracy; within 2 points the smaller model",
+  "subjects": [
+    "history, biography and geography",
+    "language and grammar",
+    "literature",
+    "other",
+    "religion and philosophy",
+    "science, medicine and technology",
+    "society, law and economics"
+  ],
+  "note": "labelled train+validation books only; test books unused"
+}
