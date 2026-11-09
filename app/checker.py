@@ -14,7 +14,7 @@ import joblib
 import numpy as np
 from sklearn.metrics import pairwise_distances
 
-from pipeline import config, text
+from pipeline import config, tags as tagging, text
 from pipeline.features import apply_stopwords
 
 MIN_TOKENS_TO_ASSIGN = 20      # below this, no assignment at all
@@ -95,6 +95,9 @@ class Checker:
         else:
             level = "outside"
         runner_up = int(np.argsort(dc)[1]) if len(dc) > 1 else None
+        p90 = np.array([h["spread"][int(g)]["p90"] for g in range(len(dc))])
+        also = [{"cluster": g, "name": h["names"][str(g)], "distance": float(dc[g])}
+                for g in tagging.tags(dc[None], p90)[0][1:]]
 
         dcore = pairwise_distances(z, self.core_Z, metric=d["metric"])[0]
         j = int(np.argmin(dcore))
@@ -113,7 +116,8 @@ class Checker:
             "hierarchical": {"cluster": c, "name": h["names"][str(c)], "distance": float(dc[c]), "level": level,
                              "spread": sp, "runner_up": runner_up,
                              "runner_up_name": None if runner_up is None else h["names"][str(runner_up)],
-                             "runner_up_distance": None if runner_up is None else float(dc[runner_up])},
+                             "runner_up_distance": None if runner_up is None else float(dc[runner_up]),
+                             "also_close_to": also},
             "dbscan": {"cluster": dlab, "name": d["names"].get(str(dlab)) if dlab != -1 else None,
                        "nearest_core_distance": float(dcore[j]), "eps": d["eps"], "in_dense_group": in_dense},
             "matches": matches,
