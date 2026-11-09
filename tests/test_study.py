@@ -139,3 +139,16 @@ def test_language_centring_removes_language_offset_and_resolves_unknown_language
     assert emb.resolve_languages(E[:1], None, ["Devanagari"]) == ["hin"]
     assert emb.resolve_languages(E[45:46], None, ["Devanagari"]) == ["san"]
     assert emb.resolve_languages(E[100:101], None, None) == ["eng"]
+
+
+def test_tags_are_main_group_plus_groups_within_their_spread():
+    from pipeline import tags
+    spread = np.array([1.0, 1.0, 0.5])
+    t = tags.tags(np.array([[0.2, 0.9, 0.4],     # near 0; inside 1's spread; 2 at 0.4 <= 0.5 -> 3 tags
+                            [0.8, 2.0, 0.6],     # main 2 (0.6 > its spread, still the main tag); 0 inside
+                            [3.0, 2.5, 4.0]]),   # outside every group: main tag only
+                  spread)
+    assert t == [[0, 2, 1], [2, 0], [1]]
+    own = np.array([0.1, 0.2, 0.3, 1.0, 0.5, 0.6])
+    lab = np.array([0, 0, 0, 0, 1, 1])
+    assert np.allclose(tags.group_spread(own, lab, [0, 1]), [np.quantile([0.1, 0.2, 0.3, 1.0], 0.9), 0.59])

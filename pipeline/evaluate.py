@@ -26,7 +26,7 @@ import pandas as pd
 from sklearn.metrics import normalized_mutual_info_score, pairwise_distances
 
 from app.checker import MIN_TOKENS_TO_ASSIGN
-from . import config, db, text
+from . import config, db, tags as tagging, text
 from .preprocess import MIN_DOC_CONF, MODEL_SCRIPT
 
 PROCESSED = config.DATA / "processed"
@@ -46,7 +46,7 @@ def nearest(Z, centroids, metric):
     return np.argmin(pairwise_distances(Z, centroids, metric=metric), axis=1)
 
 
-def upload_check(fs, tf, centroids, metric, book_group: dict, con) -> dict:
+def upload_check(fs, tf, centroids, metric, book_group: dict, con, spread=None) -> dict:
     """T1: every Tesseract page of every held-out book, read exactly as an upload would be."""
     ids = list(book_group)
     q = f"SELECT identifier, leaf, text, mean_conf, ocr_model FROM pages WHERE identifier IN ({','.join('?' * len(ids))})"
@@ -62,18 +62,26 @@ def upload_check(fs, tf, centroids, metric, book_group: dict, con) -> dict:
         keep.append(r.identifier)
         langs.append(r.ocr_model)
         caution.append(bool((r.mean_conf or 0) < MIN_DOC_CONF or len(t) < 100))
-    groups = nearest(transform(fs, tf, toks, langs), centroids, metric)
+    D = pairwise_distances(transform(fs, tf, toks, langs), centroids, metric=metric)
+    groups = D.argmin(axis=1)
     agree = np.array([g == book_group[i] for g, i in zip(groups, keep)])
+    tagged = None
+    if spread is not None:
+        page_tags = tagging.tags(D, spread)
+        hit = np.array([book_group[i] in t for t, i in zip(page_tags, keep)])
+        tagged = {"agreement_tagged": float(hit.mean()), "tags_per_page": float(np.mean([len(t) for t in page_tags])),
+                  "rule": f"main group + groups within their own {tagging.SPREAD_Q:.0%} spread, at most {tagging.MAX_TAGS}"}
     caution = np.array(caution)
     return {"pages": int(len(pages)), "assigned": int(len(keep)), "abstained": int(len(pages) - len(keep)),
             "abstain_rate": float(1 - len(keep) / max(1, len(pages))),
             "agreement": float(agree.mean()) if len(agree) else None,
             "agreement_confident_pages": float(agree[~caution].mean()) if (~caution).any() else None,
             "agreement_caution_pages": float(agree[caution].mean()) if caution.any() else None,
-            "caution_pages": int(caution.sum())}
+            "caution_pages": int(caution.sum()), "tagged": tagged}
 
 
-def subject_scores(train_groups: dict, held_groups: dict, docs: pd.DataFrame, labels: pd.DataFrame, rng) -> dict:
+def subject_scores(train_groups: dict, held_groups: dict, docs: pd.DataFrame, labels: pd.DataFrame, rng,
+                   held_tags: dict | None = None) -> dict:
     """T2: group -> majority subject (learned on labelled train books), tested on labelled held-out books."""
     lab = labels.set_index("identifier")["subject"]
     tr = [i for i in train_groups if i in lab.index]
@@ -98,7 +106,14 @@ def subject_scores(train_groups: dict, held_groups: dict, docs: pd.DataFrame, la
     # permutation test: how often do shuffled labels do as well as the groups?
     perm = [np.mean(pred_group == rng.permutation(truth)) for _ in range(2000)]
     best_base = max(a_m, a_s)
-    return {"labelled_train": len(tr), "labelled_heldout": len(te),
+    tagged = None
+    if held_tags is not None:
+        subj = [[by_group.get(g, overall) for g in held_tags[i]] for i in te]
+        tagged = {"accuracy_tagged": float(np.mean([t in s for s, t in zip(subj, truth)])),
+                  "tags_per_book": float(np.mean([len(s) for s in subj])),
+                  "distinct_subjects_per_book": float(np.mean([len(set(s)) for s in subj])),
+                  "tag_precision": float(np.sum([sum(x == t for x in s) for s, t in zip(subj, truth)]) / sum(len(s) for s in subj))}
+    return {"labelled_train": len(tr), "labelled_heldout": len(te), "tagged": tagged,
             "accuracy_groups": a_g, "baseline_most_common": a_m, "baseline_script_only": a_s,
             "points_above_best_baseline": 100 * (a_g - best_base),
             "permutation_p": float((np.sum(np.array(perm) >= a_g) + 1) / (len(perm) + 1)),
@@ -129,12 +144,15 @@ def main() -> None:
     pos = {i: k for k, i in enumerate(hold["ids"])}
     Zh = hold[fs][[pos[i] for i in want]].astype(np.float64)
     held_groups = dict(zip(want, nearest(Zh, centroids, metric).tolist()))
+    own = pairwise_distances(Z, centroids, metric=metric)[np.arange(len(Z)), hl]
+    spread = tagging.group_spread(own, hl, sorted(set(hl)))
+    held_tags = dict(zip(want, tagging.tags(pairwise_distances(Zh, centroids, metric=metric), spread)))
 
     shares = np.bincount(hl) / len(hl)
-    t1 = upload_check(fs, feats[fs]["transform"], centroids, metric, held_groups, db.connect())
+    t1 = upload_check(fs, feats[fs]["transform"], centroids, metric, held_groups, db.connect(), spread)
     t1["chance"] = float(np.sum(shares ** 2))
     labels = pd.read_csv(LABELS) if LABELS.exists() else pd.DataFrame(columns=["identifier", "subject"])
-    t2 = subject_scores(train_groups, held_groups, docs, labels, np.random.default_rng(config.SEED))
+    t2 = subject_scores(train_groups, held_groups, docs, labels, np.random.default_rng(config.SEED), held_tags)
     t3 = res["hierarchical"]["bootstrap_ari"]["median"]
     verdict = {
         "T1": t1["agreement"] is not None and t1["agreement"] >= TARGETS["T1_page_agreement"],
@@ -148,8 +166,12 @@ def main() -> None:
     EVAL.mkdir(parents=True, exist_ok=True)
     (EVAL / f"evaluation_{a.split}.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
     line = (f"| {date.today()} | {a.split} | {fs} {res['hierarchical']['final']['linkage']} k={res['hierarchical']['final']['k']} "
-            f"| {t1['agreement']:.3f} (chance {t1['chance']:.2f}, abstain {t1['abstain_rate']:.0%}) "
-            f"| {t2.get('accuracy_groups', float('nan')):.3f} vs {max(t2.get('baseline_most_common', 0), t2.get('baseline_script_only', 0)):.3f} "
+            f"| {t1['agreement']:.3f} (chance {t1['chance']:.2f}, abstain {t1['abstain_rate']:.0%})"
+            + (f"; tagged {t1['tagged']['agreement_tagged']:.3f} at {t1['tagged']['tags_per_page']:.2f} tags " if t1.get("tagged") else " ")
+            + f"| {t2.get('accuracy_groups', float('nan')):.3f} vs {max(t2.get('baseline_most_common', 0), t2.get('baseline_script_only', 0)):.3f}"
+            + (f"; tagged {t2['tagged']['accuracy_tagged']:.3f} at {t2['tagged']['tags_per_book']:.2f} tags, precision {t2['tagged']['tag_precision']:.2f} "
+               if t2.get("tagged") else " ")
+            +
             f"| {t3:.2f} | {' '.join(k + ('✓' if v else '✗') for k, v in verdict.items())} |")
     if not LOG.exists():
         LOG.write_text("# Evaluation log\n\nOne line per evaluation run (docs/evaluation_plan.md).\n\n"
