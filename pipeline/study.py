@@ -44,7 +44,10 @@ MINPTS = [5, 10, 15, 20]
 EPS_QUANTILES = [0.10, 0.25, 0.40, 0.55, 0.70]
 N_BOOT, BOOT_FRAC = 20, 0.8
 MAX_NOISE = 0.5
-FEATURE_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings"}
+FEATURE_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings", "D": "BGE-M3 embeddings"}
+# Feature sets the clustering study compares: the explainable TF-IDF baseline and the encoder chosen by
+# pipeline.encoders (most topic information after language centring; docs/accuracy_plan.md, round 1).
+STUDY_SETS = ("A", "D")
 MAX_SCRIPT_NMI = 0.5
 MIN_BOOT_ARI = 0.5
 MAX_BOOT_TRIES = 12       # candidates bootstrapped, best silhouette first, until one passes
@@ -486,7 +489,7 @@ def main() -> None:
     train_sel = STUDY / "selection_train.json"
     fixed = json.loads(train_sel.read_text()) if fit == "all" and train_sel.exists() else None
     results = {}
-    for fs in ("A", "B", "C"):
+    for fs in STUDY_SETS:
         if fs in bundle:
             keep = (fixed["setting"]["linkage"], fixed["setting"]["k"]) if fixed and fixed["chosen"] == fs else None
             results[fs] = run_feature_set(fs, bundle, docs, rng, keep)

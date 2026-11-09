@@ -11,6 +11,9 @@ A. TF-IDF + LSA: word 1-2-grams and character 3-5-grams (robust to OCR errors), 
    and weighted equally, reduced with TruncatedSVD (latent semantic analysis), rows re-normalised.
 B. Multilingual sentence embeddings (LaBSE, 109 languages incl. all 8 here): each book's clean text
    is cut into chunks, embedded, averaged; reduced with PCA to 100 dimensions, rows re-normalised.
+D. BGE-M3 (BAAI/bge-m3, trained for multilingual search, 100+ languages): the same recipe. Chosen in
+   validation round 1 because, after language centring, it carries the most topic information
+   (docs/accuracy_plan.md: 68.2% vs LaBSE 64.9% and IndicSBERT 64.5%, 7-NN on labelled train+val books).
 C. IndicSBERT (l3cube-pune/indic-sentence-similarity-sbert): the same recipe with a sentence model
    trained on Indian languages (Hindi, Marathi, Kannada, Tamil, Telugu, Malayalam, Gujarati, Odia,
    Punjabi, Bengali and English). Sanskrit is read through its Devanagari script.
@@ -41,8 +44,9 @@ N_COMPONENTS = 100
 LANG_DF_CAP = 0.3
 EMBED_MODEL = "sentence-transformers/LaBSE"
 INDIC_MODEL = "l3cube-pune/indic-sentence-similarity-sbert"
-MODELS = {"B": EMBED_MODEL, "C": INDIC_MODEL}
-SET_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings"}
+BGE_MODEL = "BAAI/bge-m3"
+MODELS = {"B": EMBED_MODEL, "C": INDIC_MODEL, "D": BGE_MODEL}
+SET_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings", "D": "BGE-M3 embeddings"}
 CHUNK_TOKENS = 64          # words per chunk; ~128 word-pieces for Indian scripts
 MAX_CHUNKS = 10            # evenly spaced across the book's training text (CPU budget: ~4 chunks/s)
 MAX_SEQ = 128              # word-pieces per chunk; Indian-script words split into several
@@ -127,6 +131,14 @@ def local_model_path(name: str) -> str:
     return name
 
 
+def embed_device() -> str:
+    """cuda when a GPU is visible (the batch embedding run), else cpu (the app image). HERITAGE_DEVICE overrides."""
+    if os.environ.get("HERITAGE_DEVICE"):
+        return os.environ["HERITAGE_DEVICE"]
+    import torch
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
 class Embedder:
     """Feature set B. The sentence-transformers model is loaded lazily (it is ~1.8 GB)."""
 
@@ -143,11 +155,14 @@ class Embedder:
     def model(self):
         if self._model is None:
             from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(local_model_path(self.model_name), device="cpu")
+            device = embed_device()
+            self._model = SentenceTransformer(local_model_path(self.model_name), device=device)
             self._model.max_seq_length = MAX_SEQ
+            if device == "cuda":
+                self._model.half()   # fp16 fits a 4 GB GPU; checked against the CPU result (docs/accuracy_plan.md)
         return self._model
 
-    def raw(self, token_lists, batch_size: int = 64, progress: bool = False) -> np.ndarray:
+    def raw(self, token_lists, batch_size: int = 32, progress: bool = False) -> np.ndarray:
         doc_chunks = [chunks_of(t) for t in token_lists]
         flat = [c for cs in doc_chunks for c in cs]
         emb = self.model.encode(flat, batch_size=batch_size, normalize_embeddings=True,
@@ -226,7 +241,7 @@ def raw_embeddings(fs: str, ids: list[str], toks) -> np.ndarray:
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--only", choices=["A", "B", "C"])
+    ap.add_argument("--only", choices=["A", *MODELS])
     ap.add_argument("--fit", choices=["train", "all"], default="all")
     args = ap.parse_args(argv)
     ids, toks, languages, split = load_inputs()
@@ -253,7 +268,7 @@ def main(argv=None) -> None:
             bundle["holdout"]["A"] = lsa.transform(hold_toks)[0]
         print(f"A: {Z.shape}, SVD explains {bundle['A']['explained_variance']:.1%} of TF-IDF variance, "
               f"{len(lsa.stop)} per-language stopwords", flush=True)
-    for fs in ("B", "C"):
+    for fs in MODELS:
         if args.only not in (None, fs):
             continue
         E = raw_embeddings(fs, ids, toks)
