@@ -50,11 +50,11 @@ class Checker:
     def load(cls, path=config.DATA / "model" / "bundle.joblib") -> "Checker":
         return cls(joblib.load(path))
 
-    def features(self, tokens: list[str]) -> np.ndarray:
+    def features(self, tokens: list[str], lang: str | None = None, script: str | None = None) -> np.ndarray:
         t = self.b["transform"]
         if self.b["feature_set"] == "A":
             return t.transform([tokens])[0]
-        return t.transform([tokens])
+        return t.transform([tokens], langs=[lang], scripts=[script])
 
     def shared_terms(self, tokens: list[str], idx: int, top: int = 8) -> list[str]:
         lsa = self.b["lsa"]
@@ -64,7 +64,8 @@ class Checker:
         order = np.argsort(prod.data)[::-1][:top]
         return [self.word_terms[prod.col[i]] for i in order]
 
-    def check_text(self, raw: str, script: str | None = None, ocr_conf: float | None = None) -> dict:
+    def check_text(self, raw: str, script: str | None = None, ocr_conf: float | None = None,
+                   lang: str | None = None) -> dict:
         script = script or detect_script(raw)
         tokens = text.remove_stopwords(text.clean_tokens(raw, script))
         th = self.b["thresholds"]
@@ -79,7 +80,7 @@ class Checker:
             return base | {"status": "abstain",
                            "message": "Too little readable text to compare this document with the archive."}
 
-        z = self.features(tokens).reshape(1, -1).astype(np.float64)
+        z = self.features(tokens, lang, script).reshape(1, -1).astype(np.float64)
         h, d = self.b["hier"], self.b["dbscan"]
 
         dc = pairwise_distances(z, h["centroids"], metric=h["metric"])[0]

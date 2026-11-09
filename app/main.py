@@ -114,7 +114,7 @@ async def check(file: UploadFile | None = File(None), text: str | None = Form(No
         raw = text[:MAX_TEXT]
         script = config.LANGUAGES[lang]["script"] if lang else None
         conf = None
-    result = checker().check_text(raw, script=script, ocr_conf=conf)
+    result = checker().check_text(raw, script=script, ocr_conf=conf, lang=ocr["model"] if ocr else lang)
     result["input"] = "scan" if file is not None else "text"
     if ocr:
         result["ocr"] = {k: ocr[k] for k in ("model", "pages", "script_detected")} | {"preview": ocr["text"][:1200]}
