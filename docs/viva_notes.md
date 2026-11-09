@@ -1,4 +1,4 @@
-# Viva Q&A notes: Heritage Topic Finder (SIH26096)
+# Viva Q&A notes: Grantha (SIH26096)
 
 Short answers with the real numbers. Each section belongs to the person who answers it; anyone may answer the general part.
 Figures are in `reports/figures/`; every number comes from `reports/` and can be checked on the Study page.

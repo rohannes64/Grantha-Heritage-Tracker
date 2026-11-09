@@ -1,4 +1,4 @@
-# Heritage Topic Finder (SIH26096)
+# Grantha Heritage Tracker (SIH26096)
 
 Groups unindexed heritage book scans by topic without labels, and lets a new page be checked
 against those groups. Real data: 3,000 books from the Digital Library of India scans on the

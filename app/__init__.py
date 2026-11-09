@@ -1,1 +1,1 @@
-"""Heritage Topic Finder web app."""
+"""Grantha web app."""

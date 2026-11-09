@@ -1,4 +1,4 @@
-# Heritage Topic Finder: final plan
+# Grantha (formerly Heritage Topic Finder): final plan
 
 SIH26096, "An Unsupervised Grouping Study of Heritage Documents by Topic" (also titled "Heritage Document Theme Discovery Through Unsupervised Text Clustering"). CO2, CO3. Unit III & IV: Hierarchical & Density Clustering, PCA Visualisation.
 
@@ -153,7 +153,7 @@ Decision written up with the numbers.
 ### Level 0
 ```mermaid
 flowchart LR
-  U[User: archivist / researcher] -- scan, PDF or text --> S((Heritage Topic Finder))
+  U[User: archivist / researcher] -- scan, PDF or text --> S((Grantha))
   S -- group, matches, map --> U
   IA[Internet Archive DLI mirror] -- metadata + page images --> S
 ```

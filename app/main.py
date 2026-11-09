@@ -1,4 +1,4 @@
-"""Heritage Topic Finder web app (FastAPI). Serves the API and the static site in web/.
+"""Grantha web app (FastAPI). Serves the API and the static site in web/.
 
     uvicorn app.main:app --host 0.0.0.0 --port 8000
 """
@@ -41,7 +41,7 @@ async def lifespan(_app):
     yield
 
 
-app = FastAPI(title="Heritage Topic Finder", version="1.0", lifespan=lifespan,
+app = FastAPI(title="Grantha", version="1.0", lifespan=lifespan,
               description="Check a heritage document against topic groups learned from Digital Library of India scans.")
 
 

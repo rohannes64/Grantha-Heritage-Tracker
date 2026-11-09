@@ -1,1 +1,1 @@
-"""Heritage Topic Finder pipeline (SIH26096)."""
+"""Grantha pipeline (SIH26096)."""

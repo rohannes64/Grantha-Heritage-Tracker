@@ -86,12 +86,17 @@ In a multilingual heritage collection, word-based clustering mostly rediscovers 
 
 All code, the sampling seed, per-step reports and the Docker images are in the project repository; `scripts/run_study.sh` reruns every step after OCR. Numbers in this draft come from `reports/study/*.json`.
 
-## References (to complete)
+## References
 
-- Feng, F., Yang, Y., Cer, D., Arivazhagan, N., Wang, W. (2022). Language-agnostic BERT Sentence Embedding. ACL.
-- Ester, M., Kriegel, H.-P., Sander, J., Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. KDD.
-- Deerwester, S., et al. (1990). Indexing by latent semantic analysis. JASIS.
-- Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. J. Comput. Appl. Math.
-- Hubert, L., Arabie, P. (1985). Comparing partitions. Journal of Classification.
-- Smith, R. (2007). An overview of the Tesseract OCR engine. ICDAR.
-- Aggarwal, C. C., Hinneburg, A., Keim, D. A. (2001). On the surprising behavior of distance metrics in high dimensional space. ICDT.
+1. Aggarwal, C. C., Hinneburg, A., Keim, D. A. (2001). On the surprising behavior of distance metrics in high dimensional space. Database Theory (ICDT 2001), LNCS 1973, 420–434. Springer. https://doi.org/10.1007/3-540-44503-X_27
+2. Campello, R. J. G. B., Moulavi, D., Sander, J. (2013). Density-based clustering based on hierarchical density estimates. Advances in Knowledge Discovery and Data Mining (PAKDD 2013), LNCS 7819, 160–172. Springer. https://doi.org/10.1007/978-3-642-37456-2_14
+3. Deerwester, S., Dumais, S. T., Furnas, G. W., Landauer, T. K., Harshman, R. (1990). Indexing by latent semantic analysis. Journal of the American Society for Information Science, 41(6), 391–407.
+4. Deode, S., Gadre, J., Kajale, A., Joshi, A., Joshi, R. (2023). L3Cube-IndicSBERT: A simple approach for learning cross-lingual sentence representations using multilingual BERT. arXiv:2304.11434.
+5. Ester, M., Kriegel, H.-P., Sander, J., Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. Proceedings of the Second International Conference on Knowledge Discovery and Data Mining (KDD-96), 226–231. AAAI Press.
+6. Feng, F., Yang, Y., Cer, D., Arivazhagan, N., Wang, W. (2022). Language-agnostic BERT sentence embedding. Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), 878–891. https://doi.org/10.18653/v1/2022.acl-long.62
+7. Hubert, L., Arabie, P. (1985). Comparing partitions. Journal of Classification, 2(1), 193–218. https://doi.org/10.1007/BF01908075
+8. Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. Journal of Computational and Applied Mathematics, 20, 53–65. https://doi.org/10.1016/0377-0427(87)90125-7
+9. Smith, R. (2007). An overview of the Tesseract OCR engine. Proceedings of the Ninth International Conference on Document Analysis and Recognition (ICDAR 2007), vol. 2, 629–633. IEEE. https://doi.org/10.1109/ICDAR.2007.4376991
+10. Vinh, N. X., Epps, J., Bailey, J. (2010). Information theoretic measures for clusterings comparison: variants, properties, normalization and correction for chance. Journal of Machine Learning Research, 11, 2837–2854.
+11. Ward, J. H. (1963). Hierarchical grouping to optimize an objective function. Journal of the American Statistical Association, 58(301), 236–244. https://doi.org/10.1080/01621459.1963.10500845
+12. Internet Archive. Digital Library of India collection (digitallibraryindia). https://archive.org/details/digitallibraryindia (accessed November 2026).
