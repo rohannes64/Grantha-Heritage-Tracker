@@ -150,14 +150,16 @@ def harvest_language(client: IAClient, con, lang: str, target: int, book_workers
     def _process_item(item):
         rank, row = item
         ident = row["identifier"]
+        t_con = db.connect()
         try:
-            status = harvest_one(client, con, lang, rank, row)
+            status = harvest_one(client, t_con, lang, rank, row)
         except Exception as e:
             status = "failed"
-            with db_lock:
-                con.execute("INSERT OR REPLACE INTO documents (identifier, lang_tag, era, sample_rank, status, note) "
-                            "VALUES (?,?,?,?,?,?)", (ident, lang, row["era"], rank, status, str(e)[:300]))
-                con.commit()
+            t_con.execute("INSERT OR REPLACE INTO documents (identifier, lang_tag, era, sample_rank, status, note) "
+                          "VALUES (?,?,?,?,?,?)", (ident, lang, row["era"], rank, status, str(e)[:300]))
+            t_con.commit()
+        finally:
+            t_con.close()
         return ident, status
 
     if book_workers <= 1:
