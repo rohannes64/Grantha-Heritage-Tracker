@@ -184,9 +184,10 @@ def pick_hierarchical(rows, linkages, D_by_metric, scripts, rng, fixed=None):
         r["boot_median"] = float(np.median(boot))
         if r["boot_median"] >= MIN_BOOT_ARI:
             return r, lab, boot, True
-    # fallback: lowest script NMI among settings with silhouette > 0 (reported as a rule failure)
-    pos = [r for r in rows if r["valid"] and (r["silhouette"] or 0) > 0] or [r for r in rows if (r["silhouette"] or 0) > 0]
-    r = min(pos, key=lambda r: r["nmi_script"])
+    # fallback: highest silhouette among valid candidates with acceptable script NMI
+    pos = ([r for r in rows if r["valid"] and (r["silhouette"] or 0) > 0 and r["nmi_script"] <= MAX_SCRIPT_NMI]
+           or [r for r in rows if r["valid"] and (r["silhouette"] or 0) > 0])
+    r = max(pos, key=lambda r: r["silhouette"] or 0)
     lab = fcluster(linkages[r["linkage"]], r["k"], "maxclust") - 1
     boot = bootstrap_hier(D_by_metric[r["metric"]], r["linkage"], r["k"], lab, rng)
     r["boot_median"] = float(np.median(boot))
@@ -485,6 +486,8 @@ def main() -> None:
     fit = bundle.get("fit", "all")
     train_sel = STUDY / "selection_train.json"
     fixed = json.loads(train_sel.read_text()) if fit == "all" and train_sel.exists() else None
+    if fixed and fixed.get("chosen") not in STUDY_SETS:
+        fixed = None
     results = {}
     for fs in STUDY_SETS:
         if fs in bundle:

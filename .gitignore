@@ -1,4 +1,8 @@
 .env
+*key*.json
+*adc*.json
+*.key
+*.pem
 __pycache__/
 *.pyc
 .venv/

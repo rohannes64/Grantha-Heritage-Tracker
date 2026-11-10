@@ -158,6 +158,20 @@ def orchestrator_loop():
     log("Grantha Autonomous Master Orchestrator initialized.")
     time.sleep(2)
 
+    bundle_path = os.path.join(WORK_DIR, "data", "model", "bundle.joblib")
+    if os.path.exists(bundle_path):
+        log("Production model bundle already exists! Launching FastAPI production app...")
+        time.sleep(1)
+        if server_instance:
+            try:
+                server_instance.server_close()
+            except Exception:
+                pass
+        uvicorn_bin = os.path.join(WORK_DIR, "venv", "bin", "uvicorn")
+        if not os.path.exists(uvicorn_bin):
+            uvicorn_bin = "uvicorn"
+        os.execv(uvicorn_bin, [uvicorn_bin, "app.main:app", "--host", "0.0.0.0", "--port", "8000"])
+
     # 1. FLEET_HARVEST_OCR
     last_count = 0
     start_time = time.time()
