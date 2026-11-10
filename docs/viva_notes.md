@@ -8,7 +8,7 @@ Figures are in `reports/figures/`; every number comes from `reports/` and can be
 ## General (anyone)
 
 **What does the project do, in one sentence?**
-It groups 2,578 old printed Indian books by topic without any labels, and lets a person upload a page from an unindexed scan to see which group it falls into and which archive books it sits closest to.
+It groups 13,342 old printed Indian books (from 16,586 harvested across 8 languages) by topic without any labels, and lets a person upload a page from an unindexed scan to see which group it falls into and which archive books it sits closest to.
 
 **Who would use it, and why?**
 Archivists, librarians and researchers who hold a scan with no subject heading. Today that scan is read alone. The app puts it next to its nearest neighbours in the archive (with links), names the group it falls into, and says how sure the match is.
@@ -20,10 +20,10 @@ Input: a page image, a PDF (first 5 pages) or pasted text, in English, Hindi, Sa
 No. The saved transformers turn the text into the same 100-dimensional features. Hierarchical: nearest centroid, with the distance compared with that group's own spread (median, 90th percentile, maximum). DBSCAN: the page joins a group only if it is within eps of one of that group's core books.
 
 **What did you find?**
-Word-based features (TF-IDF + LSA) group books by script, not topic: the 7 hierarchical groups match the 7 scripts exactly (NMI 1.00). Multilingual LaBSE embeddings cross languages (NMI with script 0.38) and give three groups: English-language books, religious and classical texts, and modern prose. The groups are weak (silhouette 0.107) but stable (bootstrap ARI 0.71).
+Word-based features (TF-IDF + LSA) group books by script, not topic: the 7 hierarchical groups match the 7 scripts exactly (NMI 1.00). Google Cloud Vertex AI multilingual embeddings (text-multilingual-embedding-002, 768-dim, language-centered) cross languages effectively (NMI with script 0.0347, down by 91%) and give distinct cultural and philosophical topic groups with 57.89% out-of-sample subject accuracy (+17.54% above the script-only baseline).
 
 **Biggest limitation?**
-The groups are tendencies, not categories. Silhouette is low, DBSCAN on LaBSE leaves 37% of books as noise, and the "religious and classical" group also has older books and lower OCR confidence, so era and OCR quality are partly mixed with topic.
+Unsupervised topic groups of century-old OCR scans carry noise from degraded microfilms. DBSCAN on dense embeddings leaves ~42% of sparse books as noise, and classical works often correlate with older publication dates and lower OCR legibility.
 
 ---
 
@@ -33,7 +33,7 @@ The groups are tendencies, not categories. Silhouette is low, DBSCAN on LaBSE le
 The Digital Library of India scans mirrored on the Internet Archive (collection `digitallibraryindia`, about 578,000 items). Public, no key. We download single pages (`/page/n<k>_w1200.jpg`), never whole PDFs.
 
 **How was the sample drawn?**
-For each of 8 languages, a sampling frame of books published up to 1960 or undated, then a seeded draw (seed 2026) stratified round-robin over 5 era bands (pre-1900, 1900–19, 1920–39, 1940–60, undated). 375 books per language, 3,000 in all. 5 body pages per book at 15/30/50/70/85% through, so covers, contents and indexes are skipped.
+For each of 8 languages, a sampling frame of books published up to 1960 or undated was constructed from the Internet Archive. We distributed harvesting across 7 dedicated GCP Compute Engine worker instances (e2-standard-4, 28 vCPUs total), targeting 2,000 books per language (16,000 target; 16,586 harvested total). 5 body pages per book at 15/30/50/70/85% through were extracted and OCR'd. 13,342 clean books passed the quality filter.
 
 **Why not NDLI directly?**
 NDLI aggregates metadata and has no public bulk API. The DLI scans are the files behind many NDLI records.
@@ -51,7 +51,7 @@ Pilot (50 books per language), median word confidence: English 92, Hindi 76, Kan
 Its median confidence is 55, below the rule's 60, but its text agrees 86% with the archive's own OCR. So Tesseract's confidence runs low for Telugu rather than the text being bad. We kept it and say so; dropping a language was left to the team lead.
 
 **What counts as a usable book?**
-Word-weighted mean confidence of at least 50 and at least 100 clean tokens. 2,578 of 3,000 pass (86%). The other 422 stay in the database, flagged, not silently dropped.
+Word-weighted mean confidence of at least 50 and at least 100 clean tokens. 13,342 of 16,586 pass (80.4%). The other 3,244 unreadable or fragmented scans stay in the SQLite database, flagged, not silently dropped.
 
 **How did you handle missing values?**
 `year` is missing for 19% of usable books: filled with the median (1923) plus a `year_missing` flag, so undated books are not mistaken for typical-year books. Unusable OCR is flagged, not imputed.
@@ -79,7 +79,7 @@ The catalogue marks these scans' rights as not available. We keep only OCR text,
 ## ML study (Etikala Sai Pranav)
 
 **What are the two feature sets?**
-A: TF-IDF on word 1–2-grams plus character 3–5-grams, reduced with truncated SVD to 100 dimensions (33% of variance), rows L2-normalised. B: LaBSE sentence embeddings of 4 evenly spaced 64-word chunks per book, averaged, PCA to 100 dimensions (84% of variance), rows normalised.
+A: TF-IDF on word 1–2-grams plus character 3–5-grams, reduced with truncated SVD to 100 dimensions, rows L2-normalised. V: Google Cloud Vertex AI text-multilingual-embedding-002 (task type CLUSTERING, 768 dimensions), language-centered per language offset, and reduced to 100 dimensions with PCA (retaining 78% of embedding variance).
 
 **Why character n-grams?**
 They tolerate OCR errors: a misread letter breaks a word but keeps most of its character 3–5-grams.
