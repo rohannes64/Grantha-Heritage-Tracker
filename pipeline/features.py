@@ -46,12 +46,20 @@ EMBED_MODEL = "sentence-transformers/LaBSE"
 INDIC_MODEL = "l3cube-pune/indic-sentence-similarity-sbert"
 BGE_MODEL = "BAAI/bge-m3"
 GEMINI_MODEL = "gemini-embedding-001"
+VERTEX_MODEL = "text-multilingual-embedding-002"
 LOCAL_MODELS = {"B": EMBED_MODEL, "C": INDIC_MODEL, "D": BGE_MODEL}   # run on this machine
-MODELS = LOCAL_MODELS | {"G": GEMINI_MODEL}                           # G runs on Google's API
+MODELS = LOCAL_MODELS | {"G": GEMINI_MODEL, "V": VERTEX_MODEL}        # G: Studio, V: Vertex AI
 # Feature sets the study compares: the explainable TF-IDF baseline and the encoder chosen by
 # pipeline.encoders (docs/accuracy_plan.md). Others are computed only on request (--only).
-STUDY_SETS = ("A", "G")
-SET_NAMES = {"A": "TF-IDF + LSA", "B": "LaBSE embeddings", "C": "IndicSBERT embeddings", "D": "BGE-M3 embeddings", "G": "Gemini embeddings"}
+STUDY_SETS = ("A", "V", "G")
+SET_NAMES = {
+    "A": "TF-IDF + LSA",
+    "B": "LaBSE embeddings",
+    "C": "IndicSBERT embeddings",
+    "D": "BGE-M3 embeddings",
+    "G": "Gemini embeddings",
+    "V": "Vertex AI Multilingual embeddings",
+}
 CHUNK_TOKENS = 64          # words per chunk; ~128 word-pieces for Indian scripts
 MAX_CHUNKS = 10            # evenly spaced across the book's training text (CPU budget: ~4 chunks/s)
 MAX_SEQ = 128              # word-pieces per chunk; Indian-script words split into several
@@ -295,8 +303,119 @@ class GeminiEmbedder(Embedder):
         return normalize(np.vstack(out))
 
 
+class VertexAIEmbedder(Embedder):
+    """Feature set V: Google Cloud Vertex AI's text-multilingual-embedding-002
+    (task type CLUSTERING, 768 dimensions), called directly through the Vertex AI
+    Prediction Service in us-central1 with OAuth2 ADC token refresh and retry backoff."""
+    BATCH = 50         # max instances per call for fast network dispatch
+    PARALLEL = 4      # concurrent requests in flight
+    TRIES = 6
+    REGION = "us-central1"
+    PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "project-dab42af9-0f52-4527-b40")
+    MODEL = "text-multilingual-embedding-002"
+
+    def __init__(self, model_name: str = VERTEX_MODEL, seed: int = config.SEED):
+        super().__init__(model_name=model_name, seed=seed)
+        self._token = None
+        self._token_expiry = 0
+
+    @property
+    def model(self):
+        raise AttributeError("Vertex AI runs on Google Cloud Vertex AI; there is no local model")
+
+    def _get_token(self) -> str:
+        import time, urllib.request, urllib.parse
+        now = time.time()
+        if self._token and now < self._token_expiry - 60:
+            return self._token
+        # 1. Try ADC refresh token if gcp_adc.json exists
+        for p in ("/opt/grantha/gcp_adc.json", os.path.expanduser("~/.config/gcloud/application_default_credentials.json")):
+            if os.path.exists(p):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        adc = json.load(f)
+                    data = urllib.parse.urlencode({
+                        "client_id": adc["client_id"],
+                        "client_secret": adc["client_secret"],
+                        "refresh_token": adc["refresh_token"],
+                        "grant_type": "refresh_token"
+                    }).encode("utf-8")
+                    req = urllib.request.Request("https://oauth2.googleapis.com/token", data=data,
+                                                 headers={"Content-Type": "application/x-www-form-urlencoded"})
+                    with urllib.request.urlopen(req, timeout=10) as resp:
+                        res = json.loads(resp.read().decode("utf-8"))
+                        self._token = res["access_token"]
+                        self._token_expiry = now + res.get("expires_in", 3600)
+                        return self._token
+                except Exception:
+                    pass
+        # 2. Try gcloud CLI
+        try:
+            import subprocess
+            tok = subprocess.check_output("gcloud auth print-access-token", shell=True, text=True).strip()
+            if tok:
+                self._token = tok
+                self._token_expiry = now + 1800
+                return self._token
+        except Exception:
+            pass
+        raise EmbeddingServiceError("Could not obtain GCP access token for Vertex AI (check ADC or gcloud auth)")
+
+    def _call(self, texts: list[str]) -> np.ndarray:
+        import time, requests
+        token = self._get_token()
+        url = f"https://{self.REGION}-aiplatform.googleapis.com/v1/projects/{self.PROJECT}/locations/{self.REGION}/publishers/google/models/{self.MODEL}:predict"
+        payload = {
+            "instances": [{"content": t, "task_type": "CLUSTERING"} for t in texts],
+            "parameters": {"autoTruncate": True}
+        }
+        for attempt in range(self.TRIES):
+            try:
+                r = requests.post(url, json=payload, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, timeout=60)
+            except requests.RequestException as e:
+                if attempt == self.TRIES - 1:
+                    raise EmbeddingServiceError(f"Vertex AI unreachable: {e}") from e
+                time.sleep(2 ** attempt)
+                continue
+            if r.status_code == 200:
+                preds = r.json().get("predictions", [])
+                return np.asarray([p["embeddings"]["values"] for p in preds], dtype=np.float32)
+            if r.status_code == 401:  # token expired, refresh immediately
+                self._token = None
+                token = self._get_token()
+            if r.status_code in (429, 500, 503) and attempt < self.TRIES - 1:
+                time.sleep(min(30, 2 ** attempt) + float(np.random.random()))
+                continue
+            raise EmbeddingServiceError(f"Vertex AI answered HTTP {r.status_code}: {r.text[:200]}")
+        raise EmbeddingServiceError("Vertex AI kept refusing")
+
+    def raw(self, token_lists, batch_size: int = BATCH, progress: bool = False) -> np.ndarray:
+        doc_chunks = [chunks_of(t) for t in token_lists]
+        flat = [c for cs in doc_chunks for c in cs]
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        starts = list(range(0, len(flat), batch_size))
+        parts, done = [None] * len(starts), 0
+        with ThreadPoolExecutor(self.PARALLEL) as ex:
+            futures = {ex.submit(self._call, flat[s:s + batch_size]): j for j, s in enumerate(starts)}
+            for f in as_completed(futures):
+                parts[futures[f]] = normalize(f.result())
+                done += 1
+                if progress and (done % 10 == 0 or done == len(starts)):
+                    print(f"Vertex AI embedded {min(done * batch_size, len(flat))}/{len(flat)} passages", flush=True)
+        emb = np.vstack(parts) if parts else np.zeros((0, 768), np.float32)
+        out, i = [], 0
+        for cs in doc_chunks:
+            out.append(emb[i:i + len(cs)].mean(axis=0) if cs else np.zeros(emb.shape[1], np.float32))
+            i += len(cs)
+        return normalize(np.vstack(out))
+
+
 def make_embedder(fs: str) -> Embedder:
-    return GeminiEmbedder(MODELS[fs]) if fs == "G" else Embedder(MODELS[fs])
+    if fs == "G":
+        return GeminiEmbedder(MODELS[fs])
+    elif fs == "V":
+        return VertexAIEmbedder(MODELS[fs])
+    return Embedder(MODELS[fs])
 
 
 def raw_embeddings(fs: str, ids: list[str], toks) -> np.ndarray:
