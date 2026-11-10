@@ -6,13 +6,17 @@ import time
 from pathlib import Path
 
 import requests
+from requests.adapters import HTTPAdapter
 
 from . import config
 
 
 class IAClient:
-    def __init__(self, interval: float = config.REQUEST_INTERVAL, cache_dir: Path = config.CACHE_DIR):
+    def __init__(self, interval: float = config.REQUEST_INTERVAL, cache_dir: Path = config.CACHE_DIR, pool_size: int = 32):
         self.s = requests.Session()
+        adapter = HTTPAdapter(pool_connections=pool_size, pool_maxsize=pool_size, max_retries=3)
+        self.s.mount("https://", adapter)
+        self.s.mount("http://", adapter)
         self.s.headers["User-Agent"] = config.USER_AGENT
         self.interval = interval
         self.cache_dir = cache_dir

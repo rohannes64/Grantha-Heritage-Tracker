@@ -30,7 +30,7 @@ IA_METADATA = "https://archive.org/metadata/{id}"
 IA_DOWNLOAD = "https://archive.org/download/{id}/{name}"
 IA_PAGE = "https://archive.org/download/{id}/page/n{leaf}_w{width}.jpg"
 USER_AGENT = "heritage-topics/0.1 (SIH26096 student research project; polite crawler)"
-REQUEST_INTERVAL = 1.0   # seconds between requests to archive.org
+REQUEST_INTERVAL = float(os.environ.get("HERITAGE_REQUEST_INTERVAL", "0.2"))   # 5 req/sec per VM
 PAGE_WIDTH = 1200        # requested width; for DLI items the archive serves full size (~2200 px, 0.7-1 MB) anyway
 
 # Languages: IA language code -> display name, Tesseract model, expected script.
@@ -79,6 +79,6 @@ ERA_BANDS = [
 
 SEED = 2026
 PILOT_PER_LANG = 50
-FULL_PER_LANG = 375
+FULL_PER_LANG = int(os.environ.get("HERITAGE_FULL_PER_LANG", "2000"))
 PAGE_POSITIONS = (0.15, 0.30, 0.50, 0.70, 0.85)  # fractions through the book
 MIN_PAGES = 20           # shorter items are pamphlets or broken scans; skipped
