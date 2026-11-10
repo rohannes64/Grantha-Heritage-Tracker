@@ -51,7 +51,7 @@ LOCAL_MODELS = {"B": EMBED_MODEL, "C": INDIC_MODEL, "D": BGE_MODEL}   # run on t
 MODELS = LOCAL_MODELS | {"G": GEMINI_MODEL, "V": VERTEX_MODEL}        # G: Studio, V: Vertex AI
 # Feature sets the study compares: the explainable TF-IDF baseline and the encoder chosen by
 # pipeline.encoders (docs/accuracy_plan.md). Others are computed only on request (--only).
-STUDY_SETS = ("A", "V", "G")
+STUDY_SETS = ("V",)
 SET_NAMES = {
     "A": "TF-IDF + LSA",
     "B": "LaBSE embeddings",
@@ -448,7 +448,7 @@ def main(argv=None) -> None:
     bundle.update({"ids": fit_ids, "fit": args.fit})
     bundle.setdefault("holdout", {})["ids"] = hold_ids
     print(f"fit on {len(fit_ids)} books ({args.fit}); {len(hold_ids)} held out", flush=True)
-    if args.only in (None, "A"):
+    if "A" not in bundle or args.only in (None, "A"):
         lsa = TfidfLSA()
         Z, Xw = lsa.fit_transform(fit_toks, [l for l, f in zip(languages, fit) if f])
         bundle["A"] = {"Z": Z, "Xw": Xw, "transform": lsa,
