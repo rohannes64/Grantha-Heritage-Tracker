@@ -9,15 +9,19 @@ Resumable: documents already harvested, skipped or failed are not fetched again.
 import argparse
 import csv
 import json
+import os
 import sys
+import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from . import config, db, sampling
 from .ia import IAClient
 
 FRAME_FIELDS = ["identifier", "date_raw", "year", "era"]
-PAGE_THREADS = 3
+PAGE_THREADS = int(os.environ.get("HERITAGE_PAGE_THREADS", "3"))
+BOOK_WORKERS = int(os.environ.get("HERITAGE_BOOK_WORKERS", "4"))
+db_lock = threading.Lock()
 
 
 def log(msg: str) -> None:
@@ -107,9 +111,10 @@ def harvest_one(client: IAClient, con, lang: str, rank: int, row: dict) -> str:
         doc["status"], doc["note"] = "failed", f"only {len(pages)} pages downloaded"
     else:
         doc["status"] = "harvested"
-    _save_doc(con, doc)
-    con.executemany("INSERT OR IGNORE INTO pages (identifier, leaf, position, image_path) VALUES (?,?,?,?)", pages)
-    con.commit()
+    with db_lock:
+        _save_doc(con, doc)
+        con.executemany("INSERT OR IGNORE INTO pages (identifier, leaf, position, image_path) VALUES (?,?,?,?)", pages)
+        con.commit()
     if doc["status"] == "harvested":
         write_marker(ident, lang, [(leaf, rel) for _, leaf, _, rel in pages])
     return doc["status"]
@@ -131,33 +136,73 @@ def _save_doc(con, doc: dict) -> None:
     con.commit()
 
 
-def harvest_language(client: IAClient, con, lang: str, target: int) -> None:
+def harvest_language(client: IAClient, con, lang: str, target: int, book_workers: int = BOOK_WORKERS) -> None:
     frame = build_frame(client, lang)
     order = sampling.stratified_order(frame)
-    # Anything already in the table (any language, any status) is never fetched again.
-    # A multi-language item counts only for the language that drew it first.
-    done = {r["identifier"] for r in con.execute("SELECT identifier FROM documents")}
-    have = con.execute("SELECT COUNT(*) FROM documents WHERE lang_tag=? AND status='harvested'",
-                       (lang,)).fetchone()[0]
-    log(f"[{lang}] target {target}, already harvested {have}")
-    for rank, row in enumerate(order):
-        if have >= target:
-            break
+    with db_lock:
+        done = {r["identifier"] for r in con.execute("SELECT identifier FROM documents")}
+        have = con.execute("SELECT COUNT(*) FROM documents WHERE lang_tag=? AND status='harvested'",
+                           (lang,)).fetchone()[0]
+    log(f"[{lang}] target {target}, already harvested {have} (parallel book workers: {book_workers})")
+
+    pending_items = [(rank, row) for rank, row in enumerate(order) if row["identifier"] not in done]
+
+    def _process_item(item):
+        rank, row = item
         ident = row["identifier"]
-        if ident in done:
-            continue
         try:
             status = harvest_one(client, con, lang, rank, row)
         except Exception as e:
             status = "failed"
-            con.execute("INSERT OR REPLACE INTO documents (identifier, lang_tag, era, sample_rank, status, note) "
-                        "VALUES (?,?,?,?,?,?)", (ident, lang, row["era"], rank, status, str(e)[:300]))
-            con.commit()
-        done.add(ident)
-        if status == "harvested":
-            have += 1
-            if have % 10 == 0:
-                log(f"[{lang}] {have}/{target}")
+            with db_lock:
+                con.execute("INSERT OR REPLACE INTO documents (identifier, lang_tag, era, sample_rank, status, note) "
+                            "VALUES (?,?,?,?,?,?)", (ident, lang, row["era"], rank, status, str(e)[:300]))
+                con.commit()
+        return ident, status
+
+    if book_workers <= 1:
+        for item in pending_items:
+            if have >= target:
+                break
+            _, status = _process_item(item)
+            if status == "harvested":
+                have += 1
+                if have % 10 == 0:
+                    log(f"[{lang}] {have}/{target}")
+    else:
+        with ThreadPoolExecutor(max_workers=book_workers) as executor:
+            futures = set()
+            item_iter = iter(pending_items)
+
+            while len(futures) < book_workers * 2 and have + len(futures) < target:
+                try:
+                    futures.add(executor.submit(_process_item, next(item_iter)))
+                except StopIteration:
+                    break
+
+            while futures and have < target:
+                done_futures = {f for f in futures if f.done()}
+                if not done_futures:
+                    time.sleep(0.05)
+                    continue
+
+                for f in done_futures:
+                    futures.remove(f)
+                    try:
+                        _, status = f.result()
+                        if status == "harvested":
+                            have += 1
+                            if have % 10 == 0:
+                                log(f"[{lang}] {have}/{target}")
+                    except Exception as e:
+                        log(f"[{lang}] worker error: {e}")
+
+                    if have + len(futures) < target:
+                        try:
+                            futures.add(executor.submit(_process_item, next(item_iter)))
+                        except StopIteration:
+                            pass
+
     log(f"[{lang}] finished with {have} harvested")
 
 
