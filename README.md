@@ -35,14 +35,19 @@ the topic service.
 
 ## Run the app
 
-Needs Docker. From this folder:
+Needs Docker. A fresh clone has everything the app needs: the fitted model is committed at
+`data/model/bundle.joblib` (48 MB) and the website data at `web/data/`. The rest of `data/` (harvested
+books, OCR text, caches) is not in the repository; it is only needed to reproduce the study.
 
 ```bash
+git clone https://github.com/rohannes64/Grantha-Heritage-Tracker.git
+cd Grantha-Heritage-Tracker
 docker compose up --build
 ```
 
-Open http://localhost:8000. The image (about 1.1 GB) holds Tesseract with the 8 languages, the fitted
-model, the study results and the website. API docs: http://localhost:8000/docs.
+Add the `.env` file first (see above) if you want the check page to work. Open http://localhost:8000.
+The image (about 1.1 GB) holds Tesseract with the 8 languages, the fitted model, the study results and
+the website. API docs: http://localhost:8000/docs.
 
 ## Reproduce the study
 

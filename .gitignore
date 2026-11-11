@@ -4,7 +4,11 @@ __pycache__/
 .venv/
 .pytest_cache/
 # All harvested data, page images, caches, corpus database and logs
-/data/
+/data/*
+# ...except the trained model bundle the app needs (48 MB, no page text, no key)
+!/data/model/
+/data/model/*
+!/data/model/bundle.joblib
 docs/build/node_modules/
 docs/build/render/
 graphify-out/
