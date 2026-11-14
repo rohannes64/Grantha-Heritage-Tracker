@@ -6,7 +6,7 @@
 #   bash scripts/deploy_vm.sh --check      # smoke test the live app only
 #
 # Ships the tracked files of HEAD under app/ pipeline/ scripts/ tests/ web/ (git archive: LF line endings, no
-# untracked or uncommitted files). It never touches data/ or reports/ on the VM. Before overwriting, every file
+# untracked or uncommitted files). It never touches data/, reports/, web/data/ or web/fixtures/ on the VM. Before overwriting, every file
 # that would change is copied to /opt/grantha/backup/pre_deploy_<time>/ on the VM.
 set -euo pipefail
 
@@ -41,7 +41,8 @@ smoke() {
 
 [ -z "$(git status --porcelain -- "${PATHS[@]}")" ] || echo "note: uncommitted changes under ${PATHS[*]} are NOT deployed (HEAD only)"
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
-git archive --format=tar.gz -o "$tmp/code.tgz" HEAD "${PATHS[@]}"
+# web/data and web/fixtures are written on the VM by the pipeline (export, make_fixtures): never overwrite them
+git archive --format=tar.gz -o "$tmp/code.tgz" HEAD "${PATHS[@]}" ':(exclude)web/data' ':(exclude)web/fixtures'
 echo "deploying $(git rev-parse --short HEAD) ($(tar tzf "$tmp/code.tgz" | grep -vc '/$') files) to $VM"
 gcloud compute scp --zone "$ZONE" --project "$PROJECT" --quiet "$tmp/code.tgz" "$VM:/tmp/grantha_code.tgz" >/dev/null
 
