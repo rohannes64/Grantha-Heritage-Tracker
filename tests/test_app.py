@@ -90,12 +90,15 @@ def test_fixtures_record_exactly_what_the_api_returns(bundle, tmp_path, monkeypa
     main.checker.cache_clear()
     client = TestClient(main.app)
     docs = main.checker().docs
-    reqs = make_fixtures.requests_for(docs, {"identifier": "page", "text": (TOPICS["law"] + " ") * 15, "lang": "eng"})
+    reqs = make_fixtures.requests_for(docs, {"identifier": "page", "text": (TOPICS["law"] + " ") * 15, "lang": "eng"}, main.checker().b.keys())
     idx = make_fixtures.record(client, reqs, tmp_path / "fx", {"bundle_sha256": "test"})
     ids = make_fixtures.sample_ids(docs)
     assert ids == sorted(ids) or len(set(d["lang_tag"] for d in docs)) == len(ids)
     rec = json.loads((tmp_path / "fx" / f"get_documents__{ids[0]}.json").read_text(encoding="utf-8"))
     assert rec == {"status": 200, "body": client.get(f"/api/documents/{ids[0]}").json()}
     assert "post_check__page" in idx["fixtures"] and "get_api_health" in idx["fixtures"]
-    assert not any(k.startswith("get_editions") for k in idx["fixtures"])   # not built yet: skipped, not faked
+    ed = json.loads((tmp_path / "fx" / f"get_editions__{ids[0]}.json").read_text(encoding="utf-8"))
+    assert ed["status"] == 200 and ed["body"]["identifier"] == ids[0]
+    old = make_fixtures.requests_for(docs, None, [k for k in main.checker().b if k != "triage_books"])
+    assert not any("triage" in path for _, _, path, _ in old)          # pre-triage bundle: triage not recorded
     main.checker.cache_clear()

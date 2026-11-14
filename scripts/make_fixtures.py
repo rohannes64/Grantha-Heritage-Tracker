@@ -9,6 +9,7 @@ after every backend wave. Nothing here is hand-written: a fixture is exactly wha
 """
 import hashlib
 import json
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,10 +31,14 @@ def sample_ids(docs: list[dict]) -> list[str]:
     return [first[k] for k in sorted(first, key=str)]
 
 
-def requests_for(docs: list[dict], sample_page: dict | None) -> list[tuple[str, str, str, dict]]:
-    reqs = [(f"get_{p.strip('/').replace('/', '_').replace('?', '__').replace('=', '-')}", "GET", p, {}) for p in GLOBAL]
+def requests_for(docs: list[dict], sample_page: dict | None, bundle_keys=()) -> list[tuple[str, str, str, dict]]:
+    """bundle_keys: the model bundle's keys; triage is skipped for a bundle exported before it had `triage_books`
+    (its answers would lack the scan signals, so recording them would show every book as fine)."""
+    skip = () if "triage_books" in bundle_keys else ("/api/triage",)
+    glob = [p for p in GLOBAL if not p.startswith(skip)] if skip else GLOBAL
+    reqs = [(f"get_{p.strip('/').replace('/', '_').replace('?', '__').replace('=', '-')}", "GET", p, {}) for p in glob]
     for ident in sample_ids(docs):
-        for tpl in PER_BOOK:
+        for tpl in (t for t in PER_BOOK if not (skip and t.startswith(skip))):
             path = tpl.format(id=ident)
             reqs.append((f"get_{tpl.split('/')[2]}__{ident}", "GET", path, {}))
     if sample_page and sample_page.get("text"):
@@ -70,7 +75,8 @@ def main() -> None:
                 "bundle": str(bundle.relative_to(BASE)) if bundle.is_relative_to(BASE) else str(bundle),
                 "bundle_sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(),
                 "feature_set": app_main.checker().b["feature_set"]}
-        idx = record(client, requests_for(docs, page), OUT, prov)
+        shutil.rmtree(OUT, ignore_errors=True)     # a re-run never leaves fixtures from an older bundle behind
+        idx = record(client, requests_for(docs, page, app_main.checker().b.keys()), OUT, prov)
     print(f"recorded {len(idx['fixtures'])} fixtures into {OUT}")
 
 

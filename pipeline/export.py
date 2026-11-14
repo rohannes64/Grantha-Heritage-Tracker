@@ -19,7 +19,7 @@ import pandas as pd
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 
-from . import config, preprocess
+from . import config, editions, preprocess
 from .features import LOCAL_MODELS, model_slug
 from .study import clean_json
 
@@ -93,6 +93,10 @@ def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
     display["url"] = display["identifier"].map(archive_url)
     display = display.astype(object).where(display.notna(), None)   # NaN is not valid JSON for the API
 
+    ed_cols = ["title", "creator"] + (["split"] if "split" in docs.columns else [])
+    ed_threshold, ed_method = editions.calibrate_for_bundle(
+        Z, ids, docs.reindex(index=ids, columns=ed_cols).reset_index(), hmetric)
+
     return {
         "feature_set": fs, "feature_name": res["name"],
         "transform": feats[fs]["transform"], "lsa": feats["A"]["transform"], "Xw": feats["A"]["Xw"],
@@ -104,6 +108,7 @@ def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
         "pca": st["models"][fs]["pca"],
         "docs": display.to_dict("records"),
         "triage_books": triage_books(docs),
+        "editions_threshold": ed_threshold, "editions_method": ed_method,
         "thresholds": {"min_conf": preprocess.MIN_DOC_CONF, "min_tokens": preprocess.MIN_DOC_TOKENS},
     }
 
