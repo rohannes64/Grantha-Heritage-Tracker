@@ -49,6 +49,21 @@ def downsample(curve, n=200):
     return [curve[i] for i in idx]
 
 
+def triage_books(docs: pd.DataFrame) -> list[dict]:
+    """Every harvested book's scan-quality signals (not only the model's books), for app/routes/triage.py."""
+    def cell(row, col, default=None):
+        v = row.get(col, default)
+        return default if v is None or v is pd.NA or (isinstance(v, float) and np.isnan(v)) else v
+    out = []
+    for ident, r in docs.iterrows():
+        n = cell(r, "n_tokens")
+        out.append({"identifier": ident, "title": cell(r, "title"), "lang_tag": cell(r, "lang_tag"),
+                    "mean_conf": None if cell(r, "mean_conf") is None else float(r["mean_conf"]),
+                    "text_source": cell(r, "text_source"), "n_tokens": None if n is None else int(n),
+                    "usable": bool(cell(r, "usable", 0))})
+    return out
+
+
 def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
     """The app's model bundle. `docs` is indexed by identifier."""
     ids = feats["ids"]
@@ -73,7 +88,8 @@ def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
     hnames = names_for(f"{fs}_hier", res["hierarchical"]["profiles"])
     dnames = names_for(f"{fs}_dbscan", res["dbscan"]["profiles"])
     meta_cols = ["title", "creator", "year", "era", "lang_tag", "script", "mean_conf", "classification", "total_pages"]
-    display = docs.loc[ids, meta_cols].reset_index()
+    display = docs.reindex(index=ids, columns=meta_cols + ["text_source", "n_tokens"]).reset_index()
+    display["n_tokens"] = display["n_tokens"].astype("Int64").astype(object)
     display["url"] = display["identifier"].map(archive_url)
     display = display.astype(object).where(display.notna(), None)   # NaN is not valid JSON for the API
 
@@ -87,6 +103,7 @@ def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
                    "core_idx": db.core_sample_indices_, "names": dnames},
         "pca": st["models"][fs]["pca"],
         "docs": display.to_dict("records"),
+        "triage_books": triage_books(docs),
         "thresholds": {"min_conf": preprocess.MIN_DOC_CONF, "min_tokens": preprocess.MIN_DOC_TOKENS},
     }
 
