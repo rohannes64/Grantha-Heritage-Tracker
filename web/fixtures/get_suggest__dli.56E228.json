@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.56E228",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.4865618696551355
+   },
+   {
+    "class": "religion",
+    "score": 0.3608438756110181
+   },
+   {
+    "class": "philosophy and psychology",
+    "score": 0.07655451299260602
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

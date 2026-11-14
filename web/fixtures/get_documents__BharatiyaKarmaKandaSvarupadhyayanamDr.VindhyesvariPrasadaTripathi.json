@@ -1,0 +1,18 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+  "title": "Bharatiya Karma Kanda Svarupadhyayanam Dr. Vindhyesvari Prasada Tripathi",
+  "creator": "javanesegraviton",
+  "year": null,
+  "era": "undated",
+  "lang_tag": "san",
+  "script": "Devanagari",
+  "mean_conf": 67.48443579766537,
+  "classification": null,
+  "total_pages": 277,
+  "url": "https://archive.org/details/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+  "hier": 0,
+  "dbscan": -1
+ }
+}

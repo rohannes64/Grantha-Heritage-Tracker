@@ -1,0 +1,18 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+  "title": "Bhav Posh Mal Part I Kashmiri Bhajan Sangrah Kuldeep Thussu Pamposh",
+  "creator": "Kuldeep Thussu Pamposh",
+  "year": null,
+  "era": "undated",
+  "lang_tag": "hin",
+  "script": "Devanagari",
+  "mean_conf": 75.61261261261261,
+  "classification": null,
+  "total_pages": 157,
+  "url": "https://archive.org/details/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+  "hier": 1,
+  "dbscan": 0
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.5567210402422593
+   },
+   {
+    "class": "religion",
+    "score": 0.324126721699809
+   },
+   {
+    "class": "philosophy and psychology",
+    "score": 0.0796812845951399
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

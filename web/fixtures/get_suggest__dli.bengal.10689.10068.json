@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.bengal.10689.10068",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.5132276399059027
+   },
+   {
+    "class": "geography, biography, history",
+    "score": 0.32801137500397565
+   },
+   {
+    "class": "generalities",
+    "score": 0.11811743287722573
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

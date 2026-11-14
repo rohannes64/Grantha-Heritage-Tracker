@@ -1,0 +1,59 @@
+{
+ "status": 200,
+ "body": [
+  {
+   "cluster": -1,
+   "name": "mixed",
+   "size": 5657,
+   "share": 0.42399940038974665,
+   "terms": [],
+   "script_mix": {
+    "Devanagari": 0.205,
+    "Bengali": 0.171,
+    "Latin": 0.148,
+    "Gujarati": 0.135,
+    "Tamil": 0.122,
+    "Kannada": 0.113,
+    "Telugu": 0.106
+   },
+   "median_year": 1923.0
+  },
+  {
+   "cluster": 0,
+   "name": "mixed",
+   "size": 7669,
+   "share": 0.5748013791035826,
+   "terms": [],
+   "script_mix": {
+    "Latin": 0.244,
+    "Devanagari": 0.199,
+    "Bengali": 0.135,
+    "Gujarati": 0.13,
+    "Kannada": 0.105,
+    "Telugu": 0.094,
+    "Tamil": 0.092
+   },
+   "median_year": 1925.0
+  },
+  {
+   "cluster": 1,
+   "name": "jerusalem, roman, rome",
+   "size": 16,
+   "share": 0.0011992205066706642,
+   "terms": [
+    "jerusalem",
+    "roman",
+    "rome",
+    "romans",
+    "jews",
+    "greek",
+    "jordan",
+    "syria"
+   ],
+   "script_mix": {
+    "Latin": 1.0
+   },
+   "median_year": 1900.0
+  }
+ ]
+}

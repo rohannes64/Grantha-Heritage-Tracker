@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.56E228",
+  "script": "Tamil",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "in.ernet.dli.2015.390111",
+    "title": "హిందూ జీవన పథము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.390111",
+    "distance": 0.9091876158134483
+   },
+   {
+    "identifier": "in.ernet.dli.2015.428621",
+    "title": "Mandir Praveshika (1933)",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.428621",
+    "distance": 0.9296192369026554
+   },
+   {
+    "identifier": "in.ernet.dli.2015.492099",
+    "title": "మనస్స్వాతంత్ర్యము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.492099",
+    "distance": 0.9322163391523564
+   },
+   {
+    "identifier": "in.ernet.dli.2015.333682",
+    "title": "జీవితము - మతము (టాల్స్టాయ్ వ్యాసావళి)",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.333682",
+    "distance": 0.9375659941549501
+   },
+   {
+    "identifier": "in.ernet.dli.2015.395881",
+    "title": "సందిగ్ధతత్వరాద్ధాంతము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.395881",
+    "distance": 0.9419438648330286
+   },
+   {
+    "identifier": "in.ernet.dli.2015.390224",
+    "title": "ఖుర్ ఆన్ షరీఫ్ సవివిరణ ఆంధ్రానువాదము లఘువ్యాఖ్యాన సహితము రెండవ సంపుటము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.390224",
+    "distance": 0.9489736987993498
+   },
+   {
+    "identifier": "in.ernet.dli.2015.324849",
+    "title": "Huniyanu Sathi Prachin Dharama",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.324849",
+    "distance": 0.9633868939284074
+   },
+   {
+    "identifier": "in.ernet.dli.2015.388628",
+    "title": "దివ్య జ్ఞాన సారము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.388628",
+    "distance": 0.983982900791234
+   },
+   {
+    "identifier": "in.ernet.dli.2015.388718",
+    "title": "గాంధీహృదయము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.388718",
+    "distance": 0.9907863896051259
+   },
+   {
+    "identifier": "in.ernet.dli.2015.330410",
+    "title": "సర్వమత సారసంగ్రహము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.330410",
+    "distance": 0.9916537300170049
+   }
+  ]
+ }
+}

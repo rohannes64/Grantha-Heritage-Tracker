@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.ernet.248230",
+  "script": "Gujarati",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "dli.ministry.28730",
+    "title": "हिन्दी-पद्य-संग्रह",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/dli.ministry.28730",
+    "distance": 0.9331038137472665
+   },
+   {
+    "identifier": "in.ernet.dli.2015.340200",
+    "title": "Sachitra Payar O Tripadi Chhanda",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.340200",
+    "distance": 0.9382674562263702
+   },
+   {
+    "identifier": "in.ernet.dli.2015.347940",
+    "title": "Shri Chaityavandan Stuti Stvanadi Sagreah Part-iii",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.347940",
+    "distance": 0.9449191462640925
+   },
+   {
+    "identifier": "in.ernet.dli.2015.478690",
+    "title": "Selections From Hindi Literture Book Iii",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.478690",
+    "distance": 0.9478363758375925
+   },
+   {
+    "identifier": "in.ernet.dli.2015.340765",
+    "title": "Gyananandaratnaar Volume-ii",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.340765",
+    "distance": 0.9479301808376069
+   },
+   {
+    "identifier": "dli.ministry.30494",
+    "title": "श्रीराधाकृष्णरासलीला",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/dli.ministry.30494",
+    "distance": 0.9529709252858366
+   },
+   {
+    "identifier": "in.ernet.dli.2015.453225",
+    "title": "Manasamangal",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.453225",
+    "distance": 0.9580033541602048
+   },
+   {
+    "identifier": "in.ernet.dli.2015.316733",
+    "title": "Ganer Khata 1st Shatak",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.316733",
+    "distance": 0.9603401189261337
+   },
+   {
+    "identifier": "in.ernet.dli.2015.482000",
+    "title": "Mahabharat 1to18 Part",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.482000",
+    "distance": 0.9664006079231259
+   },
+   {
+    "identifier": "in.gov.ignca.5176",
+    "title": "Khoj men upalabdha hastalikhit Hindi granthon ka chaudahavan traivarsika vivarana",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.gov.ignca.5176",
+    "distance": 0.9690459548041283
+   }
+  ]
+ }
+}

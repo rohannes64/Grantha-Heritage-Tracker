@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.CiXIV43",
+  "script": "Latin",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "dli.ernet.243184",
+    "title": "Vyakarana Chandryo",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/dli.ernet.243184",
+    "distance": 0.9058456872213616
+   },
+   {
+    "identifier": "dli.CiXIV119aa",
+    "title": "ಕನ್ನಡ ಬಾಲವ್ಯಕರಣ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.CiXIV119aa",
+    "distance": 0.9574937022547485
+   },
+   {
+    "identifier": "in.ernet.dli.2015.388441",
+    "title": "అప్పకవీయవివరణము తృతీయాశ్వాసము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.388441",
+    "distance": 0.9595290496276446
+   },
+   {
+    "identifier": "dli.CiXIV119ac",
+    "title": "ಕನ್ನಡ ಬಾಲವ್ಯಾಕರಣ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.CiXIV119ac",
+    "distance": 0.9656666008812184
+   },
+   {
+    "identifier": "in.ernet.dli.2015.441153",
+    "title": "Prakrit Vayakarana",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.441153",
+    "distance": 0.9658948000474714
+   },
+   {
+    "identifier": "in.ernet.dli.2015.294203",
+    "title": "Tolkaappiyam 2",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "url": "https://archive.org/details/in.ernet.dli.2015.294203",
+    "distance": 0.9723976745963476
+   },
+   {
+    "identifier": "in.ernet.dli.2015.553768",
+    "title": "Prakrit Vyakaranam Adyaya-8",
+    "lang_tag": "san",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.553768",
+    "distance": 0.9789532111252691
+   },
+   {
+    "identifier": "in.ernet.dli.2015.336716",
+    "title": "Byakaran",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.336716",
+    "distance": 0.9796519785537564
+   },
+   {
+    "identifier": "in.ernet.dli.2015.333214",
+    "title": "ద్రావిడ భాషా పరిశీలన",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.333214",
+    "distance": 0.9862687662934381
+   },
+   {
+    "identifier": "in.ernet.dli.2015.400798",
+    "title": "Haadotee Sahitya Aur Swaroop",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.400798",
+    "distance": 0.9876739058740789
+   }
+  ]
+ }
+}

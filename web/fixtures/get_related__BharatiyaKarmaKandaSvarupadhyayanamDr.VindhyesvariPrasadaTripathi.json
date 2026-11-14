@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+  "script": "Devanagari",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "in.ernet.dli.2015.291888",
+    "title": "Baidik Gabesona",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.291888",
+    "distance": 1.007478589387492
+   },
+   {
+    "identifier": "in.ernet.dli.2015.399798",
+    "title": "Dharm Varnan",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.399798",
+    "distance": 1.0112246749204685
+   },
+   {
+    "identifier": "in.ernet.dli.2015.356038",
+    "title": "Baishnababratadinnirnya  Ed. 3rd",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.356038",
+    "distance": 1.0293055731041723
+   },
+   {
+    "identifier": "in.ernet.dli.2015.333388",
+    "title": "ఆంధ్ర మీమాంసా పరిభాష",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.333388",
+    "distance": 1.036675588499035
+   },
+   {
+    "identifier": "in.ernet.dli.2015.303798",
+    "title": "Adhyayarth",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.303798",
+    "distance": 1.0388440108600472
+   },
+   {
+    "identifier": "in.ernet.dli.2015.511089",
+    "title": "Hindudharmer Nabojagoran  Ed. 2nd",
+    "lang_tag": "san",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.511089",
+    "distance": 1.0509865936790126
+   },
+   {
+    "identifier": "in.ernet.dli.2015.328070",
+    "title": "Chaivapuushhand-a Chan’thirikai(irand-daavathu Pathippu)",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "url": "https://archive.org/details/in.ernet.dli.2015.328070",
+    "distance": 1.0518115159506303
+   },
+   {
+    "identifier": "in.ernet.dli.2015.353674",
+    "title": "Bramhan Samaj Masik Patra  Barsha. 5, Sankha. 4",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.353674",
+    "distance": 1.0522717362343863
+   },
+   {
+    "identifier": "dli.ernet.259201",
+    "title": "Ratna-jivan-jyot.",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/dli.ernet.259201",
+    "distance": 1.0587463714509233
+   },
+   {
+    "identifier": "in.ernet.dli.2015.332938",
+    "title": "భారతినిగమోపలక్షణము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.332938",
+    "distance": 1.0596383313989937
+   }
+  ]
+ }
+}

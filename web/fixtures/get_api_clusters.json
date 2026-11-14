@@ -1,0 +1,56 @@
+{
+ "status": 200,
+ "body": [
+  {
+   "cluster": 0,
+   "name": "mixed",
+   "size": 6786,
+   "share": 0.5086193973916954,
+   "terms": [],
+   "script_mix": {
+    "Latin": 0.238,
+    "Bengali": 0.177,
+    "Devanagari": 0.165,
+    "Kannada": 0.129,
+    "Gujarati": 0.125,
+    "Telugu": 0.098,
+    "Tamil": 0.068
+   },
+   "median_year": 1929.0
+  },
+  {
+   "cluster": 1,
+   "name": "mixed",
+   "size": 2329,
+   "share": 0.17456153500224852,
+   "terms": [],
+   "script_mix": {
+    "Tamil": 0.193,
+    "Devanagari": 0.174,
+    "Gujarati": 0.147,
+    "Telugu": 0.135,
+    "Latin": 0.124,
+    "Bengali": 0.121,
+    "Kannada": 0.105
+   },
+   "median_year": 1917.0
+  },
+  {
+   "cluster": 2,
+   "name": "mixed",
+   "size": 4227,
+   "share": 0.31681906760605605,
+   "terms": [],
+   "script_mix": {
+    "Devanagari": 0.274,
+    "Latin": 0.195,
+    "Gujarati": 0.136,
+    "Bengali": 0.123,
+    "Tamil": 0.115,
+    "Telugu": 0.081,
+    "Kannada": 0.076
+   },
+   "median_year": 1922.0
+  }
+ ]
+}

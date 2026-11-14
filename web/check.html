@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="check.css">
 </head>
 <body>
 <header class="slab">
@@ -54,12 +55,15 @@
       <div class="actions"><button class="btn btn--primary" type="submit" id="submit">Check the page</button></div>
     </form>
 
-    <section class="result" id="result" aria-live="polite">
-      <div class="state" id="state-empty">
-        <h2>The result appears here</h2>
-        <p class="ink-2">The closest group from each method, how sure the match is, the five nearest archive books and where the page sits on the map.</p>
-      </div>
-    </section>
+    <div class="result-col">
+      <p class="visually-hidden" id="result-status" role="status"></p>
+      <section class="result" id="result" aria-label="Result">
+        <div class="state" id="state-empty">
+          <h2>The result appears here</h2>
+          <p class="ink-2">A draft catalogue card for the page: the class it most likely belongs to, a note on scan quality, the closest archive books, related books in other scripts and where it sits on the map.</p>
+        </div>
+      </section>
+    </div>
   </div>
 </main>
 

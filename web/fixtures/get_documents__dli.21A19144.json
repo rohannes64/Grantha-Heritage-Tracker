@@ -1,0 +1,18 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.21A19144",
+  "title": "ಕನ್ನಡ ಭಾಷಭೂಷಣ",
+  "creator": "ನಾಗರ್ವಮ",
+  "year": 1884.0,
+  "era": "pre-1900",
+  "lang_tag": "kan",
+  "script": "Latin",
+  "mean_conf": 67.79875518672199,
+  "classification": null,
+  "total_pages": 175,
+  "url": "https://archive.org/details/dli.21A19144",
+  "hier": 1,
+  "dbscan": 0
+ }
+}

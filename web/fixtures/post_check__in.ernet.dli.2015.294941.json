@@ -1,0 +1,212 @@
+{
+ "status": 200,
+ "body": {
+  "script": "Tamil",
+  "tokens": 158,
+  "ocr_conf": null,
+  "cautions": [],
+  "feature_set": "V",
+  "feature_name": "Vertex AI Multilingual embeddings",
+  "status": "ok",
+  "hierarchical": {
+   "cluster": 0,
+   "name": "mixed",
+   "distance": 1.003563869531146,
+   "level": "good",
+   "spread": {
+    "p50": 0.9749128389293239,
+    "p90": 1.0414494101173384,
+    "max": 1.1390007624156933
+   },
+   "runner_up": 1,
+   "runner_up_name": "mixed",
+   "runner_up_distance": 1.0124196962001164,
+   "also_close_to": [
+    {
+     "cluster": 1,
+     "name": "mixed",
+     "distance": 1.0124196962001164
+    }
+   ]
+  },
+  "dbscan": {
+   "cluster": -1,
+   "name": null,
+   "nearest_core_distance": 0.9975077315828774,
+   "eps": 0.86583,
+   "in_dense_group": false
+  },
+  "matches": [
+   {
+    "identifier": "in.ernet.dli.2015.294886",
+    "title": "Ain-kur’un-uur’um Palaiya Uraiyum",
+    "creator": "Chuppiramand-iyateichikar",
+    "year": 1920.0,
+    "era": "1920-1939",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "mean_conf": 61.13958560523446,
+    "classification": "Religion",
+    "total_pages": 230,
+    "url": "https://archive.org/details/in.ernet.dli.2015.294886",
+    "distance": 0.8853168275521871,
+    "hier": 1,
+    "dbscan": 0,
+    "shared_terms": [
+     "தோழி",
+     "இதுவுமது",
+     "செவி",
+     "கி"
+    ]
+   },
+   {
+    "identifier": "in.ernet.dli.2015.328001",
+    "title": "Ain’thind-ai Yezhubathum Kain’n’ilaiyum",
+    "creator": "Vai Anan’tharaamaiyar",
+    "year": 1931.0,
+    "era": "1920-1939",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "mean_conf": 60.60095389507154,
+    "classification": null,
+    "total_pages": 51,
+    "url": "https://archive.org/details/in.ernet.dli.2015.328001",
+    "distance": 0.9372239795519042,
+    "hier": 1,
+    "dbscan": 0,
+    "shared_terms": [
+     "தோழி",
+     "இதுவுமது",
+     "கள",
+     "இதனை",
+     "கி",
+     "நின்று",
+     "பா"
+    ]
+   },
+   {
+    "identifier": "in.ernet.dli.2015.293707",
+    "title": "Thanj-chaivaand-an Koovaimuulam",
+    "creator": "Poyyaamozhippulavar",
+    "year": 1893.0,
+    "era": "pre-1900",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "mean_conf": 70.25963718820861,
+    "classification": "Literature",
+    "total_pages": 288,
+    "url": "https://archive.org/details/in.ernet.dli.2015.293707",
+    "distance": 0.9406605097473513,
+    "hier": 1,
+    "dbscan": 0,
+    "shared_terms": [
+     "என்புழி",
+     "புலி"
+    ]
+   },
+   {
+    "identifier": "in.ernet.dli.2015.292853",
+    "title": "Mand-imeikalai",
+    "creator": null,
+    "year": 1908.0,
+    "era": "1900-1919",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "mean_conf": 69.12417218543047,
+    "classification": "Literature",
+    "total_pages": 288,
+    "url": "https://archive.org/details/in.ernet.dli.2015.292853",
+    "distance": 0.9502773036991679,
+    "hier": 1,
+    "dbscan": -1,
+    "shared_terms": [
+     "என்றார்",
+     "தன்னை",
+     "இத",
+     "சொல்"
+    ]
+   },
+   {
+    "identifier": "in.ernet.dli.2015.328118",
+    "title": "Kalittokai I",
+    "creator": "N-achchinaarkkiniyarur",
+    "year": 1925.0,
+    "era": "1920-1939",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "mean_conf": 66.94323557237465,
+    "classification": null,
+    "total_pages": 412,
+    "url": "https://archive.org/details/in.ernet.dli.2015.328118",
+    "distance": 0.9537246218989235,
+    "hier": 1,
+    "dbscan": 0,
+    "shared_terms": [
+     "தோழி",
+     "தொல்",
+     "கள",
+     "இதனை",
+     "நின்று",
+     "சொல்"
+    ]
+   }
+  ],
+  "pca": {
+   "x": -0.059828507709190654,
+   "y": 0.3118611170858166
+  },
+  "related_other_scripts": [
+   {
+    "identifier": "in.ernet.dli.2015.301657",
+    "title": "Adure Jaler Shabda Ed.1st",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.301657",
+    "distance": 1.0458590247900115
+   },
+   {
+    "identifier": "in.ernet.dli.2015.302034",
+    "title": "Chaitrarath",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.302034",
+    "distance": 1.0485746091266432
+   },
+   {
+    "identifier": "in.ernet.dli.2015.484324",
+    "title": "Aadi Mani Panth",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.484324",
+    "distance": 1.0535267450105952
+   },
+   {
+    "identifier": "dli.ministry.25482",
+    "title": "ছবি ও গান",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/dli.ministry.25482",
+    "distance": 1.0580254699779
+   },
+   {
+    "identifier": "in.ernet.dli.2015.333911",
+    "title": "క్షేత్రయ్య పదములు",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.333911",
+    "distance": 1.0658901426245468
+   }
+  ],
+  "suggested_classes": [
+   {
+    "class": "language and literature",
+    "score": 0.7568392285804038
+   },
+   {
+    "class": "religion",
+    "score": 0.2431607714195959
+   }
+  ],
+  "input": "text"
+ }
+}

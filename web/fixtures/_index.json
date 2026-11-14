@@ -1,0 +1,154 @@
+{
+ "generated_by": "scripts/make_fixtures.py",
+ "generated_at": "2026-11-14T18:42:09+00:00",
+ "bundle": "data/model/bundle.joblib",
+ "bundle_sha256": "cb7d7fa4120b3c3cdc5b9b632511b21f707ef3d8489712bc74f8d7281a6b2acc",
+ "feature_set": "V",
+ "fixtures": {
+  "get_api_health": {
+   "method": "GET",
+   "path": "/api/health",
+   "status": 200
+  },
+  "get_api_clusters": {
+   "method": "GET",
+   "path": "/api/clusters",
+   "status": 200
+  },
+  "get_api_clusters__method-dbscan": {
+   "method": "GET",
+   "path": "/api/clusters?method=dbscan",
+   "status": 200
+  },
+  "get_api_clusters_0": {
+   "method": "GET",
+   "path": "/api/clusters/0",
+   "status": 200
+  },
+  "get_documents__dli.bengal.10689.10068": {
+   "method": "GET",
+   "path": "/api/documents/dli.bengal.10689.10068",
+   "status": 200
+  },
+  "get_related__dli.bengal.10689.10068": {
+   "method": "GET",
+   "path": "/api/related/dli.bengal.10689.10068",
+   "status": 200
+  },
+  "get_suggest__dli.bengal.10689.10068": {
+   "method": "GET",
+   "path": "/api/suggest/dli.bengal.10689.10068",
+   "status": 200
+  },
+  "get_documents__atthefeetofbhagavanduncangreenless_202004_777_j": {
+   "method": "GET",
+   "path": "/api/documents/atthefeetofbhagavanduncangreenless_202004_777_j",
+   "status": 200
+  },
+  "get_related__atthefeetofbhagavanduncangreenless_202004_777_j": {
+   "method": "GET",
+   "path": "/api/related/atthefeetofbhagavanduncangreenless_202004_777_j",
+   "status": 200
+  },
+  "get_suggest__atthefeetofbhagavanduncangreenless_202004_777_j": {
+   "method": "GET",
+   "path": "/api/suggest/atthefeetofbhagavanduncangreenless_202004_777_j",
+   "status": 200
+  },
+  "get_documents__dli.ernet.248230": {
+   "method": "GET",
+   "path": "/api/documents/dli.ernet.248230",
+   "status": 200
+  },
+  "get_related__dli.ernet.248230": {
+   "method": "GET",
+   "path": "/api/related/dli.ernet.248230",
+   "status": 200
+  },
+  "get_suggest__dli.ernet.248230": {
+   "method": "GET",
+   "path": "/api/suggest/dli.ernet.248230",
+   "status": 200
+  },
+  "get_documents__bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh": {
+   "method": "GET",
+   "path": "/api/documents/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+   "status": 200
+  },
+  "get_related__bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh": {
+   "method": "GET",
+   "path": "/api/related/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+   "status": 200
+  },
+  "get_suggest__bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh": {
+   "method": "GET",
+   "path": "/api/suggest/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+   "status": 200
+  },
+  "get_documents__dli.21A19144": {
+   "method": "GET",
+   "path": "/api/documents/dli.21A19144",
+   "status": 200
+  },
+  "get_related__dli.21A19144": {
+   "method": "GET",
+   "path": "/api/related/dli.21A19144",
+   "status": 200
+  },
+  "get_suggest__dli.21A19144": {
+   "method": "GET",
+   "path": "/api/suggest/dli.21A19144",
+   "status": 200
+  },
+  "get_documents__BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi": {
+   "method": "GET",
+   "path": "/api/documents/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+   "status": 200
+  },
+  "get_related__BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi": {
+   "method": "GET",
+   "path": "/api/related/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+   "status": 200
+  },
+  "get_suggest__BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi": {
+   "method": "GET",
+   "path": "/api/suggest/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+   "status": 200
+  },
+  "get_documents__dli.56E228": {
+   "method": "GET",
+   "path": "/api/documents/dli.56E228",
+   "status": 200
+  },
+  "get_related__dli.56E228": {
+   "method": "GET",
+   "path": "/api/related/dli.56E228",
+   "status": 200
+  },
+  "get_suggest__dli.56E228": {
+   "method": "GET",
+   "path": "/api/suggest/dli.56E228",
+   "status": 200
+  },
+  "get_documents__dli.CiXIV43": {
+   "method": "GET",
+   "path": "/api/documents/dli.CiXIV43",
+   "status": 200
+  },
+  "get_related__dli.CiXIV43": {
+   "method": "GET",
+   "path": "/api/related/dli.CiXIV43",
+   "status": 200
+  },
+  "get_suggest__dli.CiXIV43": {
+   "method": "GET",
+   "path": "/api/suggest/dli.CiXIV43",
+   "status": 200
+  },
+  "post_check__in.ernet.dli.2015.294941": {
+   "method": "POST",
+   "path": "/api/check",
+   "status": 200
+  }
+ }
+}

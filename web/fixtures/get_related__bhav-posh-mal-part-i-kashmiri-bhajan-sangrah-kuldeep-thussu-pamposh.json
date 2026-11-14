@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+  "script": "Devanagari",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "in.ernet.dli.2015.258630",
+    "title": "Shyam Ullas Stavanmala.",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.258630",
+    "distance": 0.8070175256356422
+   },
+   {
+    "identifier": "in.ernet.dli.2015.318499",
+    "title": "Jain Kavya Dohan Part -1",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.318499",
+    "distance": 0.8213996276846207
+   },
+   {
+    "identifier": "in.ernet.dli.2015.316733",
+    "title": "Ganer Khata 1st Shatak",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.316733",
+    "distance": 0.8386941687863352
+   },
+   {
+    "identifier": "dli.ernet.256356",
+    "title": "Vichar Tarang Gyanupadesha Bhajanavali.",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/dli.ernet.256356",
+    "distance": 0.8496418381959198
+   },
+   {
+    "identifier": "in.ernet.dli.2015.304767",
+    "title": "Prachin Fagu Sangrah",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.304767",
+    "distance": 0.8559995487486758
+   },
+   {
+    "identifier": "in.ernet.dli.2015.304155",
+    "title": "Raichandra Jain Kavyamala Part-ii",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.304155",
+    "distance": 0.8621106244263617
+   },
+   {
+    "identifier": "in.ernet.dli.2015.399608",
+    "title": "Gujarati Kavyadohan",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.399608",
+    "distance": 0.8723420569999235
+   },
+   {
+    "identifier": "dli.osmania.4549",
+    "title": "ಶ್ರೀನಿವಾಸ ಸಂಕೀರ್ತನಂ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.osmania.4549",
+    "distance": 0.8762341684082924
+   },
+   {
+    "identifier": "in.ernet.dli.2015.324699",
+    "title": "Ratnasar Part-3",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.324699",
+    "distance": 0.8884414198673087
+   },
+   {
+    "identifier": "in.ernet.dli.2015.541133",
+    "title": "Kavita",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.541133",
+    "distance": 0.8946780030215672
+   }
+  ]
+ }
+}

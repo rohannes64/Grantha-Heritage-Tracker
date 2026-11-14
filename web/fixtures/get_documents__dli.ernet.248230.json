@@ -1,0 +1,18 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.ernet.248230",
+  "title": "Ambika Chhandamala.",
+  "creator": null,
+  "year": null,
+  "era": "undated",
+  "lang_tag": "guj",
+  "script": "Gujarati",
+  "mean_conf": 73.64561855670104,
+  "classification": null,
+  "total_pages": 44,
+  "url": "https://archive.org/details/dli.ernet.248230",
+  "hier": 1,
+  "dbscan": -1
+ }
+}

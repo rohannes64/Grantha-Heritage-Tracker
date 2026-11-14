@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.44127271455271394
+   },
+   {
+    "class": "religion",
+    "score": 0.39690395206872414
+   },
+   {
+    "class": "generalities",
+    "score": 0.1228342345361044
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

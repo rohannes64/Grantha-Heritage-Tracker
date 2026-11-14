@@ -1,0 +1,10 @@
+{
+ "status": 200,
+ "body": {
+  "status": "ok",
+  "documents": 13342,
+  "feature_set": "V",
+  "needs_internet": true,
+  "embedding_configured": true
+ }
+}
