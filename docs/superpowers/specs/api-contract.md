@@ -61,14 +61,24 @@ Rules and thresholds live in `pipeline/triage.py` (constants, documented). Evalu
 with an `identifier` column) → `text/csv` with columns `identifier, title, lang_tag, suggested_class_1, score_1,
 suggested_class_2, score_2, suggested_class_3, score_3, triage_verdict, related_other_scripts` (identifiers joined
 by `;`), `found` (`yes|no`). Unknown identifiers get `found=no` and empty fields. 400 over 500 identifiers.
-Produced by `app/routes/batch.py` calling features 1–3.
+Produced by `app/routes/batch.py` calling features 1–3. The 500 limit counts unique identifiers (blanks and duplicates are dropped first). A harvested book outside the model is `found=yes` with only `title`, `lang_tag` and `triage_verdict` filled. Text cells starting with `= + - @` are prefixed with `'`; uploads over the app's upload limit are 413.
 
 ## Feature 5: edition / translation finder (wave 2)
 
 `GET /api/editions/{identifier}` → `{identifier, threshold, method, candidates: [{identifier, title, lang_tag,
 script, distance, same_title_author: bool, url}]}`. The threshold is calibrated on train books and stored in the
 bundle; `method` describes it in words. Produced by `app/routes/editions.py`, `pipeline/editions.py`. Evaluation:
-`reports/features/editions.json` (`{precision, recall, precision_ci95, recall_ci95, groups_heldout, threshold}`).
+`reports/features/editions.json` (`{precision, recall, precision_ci95, recall_ci95, groups_heldout, threshold,
+heldout_books, train_books, metric, split}`), from `python -m pipeline.editions`.
+
+Details: the key is NFKC + casefold + punctuation stripped + whitespace collapsed, of `title` and `creator`; a book
+with no creator keys on its title only when the title has at least 3 words, else it has no key (so
+`same_title_author` is false for it). Transliteration variants do not share a key. `candidates` are books within
+`threshold` of the book (the bundle's metric), nearest first, at most 10, the book itself excluded. The threshold is
+the distance maximising F1 of "same key" among each train book's 10 nearest neighbours (all rows when the data
+has no `split` column; `method` says which), stored in the bundle as `editions_threshold` and `editions_method`.
+A bundle built before this feature gives `threshold: null` and `candidates: []`. Evaluation: precision and recall
+of the candidates against true same-key books, on held-out (test) books, with cluster-bootstrap 95% intervals (held-out edition groups resampled); `threshold <= 0` or missing means not calibrated (`threshold: null`, no candidates).
 
 ## Static files written by the pipeline
 
