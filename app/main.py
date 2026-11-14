@@ -18,6 +18,7 @@ from pipeline import config
 from pipeline.features import LOCAL_MODELS, EmbeddingServiceError
 
 from .checker import Checker
+from .routes import discover
 from .ocr_input import OCRInputError, images_from_upload, ocr_images
 
 WEB = config.ROOT / "web"
@@ -46,6 +47,11 @@ async def lifespan(_app):
 
 app = FastAPI(title="Grantha", version="1.0", lifespan=lifespan,
               description="Check a heritage document against topic groups learned from Digital Library of India scans.")
+
+
+ROUTERS, ENRICHERS = discover()
+for _router in ROUTERS:
+    app.include_router(_router)
 
 
 @app.get("/api/health")
@@ -124,11 +130,15 @@ async def check(file: UploadFile | None = File(None), text: str | None = Form(No
         conf = None
     try:
         result = await run_in_threadpool(checker().check_text, raw, script=script, ocr_conf=conf,
-                                         lang=ocr["model"] if ocr else lang)
+                                         lang=ocr["model"] if ocr else lang, keep_vector=True)
     except EmbeddingServiceError as e:
         logging.getLogger("grantha").warning("embedding service error: %s", e)   # details stay in the server log
         raise HTTPException(503, "The topic model's online embedding service cannot be reached right now. "
                                  "Please try again later.") from e
+    vector = result.pop("_vector", None)
+    if result.get("status") != "abstain" and vector is not None:
+        for enrich in ENRICHERS:      # features in app/routes/ add their fields (docs/superpowers/specs/api-contract.md)
+            result |= await run_in_threadpool(enrich, checker(), result, vector)
     result["input"] = "scan" if file is not None else "text"
     if ocr:
         result["ocr"] = {k: ocr[k] for k in ("model", "pages", "script_detected")} | {"preview": ocr["text"][:1200]}
