@@ -1,3 +1,5 @@
+> **Out of date (2026-11-14).** This draft describes an earlier version of the study (LaBSE features, the first sample of books). Its numbers are not current and fail `scripts/check_claims.py`. Current results: `reports/deliverable_facts.json` and the README's results block. Rewrite from those before submitting.
+
 # Script or subject? Unsupervised grouping of multilingual heritage book scans
 
 *Short-paper draft. Authors: Etikala Sai Pranav, Rajith Sundar, Vemuri Rohan. Guide: (to be added).*
