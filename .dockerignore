@@ -11,3 +11,10 @@ tests
 # Data: only the trained model bundle (with the chosen embedding model) goes into the app image.
 data/*
 !data/model
+archive
+scratch
+.agents
+.planning
+.venv
+*.pptx
+*.pdf

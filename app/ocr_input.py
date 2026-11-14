@@ -1,6 +1,8 @@
 """OCR for uploaded scans: page images or a PDF (first pages only). Same Tesseract settings,
 orientation fix and script routing as the archive pipeline."""
 import io
+import math
+import warnings
 
 from PIL import Image, ImageOps
 
@@ -9,6 +11,7 @@ from pipeline.ocr import _lines_from_data, _osd
 
 MAX_PAGES = 5
 PDF_DPI = 200
+MAX_PIXELS = 40_000_000   # per page: an A3 sheet at 300 dpi is ~17 MP; anything far beyond is not a book page
 
 
 class OCRInputError(ValueError):
@@ -24,15 +27,26 @@ def images_from_upload(data: bytes, filename: str) -> list[Image.Image]:
         except Exception as e:
             raise OCRInputError(f"could not open the PDF: {e}") from e
         out = []
-        for page in list(pdf)[:MAX_PAGES]:
-            pix = page.get_pixmap(dpi=PDF_DPI, colorspace=fitz.csGRAY)
+        for i in range(min(pdf.page_count, MAX_PAGES)):
+            page = pdf.load_page(i)
+            w_in, h_in = page.rect.width / 72, page.rect.height / 72
+            # render at PDF_DPI, or lower if the page declares a size that would exceed MAX_PIXELS
+            dpi = min(PDF_DPI, int(math.sqrt(MAX_PIXELS / max(w_in * h_in, 1e-6))))
+            pix = page.get_pixmap(dpi=max(dpi, 1), colorspace=fitz.csGRAY)
             out.append(Image.frombytes("L", (pix.width, pix.height), pix.samples))
         if not out:
             raise OCRInputError("the PDF has no pages")
         return out
     try:
-        img = Image.open(io.BytesIO(data))
-        img.load()
+        img = Image.open(io.BytesIO(data))           # reads the header only
+    except Exception as e:
+        raise OCRInputError("the file is not an image or PDF we can read") from e
+    if img.width * img.height > MAX_PIXELS:
+        raise OCRInputError(f"the image is too large ({img.width} x {img.height} pixels); scan the page at 300 dpi or less")
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            img.load()
     except Exception as e:
         raise OCRInputError("the file is not an image or PDF we can read") from e
     frames = []

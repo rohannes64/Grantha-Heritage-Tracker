@@ -3,6 +3,7 @@
     uvicorn app.main:app --host 0.0.0.0 --port 8000
 """
 import json
+import logging
 import os
 from contextlib import asynccontextmanager
 from functools import lru_cache
@@ -11,6 +12,7 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 
 from pipeline import config
 from pipeline.features import LOCAL_MODELS, EmbeddingServiceError
@@ -50,9 +52,10 @@ app = FastAPI(title="Grantha", version="1.0", lifespan=lifespan,
 def health():
     ok = BUNDLE.exists()
     fs = checker().b["feature_set"] if ok else None
+    online = {"G": "GEMINI_API_KEY", "V": "GOOGLE_CLOUD_PROJECT"}    # API-backed encoders and their setting
     return {"status": "ok" if ok else "no-model", "documents": len(checker().docs) if ok else 0,
-            "feature_set": fs, "needs_internet": fs == "G",
-            "embedding_key_set": bool(os.environ.get("GEMINI_API_KEY")) if fs == "G" else None}
+            "feature_set": fs, "needs_internet": fs in online,
+            "embedding_configured": bool(os.environ.get(online[fs])) if fs in online else None}
 
 
 def _final():
@@ -110,7 +113,8 @@ async def check(file: UploadFile | None = File(None), text: str | None = Form(No
         if len(data) > MAX_UPLOAD:
             raise HTTPException(413, "file is larger than 20 MB")
         try:
-            ocr = ocr_images(images_from_upload(data, file.filename or ""), lang)
+            # OCR is slow and CPU-bound; run it off the event loop so other requests aren't blocked
+            ocr = await run_in_threadpool(lambda: ocr_images(images_from_upload(data, file.filename or ""), lang))
         except OCRInputError as e:
             raise HTTPException(400, str(e)) from e
         raw, script, conf = ocr["text"], ocr["script"], ocr["ocr_conf"]
@@ -119,10 +123,12 @@ async def check(file: UploadFile | None = File(None), text: str | None = Form(No
         script = config.LANGUAGES[lang]["script"] if lang else None
         conf = None
     try:
-        result = checker().check_text(raw, script=script, ocr_conf=conf, lang=ocr["model"] if ocr else lang)
+        result = await run_in_threadpool(checker().check_text, raw, script=script, ocr_conf=conf,
+                                         lang=ocr["model"] if ocr else lang)
     except EmbeddingServiceError as e:
-        raise HTTPException(503, "The topic model runs on Google's Gemini service, which cannot be reached "
-                                 f"right now ({e}). Please try again later.") from e
+        logging.getLogger("grantha").warning("embedding service error: %s", e)   # details stay in the server log
+        raise HTTPException(503, "The topic model's online embedding service cannot be reached right now. "
+                                 "Please try again later.") from e
     result["input"] = "scan" if file is not None else "text"
     if ocr:
         result["ocr"] = {k: ocr[k] for k in ("model", "pages", "script_detected")} | {"preview": ocr["text"][:1200]}

@@ -17,7 +17,7 @@ from sklearn.metrics import pairwise_distances
 from pipeline import config, tags as tagging, text
 from pipeline.features import apply_stopwords
 
-MIN_TOKENS_TO_ASSIGN = 20      # below this, no assignment at all
+from pipeline.config import MIN_TOKENS_TO_ASSIGN   # below this, no assignment at all
 MIN_TOKENS_CONFIDENT = 100     # same bar the archive books had to clear
 
 

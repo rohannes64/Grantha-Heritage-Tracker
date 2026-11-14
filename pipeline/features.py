@@ -39,7 +39,7 @@ from sklearn.preprocessing import normalize
 
 from . import config, text
 
-PROCESSED = config.DATA / "processed"
+PROCESSED = config.PROCESSED
 N_COMPONENTS = 100
 LANG_DF_CAP = 0.3
 EMBED_MODEL = "sentence-transformers/LaBSE"
@@ -311,7 +311,6 @@ class VertexAIEmbedder(Embedder):
     PARALLEL = 4      # concurrent requests in flight
     TRIES = 6
     REGION = "us-central1"
-    PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "project-dab42af9-0f52-4527-b40")
     MODEL = "text-multilingual-embedding-002"
 
     def __init__(self, model_name: str = VERTEX_MODEL, seed: int = config.SEED):
@@ -319,52 +318,66 @@ class VertexAIEmbedder(Embedder):
         self._token = None
         self._token_expiry = 0
 
+    def __getstate__(self):
+        # never pickle a live access token into the model bundle
+        return super().__getstate__() | {"_token": None, "_token_expiry": 0}
+
     @property
     def model(self):
         raise AttributeError("Vertex AI runs on Google Cloud Vertex AI; there is no local model")
 
+    def _url(self) -> str:
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        if not project:
+            raise EmbeddingServiceError("GOOGLE_CLOUD_PROJECT is not set (put it in the project's .env)")
+        return (f"https://{self.REGION}-aiplatform.googleapis.com/v1/projects/{project}/locations/{self.REGION}"
+                f"/publishers/google/models/{self.MODEL}:predict")
+
     def _get_token(self) -> str:
-        import time, urllib.request, urllib.parse
+        """OAuth access token: from an ADC file (HERITAGE_ADC_FILE, else gcloud's default ADC file),
+        otherwise from `gcloud auth print-access-token`. Failures are reported, not swallowed."""
+        import shutil, subprocess, sys, time, urllib.parse, urllib.request
         now = time.time()
         if self._token and now < self._token_expiry - 60:
             return self._token
-        # 1. Try ADC refresh token if gcp_adc.json exists
-        for p in ("/opt/grantha/gcp_adc.json", os.path.expanduser("~/.config/gcloud/application_default_credentials.json")):
-            if os.path.exists(p):
-                try:
-                    with open(p, "r", encoding="utf-8") as f:
-                        adc = json.load(f)
-                    data = urllib.parse.urlencode({
-                        "client_id": adc["client_id"],
-                        "client_secret": adc["client_secret"],
-                        "refresh_token": adc["refresh_token"],
-                        "grant_type": "refresh_token"
-                    }).encode("utf-8")
-                    req = urllib.request.Request("https://oauth2.googleapis.com/token", data=data,
-                                                 headers={"Content-Type": "application/x-www-form-urlencoded"})
-                    with urllib.request.urlopen(req, timeout=10) as resp:
-                        res = json.loads(resp.read().decode("utf-8"))
-                        self._token = res["access_token"]
-                        self._token_expiry = now + res.get("expires_in", 3600)
-                        return self._token
-                except Exception:
-                    pass
-        # 2. Try gcloud CLI
-        try:
-            import subprocess
-            tok = subprocess.check_output("gcloud auth print-access-token", shell=True, text=True).strip()
-            if tok:
-                self._token = tok
-                self._token_expiry = now + 1800
+        problems = []
+        adc_path = os.environ.get("HERITAGE_ADC_FILE") or os.path.expanduser(
+            "~/.config/gcloud/application_default_credentials.json")
+        if os.path.exists(adc_path):
+            try:
+                with open(adc_path, encoding="utf-8") as f:
+                    adc = json.load(f)
+                data = urllib.parse.urlencode({"client_id": adc["client_id"], "client_secret": adc["client_secret"],
+                                               "refresh_token": adc["refresh_token"],
+                                               "grant_type": "refresh_token"}).encode("utf-8")
+                req = urllib.request.Request("https://oauth2.googleapis.com/token", data=data,
+                                             headers={"Content-Type": "application/x-www-form-urlencoded"})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    res = json.loads(resp.read().decode("utf-8"))
+                self._token, self._token_expiry = res["access_token"], now + res.get("expires_in", 3600)
                 return self._token
-        except Exception:
-            pass
-        raise EmbeddingServiceError("Could not obtain GCP access token for Vertex AI (check ADC or gcloud auth)")
+            except (OSError, KeyError, ValueError) as e:
+                problems.append(f"ADC file {adc_path}: {type(e).__name__}")
+        gcloud = shutil.which("gcloud")
+        if gcloud:
+            try:
+                tok = subprocess.run([gcloud, "auth", "print-access-token"], capture_output=True, text=True,
+                                     timeout=30, check=True).stdout.strip()
+                if tok:
+                    self._token, self._token_expiry = tok, now + 1800
+                    return self._token
+            except (OSError, subprocess.SubprocessError) as e:
+                problems.append(f"gcloud: {type(e).__name__}")
+        else:
+            problems.append("gcloud not on PATH")
+        print("Vertex AI auth failed: " + "; ".join(problems), file=sys.stderr)
+        raise EmbeddingServiceError("Could not obtain a GCP access token for Vertex AI (set HERITAGE_ADC_FILE "
+                                    "or run `gcloud auth login`)")
 
     def _call(self, texts: list[str]) -> np.ndarray:
         import time, requests
+        url = self._url()
         token = self._get_token()
-        url = f"https://{self.REGION}-aiplatform.googleapis.com/v1/projects/{self.PROJECT}/locations/{self.REGION}/publishers/google/models/{self.MODEL}:predict"
         payload = {
             "instances": [{"content": t, "task_type": "CLUSTERING"} for t in texts],
             "parameters": {"autoTruncate": True}
@@ -380,9 +393,10 @@ class VertexAIEmbedder(Embedder):
             if r.status_code == 200:
                 preds = r.json().get("predictions", [])
                 return np.asarray([p["embeddings"]["values"] for p in preds], dtype=np.float32)
-            if r.status_code == 401:  # token expired, refresh immediately
+            if r.status_code == 401 and attempt < self.TRIES - 1:  # token expired: refresh and retry
                 self._token = None
                 token = self._get_token()
+                continue
             if r.status_code in (429, 500, 503) and attempt < self.TRIES - 1:
                 time.sleep(min(30, 2 ** attempt) + float(np.random.random()))
                 continue
@@ -419,14 +433,18 @@ def make_embedder(fs: str) -> Embedder:
 
 
 def raw_embeddings(fs: str, ids: list[str], toks) -> np.ndarray:
-    """Chunk embeddings averaged per book, before PCA. Cached per model and corpus (no fitting here)."""
+    """Chunk embeddings averaged per book, before PCA. Cached per model, books and text (no fitting here):
+    the key includes a hash of every book's tokens, so new text for the same books is embedded again."""
+    import hashlib
     cache = PROCESSED / f"embeddings_raw_{fs}.npy"
     cache_ids = PROCESSED / f"embeddings_ids_{fs}.json"
-    if cache.exists() and cache_ids.exists() and json.loads(cache_ids.read_text()) == ids:
+    text_sha = hashlib.sha256("".join("".join(t) for t in toks).encode("utf-8")).hexdigest()
+    key = {"ids": ids, "text_sha256": text_sha}
+    if cache.exists() and cache_ids.exists() and json.loads(cache_ids.read_text()) == key:
         return np.load(cache)
     E = make_embedder(fs).raw(toks, progress=True)
     np.save(cache, E)
-    cache_ids.write_text(json.dumps(ids))
+    cache_ids.write_text(json.dumps(key))
     return E
 
 

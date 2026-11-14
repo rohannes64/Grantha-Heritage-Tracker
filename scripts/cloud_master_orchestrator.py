@@ -5,8 +5,13 @@ Runs as a systemd service on grantha-worker-eng (Master VM) on port 8000.
 Lifecycle:
 1. FLEET_HARVEST_OCR: Serves live web dashboard, tracks all 7 workers until harvest & OCR complete.
 2. SHARD_MERGE: Fetches all remote corpus databases, merges into master SQLite, cleanly powers down worker VMs.
-3. PIPELINE_RUN: Runs quality, preprocess, Gemini feature extraction, study, evaluate, and export.
-4. LAUNCH_APP: Yields port 8000 and seamlessly replaces process with production FastAPI Grantha app (os.execv).
+3. PIPELINE_RUN: the pre-registered protocol (docs/evaluation_plan.md): fit on train books, study, evaluate on
+   val and test, then refit on all books, study (reusing the train-chosen setting), sensitivity, export, figures.
+   Any failing stage stops the run.
+4. LAUNCH_APP: Yields port 8000 and replaces the process with the FastAPI app (os.execv).
+
+The dashboard and app bind to GRANTHA_BIND (default 127.0.0.1). Reach the dashboard through an SSH tunnel:
+    gcloud compute ssh grantha-worker-eng -- -L 8000:127.0.0.1:8000
 """
 import http.server
 import json
@@ -25,6 +30,7 @@ SHARDS_DIR = os.path.join(DATA_DIR, "shards")
 CORPUS_DB = os.path.join(DATA_DIR, "corpus.sqlite")
 BUNDLE_FILE = os.path.join(DATA_DIR, "model", "bundle.joblib")
 ORCH_LOG = os.path.join(WORK_DIR, "orchestrator.log")
+BIND = os.environ.get("GRANTHA_BIND", "127.0.0.1")   # set to 0.0.0.0 only behind a firewall rule you chose
 
 WORKERS = [
     {"name": "grantha-worker-eng", "lang": "English (eng)", "ip": "127.0.0.1", "target": 2000, "is_master": True},
@@ -149,9 +155,11 @@ def run_cmd(cmd_list, desc):
             log(f"  {line}")
     p.wait()
     if p.returncode != 0:
-        log(f"WARNING: Command exited with status {p.returncode}")
-    else:
-        log(f"--- [Pipeline] {desc} COMPLETED SUCCESSFULLY ---")
+        log(f"FAILED: {desc} exited with status {p.returncode}; stopping the pipeline")
+        STATE["stage"] = "FAILED"
+        STATE["stage_detail"] = f"{desc} failed (exit {p.returncode})"
+        raise RuntimeError(f"{desc} failed with exit status {p.returncode}")
+    log(f"--- [Pipeline] {desc} COMPLETED SUCCESSFULLY ---")
 
 def orchestrator_loop():
     global server_instance
@@ -170,7 +178,7 @@ def orchestrator_loop():
         uvicorn_bin = os.path.join(WORK_DIR, "venv", "bin", "uvicorn")
         if not os.path.exists(uvicorn_bin):
             uvicorn_bin = "uvicorn"
-        os.execv(uvicorn_bin, [uvicorn_bin, "app.main:app", "--host", "0.0.0.0", "--port", "8000"])
+        os.execv(uvicorn_bin, [uvicorn_bin, "app.main:app", "--host", BIND, "--port", "8000"])
 
     # 1. FLEET_HARVEST_OCR
     last_count = 0
@@ -240,23 +248,24 @@ def orchestrator_loop():
     if not os.path.exists(py):
         py = sys.executable
 
-    STATE["stage_detail"] = "Running Data Quality & Sampling Audit"
-    run_cmd([py, "-m", "pipeline.quality"], "Quality Audit")
-
-    STATE["stage_detail"] = "Running Text Preprocessing & Script Normalization"
-    run_cmd([py, "-m", "pipeline.preprocess"], "Corpus Preprocessing")
-
-    STATE["stage_detail"] = "Running Google Cloud Vertex AI Multilingual Embedding Extraction"
-    run_cmd([py, "-m", "pipeline.features", "--only", "V"], "Vertex AI Multilingual Embedding Extraction")
-
-    STATE["stage_detail"] = "Running Comparative Topic Clustering (HDBSCAN / DBSCAN)"
-    run_cmd([py, "-m", "pipeline.study"], "Topic Clustering Study")
-
-    STATE["stage_detail"] = "Evaluating Cluster Stability & Silhouette Scores"
-    run_cmd([py, "-m", "pipeline.evaluate"], "Model Evaluation")
-
-    STATE["stage_detail"] = "Exporting Deployment Bundle & Visual Artifacts"
-    run_cmd([py, "-m", "pipeline.export"], "Bundle Packaging")
+    stages = [
+        (["pipeline.quality"], "Quality audit"),
+        (["pipeline.preprocess"], "Preprocessing and splits"),
+        # evaluation run: every fitting step sees the train books only
+        (["pipeline.features", "--fit", "train"], "Features fitted on train books"),
+        (["pipeline.study"], "Study on train books (chooses the setting)"),
+        (["pipeline.evaluate", "--split", "val"], "Evaluation on validation books"),
+        (["pipeline.evaluate", "--split", "test"], "Evaluation on test books (once)"),
+        # final run: same setting refitted on every usable book, for the app
+        (["pipeline.features", "--fit", "all"], "Features fitted on all books"),
+        (["pipeline.study"], "Final study (reuses the train-chosen setting)"),
+        (["pipeline.sensitivity"], "Sensitivity analysis"),
+        (["pipeline.export"], "Model bundle and website data"),
+        (["pipeline.figures"], "Figures"),
+    ]
+    for args, desc in stages:
+        STATE["stage_detail"] = desc
+        run_cmd([py, "-m", *args], desc)
 
     # 4. LAUNCH_APP
     STATE["stage"] = "LAUNCH_APP"
@@ -270,11 +279,11 @@ def orchestrator_loop():
         except Exception:
             pass
 
-    log("Executing uvicorn app.main:app on 0.0.0.0:8000 via os.execv...")
+    log(f"Executing uvicorn app.main:app on {BIND}:8000 via os.execv...")
     uvicorn_bin = os.path.join(WORK_DIR, "venv", "bin", "uvicorn")
     if not os.path.exists(uvicorn_bin):
         uvicorn_bin = "uvicorn"
-    os.execv(uvicorn_bin, [uvicorn_bin, "app.main:app", "--host", "0.0.0.0", "--port", "8000"])
+    os.execv(uvicorn_bin, [uvicorn_bin, "app.main:app", "--host", BIND, "--port", "8000"])
 
 DASHBOARD_HTML = """<!DOCTYPE html>
 <html lang="en">
@@ -548,7 +557,7 @@ async function update() {
     }
 
     const logBox = document.getElementById('log-box');
-    logBox.innerHTML = (data.recent_logs || []).map(l => `<div class="log-line">${l}</div>`).join('');
+    logBox.replaceChildren(...(data.recent_logs || []).map(l => { const d = document.createElement('div'); d.className = 'log-line'; d.textContent = l; return d; }));
     logBox.scrollTop = logBox.scrollHeight;
   } catch (err) {
     console.error(err);
@@ -575,7 +584,6 @@ class MasterHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path == "/api/status":
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
             body = json.dumps(STATE).encode("utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
@@ -591,8 +599,8 @@ if __name__ == "__main__":
     t = threading.Thread(target=orchestrator_loop, daemon=True)
     t.start()
 
-    server_instance = http.server.ThreadingHTTPServer(("0.0.0.0", 8000), MasterHandler)
-    log("Master Live Web Dashboard listening on http://0.0.0.0:8000")
+    server_instance = http.server.ThreadingHTTPServer((BIND, 8000), MasterHandler)
+    log(f"Master Live Web Dashboard listening on http://{BIND}:8000")
     try:
         server_instance.serve_forever()
     except Exception:

@@ -23,7 +23,7 @@ from . import config, preprocess
 from .features import LOCAL_MODELS, model_slug
 from .study import clean_json
 
-PROCESSED = config.DATA / "processed"
+PROCESSED = config.PROCESSED
 MODEL_DIR = config.DATA / "model"
 WEB_DATA = config.ROOT / "web" / "data"
 STUDY_DIR = config.REPORTS / "study"

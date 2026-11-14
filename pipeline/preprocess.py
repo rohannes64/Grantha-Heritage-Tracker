@@ -8,6 +8,7 @@ Outputs (data/processed/):
   metadata.joblib     fitted encoder/scaler for the metadata block + the encoded matrix
 Report: reports/preprocessing_log.md (every decision, with counts).
 """
+import hashlib
 import json
 import math
 from collections import Counter
@@ -22,7 +23,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from . import config, db, text
 
-OUT = config.DATA / "processed"
+OUT = config.PROCESSED
 
 # Usability thresholds (see preprocessing log for the reasoning and the counts they exclude).
 MIN_DOC_CONF = 50.0      # word-weighted mean Tesseract confidence across the book's pages
@@ -70,17 +71,24 @@ def fulltext_tokens(ident: str, script: str) -> tuple[str, list[str]]:
     return d["source"], windows(toks)
 
 
+def split_of(identifier: str, seed: int = config.SEED) -> str:
+    """A book's split from a hash of its identifier: the same book always lands in the same split, so
+    adding books never moves an existing one (a seeded shuffle of the whole corpus did). The hash is
+    uniform, so every language gets close to 60/20/20 without explicit stratification."""
+    u = int(hashlib.sha256(f"{seed}:{identifier}".encode()).hexdigest()[:15], 16) / 16 ** 15
+    edge = 0.0
+    for name, share in SPLITS:
+        edge += share
+        if u < edge:
+            return name
+    return SPLITS[-1][0]
+
+
 def assign_splits(df: pd.DataFrame, seed: int = config.SEED) -> pd.Series:
-    """Train/val/test for usable books, stratified by catalogue language, fixed by the seed."""
-    rng = np.random.default_rng(seed)
+    """Train/val/test for usable books (None for the rest), by split_of."""
     split = pd.Series(None, index=df.index, dtype=object)
-    for _, g in df[df["usable"] == 1].groupby("lang_tag"):
-        idx = rng.permutation(g.index.to_numpy())
-        n_train = int(round(SPLITS[0][1] * len(idx)))
-        n_val = int(round(SPLITS[1][1] * len(idx)))
-        split[idx[:n_train]] = "train"
-        split[idx[n_train:n_train + n_val]] = "val"
-        split[idx[n_train + n_val:]] = "test"
+    usable = df.index[df["usable"] == 1]
+    split[usable] = [split_of(str(i), seed) for i in usable]
     return split
 
 

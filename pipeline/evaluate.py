@@ -25,11 +25,12 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import normalized_mutual_info_score, pairwise_distances
 
-from app.checker import MIN_TOKENS_TO_ASSIGN
 from . import config, db, tags as tagging, text
+from .catalogue import main_class
+from .config import MIN_TOKENS_TO_ASSIGN
 from .preprocess import MIN_DOC_CONF, MODEL_SCRIPT
 
-PROCESSED = config.DATA / "processed"
+PROCESSED = config.PROCESSED
 EVAL = config.REPORTS / "eval"
 LABELS = EVAL / "subject_labels.csv"
 LOG = config.ROOT / "docs" / "evaluation_log.md"
@@ -44,6 +45,13 @@ def transform(fs, tf, token_lists, langs=None):
 
 def nearest(Z, centroids, metric):
     return np.argmin(pairwise_distances(Z, centroids, metric=metric), axis=1)
+
+
+def page_check_books(book_group: dict, docs: pd.DataFrame) -> tuple[dict, int]:
+    """Books usable for T1. A book whose features were built from its own Tesseract pages (no archive
+    text) would be compared with itself, which inflates agreement, so it is left out."""
+    kept = {i: g for i, g in book_group.items() if docs.loc[i, "text_source"] != "tesseract_pages"}
+    return kept, len(book_group) - len(kept)
 
 
 def upload_check(fs, tf, centroids, metric, book_group: dict, con, spread=None) -> dict:
@@ -72,12 +80,32 @@ def upload_check(fs, tf, centroids, metric, book_group: dict, con, spread=None) 
         tagged = {"agreement_tagged": float(hit.mean()), "tags_per_page": float(np.mean([len(t) for t in page_tags])),
                   "rule": f"main group + groups within their own {tagging.SPREAD_Q:.0%} spread, at most {tagging.MAX_TAGS}"}
     caution = np.array(caution)
+    ci = None
+    if len(agree):
+        books = np.array(keep)
+        uniq = np.unique(books)
+        per_book = {b: agree[books == b] for b in uniq}
+        ci_rng = np.random.default_rng(config.SEED + 2)
+        means = []
+        for _ in range(N_CI):        # resample books, not pages: pages of one book are not independent
+            pick = ci_rng.choice(uniq, len(uniq))
+            means.append(np.concatenate([per_book[b] for b in pick]).mean())
+        ci = interval(means)
     return {"pages": int(len(pages)), "assigned": int(len(keep)), "abstained": int(len(pages) - len(keep)),
+            "agreement_ci95": ci,
             "abstain_rate": float(1 - len(keep) / max(1, len(pages))),
             "agreement": float(agree.mean()) if len(agree) else None,
             "agreement_confident_pages": float(agree[~caution].mean()) if (~caution).any() else None,
             "agreement_caution_pages": float(agree[caution].mean()) if caution.any() else None,
             "caution_pages": int(caution.sum()), "tagged": tagged}
+
+
+N_CI = 2000          # bootstrap resamples for confidence intervals
+
+
+def interval(values) -> list[float]:
+    """Central 95% bootstrap interval."""
+    return [float(np.percentile(values, 2.5)), float(np.percentile(values, 97.5))]
 
 
 def subject_scores(train_groups: dict, held_groups: dict, docs: pd.DataFrame, labels: pd.DataFrame, rng,
@@ -106,6 +134,14 @@ def subject_scores(train_groups: dict, held_groups: dict, docs: pd.DataFrame, la
     # permutation test: how often do shuffled labels do as well as the groups?
     perm = [np.mean(pred_group == rng.permutation(truth)) for _ in range(2000)]
     best_base = max(a_m, a_s)
+    ci_rng = np.random.default_rng(config.SEED + 1)     # separate stream: the permutation test above is unchanged
+    boots = []
+    for _ in range(N_CI):
+        ix = ci_rng.integers(0, len(te), len(te))
+        g, m, sc = (np.mean(pred_group[ix] == truth[ix]), np.mean(pred_major[ix] == truth[ix]),
+                    np.mean(pred_script[ix] == truth[ix]))
+        boots.append((g, 100 * (g - max(m, sc))))
+    boots = np.array(boots)
     tagged = None
     if held_tags is not None:
         subj = [[by_group.get(g, overall) for g in held_tags[i]] for i in te]
@@ -116,6 +152,8 @@ def subject_scores(train_groups: dict, held_groups: dict, docs: pd.DataFrame, la
     return {"labelled_train": len(tr), "labelled_heldout": len(te), "tagged": tagged,
             "accuracy_groups": a_g, "baseline_most_common": a_m, "baseline_script_only": a_s,
             "points_above_best_baseline": 100 * (a_g - best_base),
+            "accuracy_groups_ci95": interval(boots[:, 0]), "points_above_best_baseline_ci95": interval(boots[:, 1]),
+            "ci_method": f"{N_CI} bootstrap resamples of the held-out labelled books, percentile interval",
             "permutation_p": float((np.sum(np.array(perm) >= a_g) + 1) / (len(perm) + 1)),
             "nmi_groups_subjects_heldout": float(normalized_mutual_info_score(truth, [held_groups[i] for i in te])),
             "group_to_subject": {str(k): v for k, v in sorted(by_group.items())},
@@ -149,10 +187,19 @@ def main() -> None:
     held_tags = dict(zip(want, tagging.tags(pairwise_distances(Zh, centroids, metric=metric), spread)))
 
     shares = np.bincount(hl) / len(hl)
-    t1 = upload_check(fs, feats[fs]["transform"], centroids, metric, held_groups, db.connect(), spread)
+    t1_books, left_out = page_check_books(held_groups, docs)
+    t1 = upload_check(fs, feats[fs]["transform"], centroids, metric, t1_books, db.connect(), spread)
+    t1["books"], t1["left_out_own_pages"] = len(t1_books), left_out
     t1["chance"] = float(np.sum(shares ** 2))
     labels = pd.read_csv(LABELS) if LABELS.exists() else pd.DataFrame(columns=["identifier", "subject"])
     t2 = subject_scores(train_groups, held_groups, docs, labels, np.random.default_rng(config.SEED), held_tags)
+    # exploratory (added 2026-11-14, after the plan): librarians' classification codes as a second ground truth
+    cat = docs["classification"].map(main_class) if "classification" in docs else pd.Series(dtype=object)
+    cat_labels = cat.dropna().rename("subject").rename_axis("identifier").reset_index()
+    t2_cat = subject_scores(train_groups, held_groups, docs, cat_labels, np.random.default_rng(config.SEED))
+    t2_cat |= {"exploratory": True, "labels": "catalogue classification -> main class (pipeline/catalogue.py)",
+               "books_with_a_code": int(docs["classification"].notna().sum()) if "classification" in docs else 0,
+               "books_mapped": int(cat.notna().sum())}
     t3 = res["hierarchical"]["bootstrap_ari"]["median"]
     verdict = {
         "T1": t1["agreement"] is not None and t1["agreement"] >= TARGETS["T1_page_agreement"],
@@ -162,11 +209,13 @@ def main() -> None:
     out = {"split": a.split, "date": str(date.today()), "feature_set": fs, "feature_name": res["name"],
            "setting": {k: res["hierarchical"]["final"][k] for k in ("linkage", "metric", "k", "silhouette", "nmi_script")},
            "held_out_books": len(want), "targets": TARGETS, "T1_upload_check": t1, "T2_subject": t2,
+           "T2_catalogue_exploratory": t2_cat,
            "T3_bootstrap_median": t3, "met": verdict}
     EVAL.mkdir(parents=True, exist_ok=True)
     (EVAL / f"evaluation_{a.split}.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
     line = (f"| {date.today()} | {a.split} | {fs} {res['hierarchical']['final']['linkage']} k={res['hierarchical']['final']['k']} "
-            f"| {t1['agreement']:.3f} (chance {t1['chance']:.2f}, abstain {t1['abstain_rate']:.0%})"
+            + (f"| {t1['agreement']:.3f} (chance {t1['chance']:.2f}, abstain {t1['abstain_rate']:.0%})"
+               if t1["agreement"] is not None else "| n/a (no held-out book has archive text) ")
             + (f"; tagged {t1['tagged']['agreement_tagged']:.3f} at {t1['tagged']['tags_per_page']:.2f} tags " if t1.get("tagged") else " ")
             + f"| {t2.get('accuracy_groups', float('nan')):.3f} vs {max(t2.get('baseline_most_common', 0), t2.get('baseline_script_only', 0)):.3f}"
             + (f"; tagged {t2['tagged']['accuracy_tagged']:.3f} at {t2['tagged']['tags_per_book']:.2f} tags, precision {t2['tagged']['tag_precision']:.2f} "

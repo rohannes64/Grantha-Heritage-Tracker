@@ -22,6 +22,8 @@ FRAME_DIR = DATA / "frame"      # full sampling frame per language (identifiers 
 PAGES_DIR = DATA / "pages"      # downloaded page images (deleted after OCR in the full run)
 CACHE_DIR = DATA / "cache"      # cached Internet Archive metadata
 REPORTS = ROOT / "reports"
+PROCESSED = DATA / "processed"     # docs.csv, tokens.jsonl, features.joblib, study.joblib, embedding caches
+STUDY = REPORTS / "study"
 
 # Source: Internet Archive mirror of the Digital Library of India.
 COLLECTION = "digitallibraryindia"
@@ -78,6 +80,7 @@ ERA_BANDS = [
 ]
 
 SEED = 2026
+MIN_TOKENS_TO_ASSIGN = 20     # a page with fewer clean tokens is not assigned (app and evaluation alike)
 PILOT_PER_LANG = 50
 FULL_PER_LANG = int(os.environ.get("HERITAGE_FULL_PER_LANG", "2000"))
 PAGE_POSITIONS = (0.15, 0.30, 0.50, 0.70, 0.85)  # fractions through the book

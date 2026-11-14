@@ -9,6 +9,15 @@ __pycache__/
 .pytest_cache/
 # All harvested data, page images, caches, corpus database and logs
 /data/
+.ua/
+.understand-anything/
 docs/build/node_modules/
 docs/build/render/
 graphify-out/
+# Local-only material: archived fleet scripts, agent tooling, scratch builders' output
+/archive/
+/.agents/
+/scratch/*.html
+# Credentials that must never be committed
+gcp_adc.json
+*application_default_credentials*.json
