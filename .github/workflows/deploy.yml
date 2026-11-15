@@ -44,7 +44,7 @@ jobs:
       GRANTHA_ZONE: ${{ vars.GCP_ZONE }}
       GRANTHA_VM: ${{ vars.GCP_VM }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
@@ -72,7 +72,7 @@ jobs:
     if: always() && needs.deploy.result != 'skipped'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: DORA metrics (last 30 days of production deployments)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
