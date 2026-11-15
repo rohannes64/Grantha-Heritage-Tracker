@@ -1,7 +1,9 @@
 """No number without a source: every number in the deliverables must come from a result file or the code.
 
 Allowed numbers are built from
-  1. reports/deliverable_facts.json (written from the pipeline's result files), in every way they are printed
+  1. reports/deliverable_facts.json (written from the pipeline's result files), plus the feature evaluations in
+     reports/features/*.json under "features" when the facts file does not already carry them (the same merge
+     scripts/deliverable_facts.py makes), in every way they are printed
      (raw, rounded to 0-4 decimals, as a percentage with 0-1 decimals, with thousands separators), and
   2. constants imported from the pipeline and app (thresholds, chunk sizes, bootstrap settings, targets),
   3. a short explicit list of numbers that are not results (team roll numbers, the problem code, units).
@@ -30,6 +32,7 @@ EXPLICIT = {
     "768",                                        # dimension of text-multilingual-embedding-002 (model card)
     "1960",                                       # sampling frame: books published up to 1960 (docs/evaluation_plan.md)
     "-1",                                         # DBSCAN's noise label
+    "95",                                         # level of every confidence interval (pipeline.evaluate.interval)
 }
 
 NUMBER = re.compile(r"(?<![\w.:/-])[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?%?(?![\w])")
@@ -124,6 +127,17 @@ def allowed(facts: dict) -> dict[str, list[str]]:
     return ok
 
 
+def load_facts() -> dict:
+    """The facts file, with reports/features/*.json under "features" if it lacks them (as deliverable_facts.py writes)."""
+    facts = json.loads((BASE / "reports" / "deliverable_facts.json").read_text(encoding="utf-8"))
+    folder = BASE / "reports" / "features"
+    if "features" not in facts and folder.is_dir():
+        feats = {f.stem: json.loads(f.read_text(encoding="utf-8")) for f in sorted(folder.glob("*.json"))}
+        if feats:
+            facts["features"] = feats
+    return facts
+
+
 def html_text(src: str) -> list[str]:
     """Visible text of a page: scripts, styles, comments and attribute values are not text a reader sees."""
     from html import unescape
@@ -197,8 +211,7 @@ def unsourced(lines: list[str], ok: set[str]) -> list[tuple[int, str, str]]:
 def main(argv=None) -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     argv = sys.argv[1:] if argv is None else argv
-    facts = json.loads((BASE / "reports" / "deliverable_facts.json").read_text(encoding="utf-8"))
-    ok = allowed(facts)
+    ok = allowed(load_facts())
     explain = "--explain" in argv
     argv = [a for a in argv if a != "--explain"]
     files = [Path(a) for a in argv] or ([BASE / f for f in DEFAULT_FILES]
