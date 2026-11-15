@@ -19,7 +19,7 @@ import pandas as pd
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 
-from . import config, editions, preprocess
+from . import config, editions, galaxy, preprocess
 from .features import LOCAL_MODELS, model_slug
 from .study import clean_json
 
@@ -175,6 +175,10 @@ def main() -> None:
                        for d, h, b, c in zip(display.to_dict("records"), hl, dl, res["pca"]["coords"])]}
     (WEB_DATA / "corpus.json").write_text(json.dumps(clean_json(corpus), ensure_ascii=False), encoding="utf-8")
     print(f"exported model ({fs}: {res['name']}) and web data for {len(ids)} books")
+    try:                                    # the map is a nice-to-have: never fail the export over it
+        galaxy.main()
+    except (SystemExit, OSError, KeyError) as err:
+        print(f"galaxy.json not written: {err}")
 
 
 if __name__ == "__main__":

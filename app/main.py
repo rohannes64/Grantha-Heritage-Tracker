@@ -145,4 +145,13 @@ async def check(file: UploadFile | None = File(None), text: str | None = Form(No
     return result
 
 
+@app.middleware("http")
+async def revalidate_static(request, call_next):
+    """Browsers must revalidate pages and scripts, so a deploy is never hidden behind a stale copy."""
+    response = await call_next(request)
+    if not request.url.path.startswith("/api"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 app.mount("/", StaticFiles(directory=WEB, html=True), name="web")
