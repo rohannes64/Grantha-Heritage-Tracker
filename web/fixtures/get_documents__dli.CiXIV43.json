@@ -1,0 +1,20 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.CiXIV43",
+  "title": "A Grammar of the Telugu language",
+  "creator": "Brown, Charles Philip",
+  "year": 1840.0,
+  "era": "pre-1900",
+  "lang_tag": "tel",
+  "script": "Latin",
+  "mean_conf": 76.40024330900243,
+  "classification": null,
+  "total_pages": 293,
+  "text_source": "tesseract_pages",
+  "n_tokens": 811,
+  "url": "https://archive.org/details/dli.CiXIV43",
+  "hier": 0,
+  "dbscan": 0
+ }
+}

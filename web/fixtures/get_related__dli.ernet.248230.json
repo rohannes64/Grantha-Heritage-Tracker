@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.ernet.248230",
+  "script": "Gujarati",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "in.ernet.dli.2015.342415",
+    "title": "Sanatandharmbhajanmala",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.342415",
+    "distance": 0.8634465949526487
+   },
+   {
+    "identifier": "dli.ministry.29833",
+    "title": "प्रहलाद चरित्र नाटक",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/dli.ministry.29833",
+    "distance": 0.9310174255366432
+   },
+   {
+    "identifier": "dli.ministry.30494",
+    "title": "श्रीराधाकृष्णरासलीला",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/dli.ministry.30494",
+    "distance": 0.931565713033987
+   },
+   {
+    "identifier": "in.ernet.dli.2015.343710",
+    "title": "Shri Mathuresh Preeti Pushpanjali",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.343710",
+    "distance": 0.9561908680830824
+   },
+   {
+    "identifier": "in.ernet.dli.2015.403575",
+    "title": "Ubhay Prabodhak Ramayan",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.403575",
+    "distance": 0.9728267285403273
+   },
+   {
+    "identifier": "in.ernet.dli.2015.331835",
+    "title": "సనారీ విశ్వేశ్వరశతకము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.331835",
+    "distance": 0.9753175524199214
+   },
+   {
+    "identifier": "in.ernet.dli.2015.539600",
+    "title": "100 Books In Rugee",
+    "lang_tag": "san",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.539600",
+    "distance": 0.9823057027994122
+   },
+   {
+    "identifier": "in.ernet.dli.2015.341457",
+    "title": "Shari Jain Bhajan Sangrah",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.341457",
+    "distance": 0.9869676576739109
+   },
+   {
+    "identifier": "in.ernet.dli.2015.319951",
+    "title": "Bhajan Sangarah Ac.1513",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.319951",
+    "distance": 0.9882592227579505
+   },
+   {
+    "identifier": "in.ernet.dli.2015.319949",
+    "title": "Bhajan Sangarah Ac.1510",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.319949",
+    "distance": 0.9902495366516684
+   }
+  ]
+ }
+}

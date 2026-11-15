@@ -22,7 +22,7 @@ from sklearn.preprocessing import normalize
 from . import config
 from .features import MODELS, SET_NAMES
 
-PROCESSED = config.DATA / "processed"
+PROCESSED = config.PROCESSED
 LABELS = config.REPORTS / "eval" / "subject_labels.csv"
 OUT = config.REPORTS / "study" / "encoder_comparison.json"
 PARAMS_M = {"B": 471, "C": 238, "D": 568}   # model size, millions of parameters (model cards)

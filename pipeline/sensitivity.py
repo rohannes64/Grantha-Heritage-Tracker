@@ -22,6 +22,11 @@ from .study import PROCESSED, STUDY, clean_json
 WEIGHTS = [0.0, 0.25, 0.5, 1.0]
 
 
+def cluster(X, fin) -> np.ndarray:
+    """The final hierarchical setting (linkage, metric, k) applied to X."""
+    return fcluster(linkage(X, method=fin["linkage"], metric=fin["metric"]), fin["k"], "maxclust")
+
+
 def run() -> dict:
     feats = joblib.load(PROCESSED / "features.joblib")
     meta = joblib.load(PROCESSED / "metadata.joblib")
@@ -41,13 +46,13 @@ def run() -> dict:
         rows = []
         for w in WEIGHTS:
             X = np.hstack([Z, w * M]) if w else Z
-            labels = fcluster(linkage(X, method=fin["linkage"], metric="euclidean"), fin["k"], "maxclust")
+            labels = cluster(X, fin)
             if base is None:
                 base = labels
             rows.append({
                 "weight": w,
-                "silhouette": float(silhouette_score(X, labels)),
-                "silhouette_text_space": float(silhouette_score(Z, labels)),
+                "silhouette": float(silhouette_score(X, labels, metric=fin["metric"])),
+                "silhouette_text_space": float(silhouette_score(Z, labels, metric=fin["metric"])),
                 "nmi_script": float(normalized_mutual_info_score(docs["script"], labels)),
                 "nmi_era": float(normalized_mutual_info_score(docs["era"], labels)),
                 "ari_vs_text_only": float(adjusted_rand_score(base, labels)),

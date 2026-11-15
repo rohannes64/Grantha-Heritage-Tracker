@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.21A19144",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.5319822782840202
+   },
+   {
+    "class": "religion",
+    "score": 0.30998473249712877
+   },
+   {
+    "class": "geography, biography, history",
+    "score": 0.08336326304380465
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

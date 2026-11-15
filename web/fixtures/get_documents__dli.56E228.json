@@ -1,0 +1,20 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.56E228",
+  "title": "Hintumata kaṇṭaṉam",
+  "creator": "Rice, Henry; Lazarus, J.",
+  "year": 1891.0,
+  "era": "pre-1900",
+  "lang_tag": "tam",
+  "script": "Tamil",
+  "mean_conf": 67.26884422110552,
+  "classification": null,
+  "total_pages": 55,
+  "text_source": "hocr",
+  "n_tokens": 4000,
+  "url": "https://archive.org/details/dli.56E228",
+  "hier": 0,
+  "dbscan": 0
+ }
+}

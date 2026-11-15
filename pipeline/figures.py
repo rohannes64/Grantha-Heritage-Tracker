@@ -17,7 +17,7 @@ from scipy.cluster.hierarchy import dendrogram
 
 from . import config
 
-STUDY = config.REPORTS / "study"
+STUDY = config.STUDY
 FIG = config.REPORTS / "figures"
 SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"]
 INK, INK2, MUTED, GRID, AXIS, SURFACE = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7", "#fcfcfb"

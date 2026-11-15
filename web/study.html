@@ -6,27 +6,43 @@
 <title>Grantha: the study</title>
 <meta name="description" content="Hierarchical clustering and DBSCAN compared on heritage book scans: distances, linkages, parameters, PCA, silhouette and stability.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<header class="slab">
-  <div class="container">
-    <a class="wordmark" href="./">Grantha</a>
-    <nav aria-label="Main"><ul>
-      <li><a href="check.html">Check a page</a></li>
-      <li><a href="browse.html">Browse groups</a></li>
-      <li><a href="study.html" aria-current="page">The study</a></li>
-      <li><a href="about.html">About</a></li>
-    </ul></nav>
-  </div>
-</header>
+<header class="slab"><div class="container slab-container"><div class="slab-brand"><a class="wordmark" href="./">Grantha</a></div>
+<nav class="slab-nav" aria-label="Main"><ul class="nav-list">
+  <li><a href="check.html">Check a page</a></li>
+  <li><a href="browse.html">Browse groups</a></li>
+  <li><a href="galaxy.html">Archive map</a></li>
+  <li><a href="triage.html">Scan quality</a></li>
+  <li><a href="editions.html">Editions</a></li>
+  <li class="nav-divider" aria-hidden="true"></li>
+  <li><a href="impact.html">Impact</a></li>
+  <li><a href="study.html" aria-current="page">The study</a></li>
+  <li><a href="about.html">About</a></li>
+</ul></nav></div></header>
 
 <main class="container">
   <div class="page-head">
     <h1>The study</h1>
     <p>Hierarchical clustering and DBSCAN on the same books, compared on two kinds of features: word weights, and meaning from a multilingual encoder chosen by a test of five. Each part opens with the finding in plain words; the numbers are underneath.</p>
   </div>
+  <ul class="toc" aria-label="Parts of the study">
+    <li><a href="#results">Results at a glance</a></li><li><a href="#sample">The sample</a></li><li><a href="#prep">Preprocessing</a></li><li><a href="#distance">Distance</a></li>
+    <li><a href="#hier">Hierarchical</a></li><li><a href="#dbscan">Density-based</a></li><li><a href="#compare">Compared</a></li>
+    <li><a href="#stability">Stability</a></li><li><a href="#drivers">What drives the groups</a></li><li><a href="#choice">The app’s model</a></li><li><a href="#accuracy">Accuracy</a></li><li><a href="#limits">Limits</a></li>
+  </ul>
+  <section class="study-section results" id="results" aria-labelledby="results-h">
+    <h2 id="results-h">Results at a glance</h2>
+    <p class="summary">What the study set out to show, and whether it did. Each result sits beside the simple guess it has to beat; the targets were fixed before any result was seen, and a missed target is shown as missed. Where an interval is recorded, the thin line across a bar is the range the result would likely fall in on another sample of books.</p>
+    <div id="results-body"><p class="ink-2 mt-lg">Loading the results.</p><noscript><p class="mt-lg">The results are drawn with JavaScript. The raw figures are in <a href="data/facts.json">data/facts.json</a>.</p></noscript></div>
+    <div class="study-tools">
+      <a class="btn btn--primary" href="present.html">Present the study</a>
+      <a class="btn" href="grantha-reproducibility.pdf">Download PDF guide</a>
+      <button type="button" class="chip" id="toggle-all-details" aria-pressed="false">Expand all details</button>
+    </div>
+  </section>
   <div class="toolbar">
     <fieldset class="seg" id="fs">
       <legend>Features</legend>
@@ -34,11 +50,6 @@
       <input type="radio" name="fs" id="fs-g" value="G"><label for="fs-g">Meaning (Gemini)</label>
     </fieldset>
   </div>
-  <ul class="toc" aria-label="Parts of the study">
-    <li><a href="#sample">The sample</a></li><li><a href="#prep">Preprocessing</a></li><li><a href="#distance">Distance</a></li>
-    <li><a href="#hier">Hierarchical</a></li><li><a href="#dbscan">Density-based</a></li><li><a href="#compare">Compared</a></li>
-    <li><a href="#stability">Stability</a></li><li><a href="#drivers">What drives the groups</a></li><li><a href="#choice">The app’s model</a></li><li><a href="#accuracy">Accuracy</a></li><li><a href="#limits">Limits</a></li>
-  </ul>
   <div id="study"><div class="state"><p class="ink-2">Loading the study results.</p><noscript><p>The study page draws its tables and charts with JavaScript. The raw results are in <a href="data/study.json">data/study.json</a>.</p></noscript></div></div>
 </main>
 
@@ -48,7 +59,7 @@
       <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li></ul></div>
       <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
       <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
-      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="data/study.json">Raw results</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="data/study.json">Raw results</a></li><li><a href="data/facts.json">Headline figures</a></li><li><a href="present.html">Presenter mode</a></li></ul></div>
     </div>
   </div>
 </footer>

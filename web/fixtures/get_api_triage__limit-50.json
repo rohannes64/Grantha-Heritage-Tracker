@@ -1,0 +1,777 @@
+{
+ "status": 200,
+ "body": {
+  "total": 15288,
+  "counts": {
+   "fine": 14991,
+   "re-ocr": 56,
+   "re-scan": 241
+  },
+  "by_language": {
+   "eng": {
+    "fine": 1998,
+    "re-ocr": 1,
+    "re-scan": 1
+   },
+   "tel": {
+    "fine": 1880,
+    "re-ocr": 3,
+    "re-scan": 31
+   },
+   "hin": {
+    "fine": 1889,
+    "re-ocr": 34,
+    "re-scan": 77
+   },
+   "san": {
+    "fine": 1980,
+    "re-ocr": 2,
+    "re-scan": 18
+   },
+   "kan": {
+    "fine": 1575,
+    "re-ocr": 0,
+    "re-scan": 33
+   },
+   "tam": {
+    "fine": 1742,
+    "re-ocr": 3,
+    "re-scan": 21
+   },
+   "guj": {
+    "fine": 1940,
+    "re-ocr": 2,
+    "re-scan": 58
+   },
+   "ben": {
+    "fine": 1987,
+    "re-ocr": 11,
+    "re-scan": 2
+   }
+  },
+  "rows": [
+   {
+    "identifier": "in.ernet.dli.2015.188558",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 87.80830280830281,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Hours With The Mystics",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.235137",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 90.88538681948424,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Works Of Lord Byron Letters And Journal Vol-v",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.120999",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 90.50221893491124,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Guide To Higher Scholarships",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.180241",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 94.6616211628236,
+     "text_source": "hocr",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Commentary On The Whole Bible Genesis To Revelation",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.529209",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 87.72313296903461,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Indien Pakistan Ceylon",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.156702",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 94.71209912536445,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Familiar Spanish Travels",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.25013",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 89.04141208418194,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Philippne Joural Of Science Vol-xxxvii",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.28802",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 95.58275462962963,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Architecture and The Spirit Of Man(1949)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.35862",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 92.37212563095906,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Proceedings Of The Meetings Of The Chamber Of Princes",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.237777",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 90.62925416364952,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Faculties Of Birds",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.151053",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 94.67532467532467,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "The Appreciation Of Music Volume-i",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.15170",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 93.72250639386188,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Mysore Gazetteer Vol-iv (1929)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.168168",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 94.78298727394508,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Will Dollars Save The World",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.279649",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 91.75764705882352,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Usi Journal Vol Cxv July To Sep-1985",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.72656",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 94.66176470588236,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Greece And The Greeks",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.200964",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 93.35913705583756,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Charles James Fox",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.145381",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 85.38688827331487,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Handbook Of Anaesthetics",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.205825",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 92.72552166934187,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Practical Microscopical Metallography",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "pli.kerala.rare.59285",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 19.920361990950227,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": null
+    },
+    "title": " ചരകസംഹിതം, സിദ്ധിസ്ഥാനം",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.93495",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 60.50901713255185,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Report On The External Trade Of Bengal(1890-91)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.81015",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 93.08944099378884,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Complete Works Of Vol V",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.72377",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 89.56715141146279,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "India S Higher Call",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.45797",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 90.87194791101464,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Indian Annual Register  Vol. 1 (1941)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.264365",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 86.08318098720292,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Twenty First Volume Of The English Poets-vol.xxi",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.109653",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 75.43101015801355,
+     "text_source": "hocr",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Beetons Dictionary Of Universal Information(1828)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.77592",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 91.56748620170598,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "History Of Early Nineteenth Century Drama 1800 1850 Vol Ii",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.5557",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 93.06953713670612,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Population Of India and Pakistan (1951)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.193867",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 86.65560821484992,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Modeling Of Higher Order Effects In Small Geometry Mosfets",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.460525",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 89.81444582814446,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Life Of Charles Dickens Vol. 2 (1842-1852)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.28585",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 89.1719696969697,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Notes From The Royal Botanic Garden Edinburgh Vol-viii (1915)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.7590",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 83.08879310344828,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Proceeding Of The Linnean Society Of New South Wales Vol-xlviii(1923)",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.19513",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 95.08347978910368,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Clockmaking Past And Present",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.474376",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 94.96530314097882,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Review Of Regulatory Framework In Coal Industry Of India Fianl Report Volume 1 Text",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.91778",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 80.48421052631579,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Colebrookes Translation Of The Lilavati",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.70563",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 89.90940525587828,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Journal Of The Royal Asiatic Society Of Great Britain And Ireland For The Second Half-year Of-1916",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.143575",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 92.62901960784312,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "How They Did It Stories",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ministry.10375",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 94.44897959183672,
+     "text_source": "hocr",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Bolts of Melody of new poems of Emily Dickinson",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.206360",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 93.50032916392364,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Philosophy Of Nietzsche",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.350522",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 87.54888039322775,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Condense History Of The World",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.462071",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 70.81412639405204,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Nos. 6628-8220",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.544317",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 95.32887189292543,
+     "text_source": "hocr",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Civil Service In Wartime",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.276042",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 83.54197229013855,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "The Position Of Women In Indian Life",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.120419",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 89.7366872609591,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "The Indian Annual Register Jan.-june 1938 Vol.-i",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.281701",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 85.3609785202864,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Journal Of The Straits Branch Of The Royal  Asiatic Society 1922 No 85-86",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.127525",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 93.47673634524612,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "I Hate To Morrow",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.181862",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 87.02671199611461,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Handbook Of Architecture  Vol.1",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.122889",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 94.2090909090909,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Andromeda A Space-age Tale",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.459383",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 94.0,
+     "text_source": "djvu",
+     "n_tokens": 281,
+     "dbscan_noise": true
+    },
+    "title": "A Portrait Group In Prose",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "in.ernet.dli.2015.48716",
+    "verdict": "fine",
+    "score": 0.0,
+    "reasons": [],
+    "signals": {
+     "mean_conf": 91.9140708915145,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": false
+    },
+    "title": "Industrialization And Foreign Trade",
+    "lang_tag": "eng"
+   },
+   {
+    "identifier": "dli.ernet.3729",
+    "verdict": "fine",
+    "score": 0.2,
+    "reasons": [
+     "the topic model treats this book as noise (it matches no dense group)"
+    ],
+    "signals": {
+     "mean_conf": 94.10686427457098,
+     "text_source": "djvu",
+     "n_tokens": 4000,
+     "dbscan_noise": true
+    },
+    "title": "Justice and Liberty A Political Dialogue",
+    "lang_tag": "eng"
+   }
+  ]
+ }
+}

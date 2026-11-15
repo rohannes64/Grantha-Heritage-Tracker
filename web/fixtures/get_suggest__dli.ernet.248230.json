@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.ernet.248230",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.5196097211716859
+   },
+   {
+    "class": "generalities",
+    "score": 0.24204225384941366
+   },
+   {
+    "class": "religion",
+    "score": 0.23834802497890042
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

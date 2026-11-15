@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.56E228",
+  "script": "Tamil",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "in.ernet.dli.2015.259080",
+    "title": "Hindu Jivan Darshan",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.259080",
+    "distance": 0.7827814908080383
+   },
+   {
+    "identifier": "in.ernet.dli.2015.333682",
+    "title": "జీవితము - మతము (టాల్స్టాయ్ వ్యాసావళి)",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.333682",
+    "distance": 0.7868832917968128
+   },
+   {
+    "identifier": "in.ernet.dli.2015.390111",
+    "title": "హిందూ జీవన పథము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.390111",
+    "distance": 0.81879854183547
+   },
+   {
+    "identifier": "in.ernet.dli.2015.387989",
+    "title": "భారతదేశం-విశ్వవైభవం",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.387989",
+    "distance": 0.8684326078298877
+   },
+   {
+    "identifier": "in.ernet.dli.2015.447745",
+    "title": "ಹಿಂದೂ ಧರ್ಮ ಎಂದರೇನು?",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/in.ernet.dli.2015.447745",
+    "distance": 0.8749249716590715
+   },
+   {
+    "identifier": "in.ernet.dli.2015.343402",
+    "title": "जागृति का सन्देश",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.343402",
+    "distance": 0.8786403458336516
+   },
+   {
+    "identifier": "in.ernet.dli.2015.390224",
+    "title": "ఖుర్ ఆన్ షరీఫ్ సవివిరణ ఆంధ్రానువాదము లఘువ్యాఖ్యాన సహితము రెండవ సంపుటము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.390224",
+    "distance": 0.886872848355332
+   },
+   {
+    "identifier": "in.ernet.dli.2015.332836",
+    "title": "ఉపన్యాస పయోనిధి",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.332836",
+    "distance": 0.8977222506914011
+   },
+   {
+    "identifier": "dli.ernet.554368",
+    "title": "Shamba Kruti Samputa-6 Samskruti Sahitya",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.ernet.554368",
+    "distance": 0.9073594134681672
+   },
+   {
+    "identifier": "in.ernet.dli.2015.540392",
+    "title": "Prem Yog",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.540392",
+    "distance": 0.9076927872205288
+   }
+  ]
+ }
+}

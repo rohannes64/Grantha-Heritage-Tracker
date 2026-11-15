@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "atthefeetofbhagavanduncangreenless_202004_777_j",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.486429379085468
+   },
+   {
+    "class": "geography, biography, history",
+    "score": 0.23831204637934297
+   },
+   {
+    "class": "religion",
+    "score": 0.23770807932378102
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

@@ -1,0 +1,68 @@
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Vellum · scope: app · screen: real-world impact showcase with raea-rendered animations */
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+  gap: var(--space-2xl) var(--gap-columns);
+  align-items: center;
+}
+@media (max-width: 64rem) {
+  .impact-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+}
+
+.impact-video {
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-2);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  margin: 0;
+}
+.impact-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+.impact-video figcaption {
+  padding: var(--space-xs) var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.impact-copy {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+}
+.impact-copy h2 {
+  font-size: var(--text-section);
+  text-transform: none;
+}
+.impact-copy p {
+  color: var(--color-ink-2);
+  max-width: 58ch;
+  line-height: 1.55;
+}
+.impact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+.video-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-3);
+}
+.explorer-box {
+  display: grid;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-2);
+  border-radius: var(--radius-card);
+}

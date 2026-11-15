@@ -1,14 +1,23 @@
 .env
+*key*.json
+*adc*.json
+*.key
+*.pem
 __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
 # All harvested data, page images, caches, corpus database and logs
-/data/*
-# ...except the trained model bundle the app needs (48 MB, no page text, no key)
-!/data/model/
-/data/model/*
-!/data/model/bundle.joblib
+/data/
+.ua/
+.understand-anything/
 docs/build/node_modules/
 docs/build/render/
 graphify-out/
+# Local-only material: archived fleet scripts, agent tooling, scratch builders' output
+/archive/
+/.agents/
+/scratch/*.html
+# Credentials that must never be committed
+gcp_adc.json
+*application_default_credentials*.json

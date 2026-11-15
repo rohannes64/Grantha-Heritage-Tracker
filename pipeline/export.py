@@ -19,11 +19,11 @@ import pandas as pd
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 
-from . import config, preprocess
+from . import config, editions, galaxy, preprocess
 from .features import LOCAL_MODELS, model_slug
 from .study import clean_json
 
-PROCESSED = config.DATA / "processed"
+PROCESSED = config.PROCESSED
 MODEL_DIR = config.DATA / "model"
 WEB_DATA = config.ROOT / "web" / "data"
 STUDY_DIR = config.REPORTS / "study"
@@ -47,6 +47,21 @@ def names_for(fs, profiles):
 def downsample(curve, n=200):
     idx = np.linspace(0, len(curve) - 1, min(n, len(curve))).round().astype(int)
     return [curve[i] for i in idx]
+
+
+def triage_books(docs: pd.DataFrame) -> list[dict]:
+    """Every harvested book's scan-quality signals (not only the model's books), for app/routes/triage.py."""
+    def cell(row, col, default=None):
+        v = row.get(col, default)
+        return default if v is None or v is pd.NA or (isinstance(v, float) and np.isnan(v)) else v
+    out = []
+    for ident, r in docs.iterrows():
+        n = cell(r, "n_tokens")
+        out.append({"identifier": ident, "title": cell(r, "title"), "lang_tag": cell(r, "lang_tag"),
+                    "mean_conf": None if cell(r, "mean_conf") is None else float(r["mean_conf"]),
+                    "text_source": cell(r, "text_source"), "n_tokens": None if n is None else int(n),
+                    "usable": bool(cell(r, "usable", 0))})
+    return out
 
 
 def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
@@ -73,9 +88,14 @@ def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
     hnames = names_for(f"{fs}_hier", res["hierarchical"]["profiles"])
     dnames = names_for(f"{fs}_dbscan", res["dbscan"]["profiles"])
     meta_cols = ["title", "creator", "year", "era", "lang_tag", "script", "mean_conf", "classification", "total_pages"]
-    display = docs.loc[ids, meta_cols].reset_index()
+    display = docs.reindex(index=ids, columns=meta_cols + ["text_source", "n_tokens"]).reset_index()
+    display["n_tokens"] = display["n_tokens"].astype("Int64").astype(object)
     display["url"] = display["identifier"].map(archive_url)
     display = display.astype(object).where(display.notna(), None)   # NaN is not valid JSON for the API
+
+    ed_cols = ["title", "creator"] + (["split"] if "split" in docs.columns else [])
+    ed_threshold, ed_method = editions.calibrate_for_bundle(
+        Z, ids, docs.reindex(index=ids, columns=ed_cols).reset_index(), hmetric)
 
     return {
         "feature_set": fs, "feature_name": res["name"],
@@ -87,6 +107,8 @@ def build_bundle(feats: dict, st: dict, docs: pd.DataFrame) -> dict:
                    "core_idx": db.core_sample_indices_, "names": dnames},
         "pca": st["models"][fs]["pca"],
         "docs": display.to_dict("records"),
+        "triage_books": triage_books(docs),
+        "editions_threshold": ed_threshold, "editions_method": ed_method,
         "thresholds": {"min_conf": preprocess.MIN_DOC_CONF, "min_tokens": preprocess.MIN_DOC_TOKENS},
     }
 
@@ -153,6 +175,10 @@ def main() -> None:
                        for d, h, b, c in zip(display.to_dict("records"), hl, dl, res["pca"]["coords"])]}
     (WEB_DATA / "corpus.json").write_text(json.dumps(clean_json(corpus), ensure_ascii=False), encoding="utf-8")
     print(f"exported model ({fs}: {res['name']}) and web data for {len(ids)} books")
+    try:                                    # the map is a nice-to-have: never fail the export over it
+        galaxy.main()
+    except (SystemExit, OSError, KeyError) as err:
+        print(f"galaxy.json not written: {err}")
 
 
 if __name__ == "__main__":

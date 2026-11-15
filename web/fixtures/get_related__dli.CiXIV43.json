@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.CiXIV43",
+  "script": "Latin",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "dli.CiXIV119a",
+    "title": "ಕನ್ನಡ ವ್ಯಾಕರಣ ಸಾರವು",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.CiXIV119a",
+    "distance": 0.9095793327154866
+   },
+   {
+    "identifier": "dli.ministry.02382",
+    "title": "A grammar of the Kannada language in english",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.ministry.02382",
+    "distance": 0.9321597101743994
+   },
+   {
+    "identifier": "in.ernet.dli.2015.373623",
+    "title": "చక్కని తెలుగు రాయడమెలా?",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.373623",
+    "distance": 0.9549485577520515
+   },
+   {
+    "identifier": "dli.CiXIV98_1",
+    "title": "ಕನ್ನಡ ಶಾಲವ್ಯಾಕರಣ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.CiXIV98_1",
+    "distance": 0.9550370242929349
+   },
+   {
+    "identifier": "in.ernet.dli.2015.489340",
+    "title": "Hindii Vyaakarand-a",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.489340",
+    "distance": 0.9558045447580689
+   },
+   {
+    "identifier": "in.ernet.dli.2015.386304",
+    "title": "ప్రాకృతభాషోత్పత్తి",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.386304",
+    "distance": 0.9705088611198612
+   },
+   {
+    "identifier": "in.ernet.dli.2015.328167",
+    "title": "Moozhi N’uul",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "url": "https://archive.org/details/in.ernet.dli.2015.328167",
+    "distance": 0.9723582545576762
+   },
+   {
+    "identifier": "in.ernet.dli.2015.441153",
+    "title": "Prakrit Vayakarana",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.441153",
+    "distance": 0.9737817485132705
+   },
+   {
+    "identifier": "dli.CiXIV119aa",
+    "title": "ಕನ್ನಡ ಬಾಲವ್ಯಕರಣ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.CiXIV119aa",
+    "distance": 0.9842684094405166
+   },
+   {
+    "identifier": "in.ernet.dli.2015.330397",
+    "title": "ఆంధ్ర శబ్దతత్త్వము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.330397",
+    "distance": 0.9869369236562039
+   }
+  ]
+ }
+}

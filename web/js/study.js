@@ -1,4 +1,37 @@
-import { getJSON, el, esc, fmt, scatter, lines, dendrogram, hbar, LANG, params, setParam } from "./common.js";
+import { getJSON, el, esc, fmt, scatter, lines, dendrogram, hbar, LANG, params, setParam, headlineResults, resultFigure } from "./common.js";
+
+// Results at a glance: the headline figures for the model behind the app, from data/facts.json
+// (written by scripts/deliverable_facts.py), drawn on their own so the rest of the page never waits for them.
+const toggleAllBtn = document.getElementById("toggle-all-details");
+if (toggleAllBtn) {
+  toggleAllBtn.addEventListener("click", () => {
+    const open = toggleAllBtn.getAttribute("aria-pressed") !== "true";
+    for (const d of document.querySelectorAll("#study details.more")) d.open = open;
+    toggleAllBtn.setAttribute("aria-pressed", String(open));
+    toggleAllBtn.textContent = open ? "Collapse all details" : "Expand all details";
+  });
+}
+
+const resultsBody = document.getElementById("results-body");
+getJSON("data/facts.json").then((facts) => {
+  const all = headlineResults(facts);
+  const study = all.filter((r) => ["subject", "page", "stability"].includes(r.id));
+  const feats = all.filter((r) => !study.includes(r));
+  const ev = facts.evaluation && (facts.evaluation.test || facts.evaluation.val);
+  const met = study.filter((r) => r.met === true).length, judged = study.filter((r) => r.met != null).length;
+  resultsBody.replaceChildren(
+    el("p", { class: "lead mt-lg" },
+      facts.encoder && facts.encoder.name ? `For the model behind the app (${facts.encoder.name}, ${ev && ev.setting ? `${ev.setting.linkage} linkage, ${fmt.n(ev.setting.k)} groups` : "the chosen setting"}), ` : "",
+      judged ? `${fmt.n(met)} of ${fmt.n(judged)} targets ${met === 1 ? "was" : "were"} met.` : "no target has been judged yet."),
+    study.length ? el("div", { class: "results-grid" }, study.map((r) => resultFigure(r))) : el("p", { class: "ink-2 mt-lg", text: "The facts file holds no evaluation yet." }),
+    el("h3", { class: "mt-xl", text: "The app's other features" }),
+    feats.length
+      ? el("div", { class: "results-grid" }, feats.map((r) => resultFigure(r)))
+      : el("p", { class: "ink-2 mt-sm", text: "The class suggestions, edition finder, scan-quality rule and related-books search have not been evaluated in this copy of the results yet. Their evaluations appear here after the next pipeline run." }));
+}).catch(() => {
+  resultsBody.replaceChildren(el("div", { class: "state state--error mt-lg" },
+    el("p", { text: "The headline results could not be loaded just now. The detailed results below are unaffected; try reloading the page." })));
+});
 
 const root = document.getElementById("study");
 let st;
@@ -8,6 +41,7 @@ try { st = await getJSON("data/study.json"); } catch (e) {
 }
 const METRIC = { euclidean: "Euclidean", cityblock: "Manhattan" };
 const NAME = { A: "TF-IDF + LSA", B: "LaBSE embeddings", C: "IndicSBERT embeddings", D: "BGE-M3 embeddings", G: "Gemini embeddings" };
+const setName = (k) => (st.sets[k] && st.sets[k].name) || NAME[k] || k;   // the results name their own encoder
 let fs = params().get("set");
 if (!st.sets[fs]) fs = st.final;
 for (const k of ["A", "G"]) {
@@ -62,7 +96,7 @@ function draw() {
       more("Features used",
         el("p", { class: "prose", text: fs === "A"
           ? `Word 1-2-grams and character 3-5-grams, weighted by TF-IDF (terms found in more than 30% of one language’s books dropped as that language’s stopwords), reduced to ${r.dims} dimensions with truncated SVD, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.`
-          : `Gemini Embedding 001 (Google, task type "clustering") of up to 10 evenly spaced 64-word passages of each book's text, averaged. Each language's average position (from the fitted books) is then subtracted, so books group by content rather than by the language they are written in. Reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })),
+          : `${fs === "G" ? "Gemini Embedding 001 (Google, task type \"clustering\")" : setName(fs)} of up to 10 evenly spaced 64-word passages of each book's text, averaged. Each language's average position (from the fitted books) is then subtracted, so books group by content rather than by the language they are written in. Reduced to ${r.dims} dimensions with PCA, which keeps ${fmt.p(r.explained_variance)} of the variance. Rows scaled to unit length.` })),
       st.encoders ? more("Choosing the encoder",
         el("p", { class: "prose", text: `Each candidate encoder was scored on ${fmt.n(Object.values(st.encoders.encoders)[0].books)} labelled train and validation books (never test books): how often a book's subject matches the most common subject of its 7 nearest neighbours, before and after removing each language's average position. This is the most topic information the numbers carry. Rule: ${st.encoders.rule}.` }),
         table([["Encoder"], ["As is", 1], ["Language removed", 1]],
@@ -160,7 +194,7 @@ function draw() {
     [`How much each grouping follows the script, the era and the catalogue subject (normalised mutual information, 0 none, 1 complete). With this feature set the hierarchical groups follow script at `, strong(fmt.f(H.effects.nmi_script, 2)),
       `. DBSCAN's noise books have a median OCR confidence of ${fmt.f(on.median_conf_noise, 0)} against ${fmt.f(on.median_conf_clustered, 0)} for grouped books.`],
     el("div", { class: "mt-xl" }, table([["Grouping"], ["Script", 1], ["Era", 1], ["Catalogue subject", 1]],
-      Object.entries(st.sets).flatMap(([k, s_]) => [[`${NAME[k]}, hierarchical`, ...eff(s_.hierarchical)], [`${NAME[k]}, density-based`, ...eff(s_.dbscan)]]),
+      Object.entries(st.sets).flatMap(([k, s_]) => [[`${setName(k)}, hierarchical`, ...eff(s_.hierarchical)], [`${setName(k)}, density-based`, ...eff(s_.dbscan)]]),
       { chosen: (i) => Object.keys(st.sets)[Math.floor(i / 2)] === fs })),
     el("div", { class: "more-wrap" },
       more("OCR quality and DBSCAN noise",
@@ -172,10 +206,10 @@ function draw() {
   const sel_ = st.selection;
   const ts = sel_.train_selection || sel_;
   parts.push(section("choice", "The model behind the app",
-    [`The app uses `, strong(NAME[sel_.chosen]), ` with ${hf.linkage} linkage and ${hf.k} groups. The rule, fixed before the results: among all feature sets and settings whose groups follow script with NMI of 0.5 or less and survive resampling (median bootstrap ARI of 0.5 or more), take the `, strong("highest silhouette"),
+    [`The app uses `, strong(setName(sel_.chosen)), ` with ${hf.linkage} linkage and ${hf.k} groups. The rule, fixed before the results: among all feature sets and settings whose groups follow script with NMI of 0.5 or less and survive resampling (median bootstrap ARI of 0.5 or more), take the `, strong("highest silhouette"),
       `. It was applied to the training books only, then the same setting was refitted on every book.`],
     el("div", { class: "mt-xl" }, table([["Feature set"], ["Silhouette", 1], ["Follows script (NMI)", 1], ["Bootstrap ARI", 1], ["Passes the rule"]],
-      Object.keys(ts.silhouette || {}).map((k) => [NAME[k], fmt.f(ts.silhouette[k], 3), fmt.f(ts.nmi_script[k], 2), fmt.f(ts.boot_median[k], 2), ts.passes[k] ? "yes" : "no"]),
+      Object.keys(ts.silhouette || {}).map((k) => [setName(k), fmt.f(ts.silhouette[k], 3), fmt.f(ts.nmi_script[k], 2), fmt.f(ts.boot_median[k], 2), ts.passes[k] ? "yes" : "no"]),
       { chosen: (i) => Object.keys(ts.silhouette || {})[i] === sel_.chosen }))));
 
   // 9b. accuracy on books the model never saw
@@ -211,8 +245,10 @@ function draw() {
       el("li", { text: "The subject labels used to test accuracy were made by the project's assistant from titles, catalogue subjects and a snippet of text, and are for the team to spot-check." }),
       el("li", { text: "Group names are our reading of each group’s distinctive words and typical books, not subject headings. Read the typical books before trusting a name." }),
       el("li", { text: "Silhouette scores for text are low by nature; the groups are tendencies, and borders between them are uncertain." }),
-      el("li", { text: "The encoder is Google's Gemini Embedding 001, a closed model reached over the internet: checking a page needs a connection, the page's text is sent to Google, and Google may change or retire the model. The best open model tested (BGE-M3) was about 7 points lower." }),
-      el("li", { text: "A single uploaded page lands with its own book's group 72% of the time on test books, below the 80% aim, and the groups' stability under resampling (0.58) is just under its 0.60 aim." }))));
+      el("li", { text: st.final === "G"
+        ? "The encoder is Google's Gemini Embedding 001, a closed model reached over the internet: checking a page needs a connection, the page's text is sent to Google, and Google may change or retire the model. The best open model tested (BGE-M3) was about 7 points lower."
+        : `The encoder is Google's ${setName(st.final)}, a closed model reached over the internet: checking a page needs a connection, the page's text is sent to Google, and Google may change or retire the model.` }),
+      ev ? el("li", { text: `A single uploaded page lands with its own book's group ${fmt.p(ev.T1_upload_check.agreement)} of the time on ${ev.split === "test" ? "test" : "validation"} books, ${ev.met.T1 ? "meeting" : "below"} the ${fmt.p(ev.targets.T1_page_agreement)} aim, and the groups' stability under resampling (${fmt.f(ev.T3_bootstrap_median, 2)}) is ${ev.met.T3 ? "at or above" : "under"} its ${fmt.f(ev.targets.T3_bootstrap_ari, 2)} aim.` }) : null)));
 
   root.replaceChildren(...parts);
 

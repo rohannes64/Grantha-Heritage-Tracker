@@ -1,74 +1,126 @@
 {
   "split": "val",
-  "date": "2026-11-09",
-  "feature_set": "G",
-  "feature_name": "Gemini embeddings",
+  "date": "2026-11-14",
+  "feature_set": "V",
+  "feature_name": "Vertex AI Multilingual embeddings",
   "setting": {
-    "linkage": "average",
+    "linkage": "ward",
     "metric": "euclidean",
-    "k": 6,
-    "silhouette": 0.07160089727811299,
-    "nmi_script": 0.05589367965450248
+    "k": 3,
+    "silhouette": 0.03836288071761263,
+    "nmi_script": 0.017158644063467024
   },
-  "held_out_books": 515,
+  "held_out_books": 2638,
   "targets": {
     "T1_page_agreement": 0.8,
     "T2_points_above_baseline": 10.0,
     "T3_bootstrap_ari": 0.6
   },
   "T1_upload_check": {
-    "pages": 2575,
-    "assigned": 2503,
-    "abstained": 72,
-    "abstain_rate": 0.027961165048543735,
-    "agreement": 0.7043547742708749,
-    "agreement_confident_pages": 0.7202664129400571,
-    "agreement_caution_pages": 0.6209476309226932,
-    "caution_pages": 401,
+    "pages": 12085,
+    "assigned": 11711,
+    "abstained": 374,
+    "agreement_ci95": [
+      0.7463783042085622,
+      0.7678802388540787
+    ],
+    "abstain_rate": 0.030947455523376077,
+    "agreement": 0.757663734950047,
+    "agreement_confident_pages": 0.7690730106644791,
+    "agreement_caution_pages": 0.7008677896886166,
+    "caution_pages": 1959,
     "tagged": {
-      "agreement_tagged": 0.818218138234119,
-      "tags_per_page": 1.4842189372752697,
+      "agreement_tagged": 0.8568012979250278,
+      "tags_per_page": 1.3418153872427632,
       "rule": "main group + groups within their own 90% spread, at most 3"
     },
-    "chance": 0.18007648445272384
+    "books": 2417,
+    "left_out_own_pages": 221,
+    "chance": 0.35892903944439647
   },
   "T2_subject": {
-    "labelled_train": 336,
-    "labelled_heldout": 293,
+    "labelled_train": 351,
+    "labelled_heldout": 120,
     "tagged": {
-      "accuracy_tagged": 0.6996587030716723,
-      "tags_per_book": 1.6075085324232081,
-      "distinct_subjects_per_book": 1.5563139931740615,
-      "tag_precision": 0.4607218683651805
+      "accuracy_tagged": 0.55,
+      "tags_per_book": 1.4666666666666666,
+      "distinct_subjects_per_book": 1.3083333333333333,
+      "tag_precision": 0.44886363636363635
     },
-    "accuracy_groups": 0.590443686006826,
-    "baseline_most_common": 0.3174061433447099,
-    "baseline_script_only": 0.4641638225255973,
-    "points_above_best_baseline": 12.627986348122866,
-    "permutation_p": 0.0004997501249375312,
-    "nmi_groups_subjects_heldout": 0.3688530692511689,
+    "accuracy_groups": 0.4583333333333333,
+    "baseline_most_common": 0.3,
+    "baseline_script_only": 0.4166666666666667,
+    "points_above_best_baseline": 4.1666666666666625,
+    "accuracy_groups_ci95": [
+      0.36666666666666664,
+      0.5416666666666666
+    ],
+    "points_above_best_baseline_ci95": [
+      -6.666666666666665,
+      14.187499999999892
+    ],
+    "ci_method": "2000 bootstrap resamples of the held-out labelled books, percentile interval",
+    "permutation_p": 0.0024987506246876563,
+    "nmi_groups_subjects_heldout": 0.17606071149460534,
     "group_to_subject": {
-      "0": "society, law and economics",
-      "1": "literature",
-      "2": "literature",
-      "3": "science, medicine and technology",
-      "4": "language and grammar",
-      "5": "religion and philosophy"
+      "0": "literature",
+      "1": "religion and philosophy",
+      "2": "religion and philosophy"
     },
     "subject_counts_heldout": {
-      "science, medicine and technology": 32,
-      "history, biography and geography": 35,
-      "literature": 93,
-      "religion and philosophy": 94,
-      "society, law and economics": 15,
-      "language and grammar": 11,
-      "other": 13
+      "other": 7,
+      "society, law and economics": 7,
+      "history, biography and geography": 15,
+      "religion and philosophy": 45,
+      "literature": 36,
+      "language and grammar": 3,
+      "science, medicine and technology": 7
     }
   },
-  "T3_bootstrap_median": 0.5841697999294675,
+  "T2_catalogue_exploratory": {
+    "labelled_train": 3559,
+    "labelled_heldout": 1133,
+    "tagged": null,
+    "accuracy_groups": 0.4836716681376876,
+    "baseline_most_common": 0.4836716681376876,
+    "baseline_script_only": 0.5057369814651368,
+    "points_above_best_baseline": -2.206531332744921,
+    "accuracy_groups_ci95": [
+      0.45366284201235657,
+      0.5136804942630185
+    ],
+    "points_above_best_baseline_ci95": [
+      -3.089143865842897,
+      -1.3239187996469504
+    ],
+    "ci_method": "2000 bootstrap resamples of the held-out labelled books, percentile interval",
+    "permutation_p": 1.0,
+    "nmi_groups_subjects_heldout": 0.10202783860003516,
+    "group_to_subject": {
+      "0": "language and literature",
+      "1": "language and literature",
+      "2": "language and literature"
+    },
+    "subject_counts_heldout": {
+      "language and literature": 548,
+      "geography, biography, history": 105,
+      "generalities": 109,
+      "social sciences": 49,
+      "applied sciences and medicine": 47,
+      "natural sciences": 47,
+      "philosophy and psychology": 19,
+      "religion": 208,
+      "arts": 1
+    },
+    "exploratory": true,
+    "labels": "catalogue classification -> main class (pipeline/catalogue.py)",
+    "books_with_a_code": 7799,
+    "books_mapped": 6689
+  },
+  "T3_bootstrap_median": 0.3573638085687529,
   "met": {
     "T1": false,
-    "T2": true,
+    "T2": false,
     "T3": false
   }
 }

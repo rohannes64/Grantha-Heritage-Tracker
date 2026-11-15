@@ -1,0 +1,18 @@
+{
+  "precision": 1.0,
+  "recall": 0.36363636363636365,
+  "precision_ci95": [
+    1.0,
+    1.0
+  ],
+  "recall_ci95": [
+    0.08333333333333333,
+    0.6666666666666666
+  ],
+  "groups_heldout": 11,
+  "threshold": 0.044659557213287036,
+  "heldout_books": 2591,
+  "train_books": 8129,
+  "metric": "euclidean",
+  "split": "test"
+}

@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+  "script": "Devanagari",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "in.ernet.dli.2015.494800",
+    "title": "ಋಗ್ವೇದ ಸಂಹಿತೆ ಭಾಗ ೧೧",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/in.ernet.dli.2015.494800",
+    "distance": 0.8869308552110523
+   },
+   {
+    "identifier": "in.ernet.dli.2015.303851",
+    "title": "Srivedantdarshan",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.303851",
+    "distance": 0.9079650678614078
+   },
+   {
+    "identifier": "in.ernet.dli.2015.340201",
+    "title": "Satak. 2, Pt. 1",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.340201",
+    "distance": 0.9189844840471457
+   },
+   {
+    "identifier": "dli.bengal.10689.7915",
+    "title": "Rigved Sanghita ঋগ্বেদ্ সংহিতা",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/dli.bengal.10689.7915",
+    "distance": 0.9294702700086476
+   },
+   {
+    "identifier": "dli.osmania.4943",
+    "title": "ಶ್ರೀ ವಿಷ್ಣುಧರ್ಮೋತ್ತರ ಮಹಾಪುರಾಣಂ ಒಂದನೆಯ ಭಾಗ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.osmania.4943",
+    "distance": 0.9452786954989136
+   },
+   {
+    "identifier": "in.ernet.dli.2015.316064",
+    "title": "1544  Mahabharat-anushasanparv Vol-40; (1345)",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.316064",
+    "distance": 0.9455520667990133
+   },
+   {
+    "identifier": "in.ernet.dli.2015.357825",
+    "title": "Chhandyogyopanishat",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.357825",
+    "distance": 0.9496987803213125
+   },
+   {
+    "identifier": "in.ernet.dli.2015.453086",
+    "title": "Ishopanishat",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.453086",
+    "distance": 0.9573828757404693
+   },
+   {
+    "identifier": "dli.ernet.490157",
+    "title": "Rigveda Samhitha Volume 1",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.ernet.490157",
+    "distance": 0.9595165325849195
+   },
+   {
+    "identifier": "in.ernet.dli.2015.399593",
+    "title": "Srivedantdarshan",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.399593",
+    "distance": 0.9612989871439049
+   }
+  ]
+ }
+}

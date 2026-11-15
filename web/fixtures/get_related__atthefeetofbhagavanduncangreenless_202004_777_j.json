@@ -1,0 +1,91 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "atthefeetofbhagavanduncangreenless_202004_777_j",
+  "script": "Latin",
+  "k": 10,
+  "other_scripts": true,
+  "neighbours": [
+   {
+    "identifier": "in.ernet.dli.2015.483708",
+    "title": "Ome Namh Shivay",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.483708",
+    "distance": 0.9384407943997055
+   },
+   {
+    "identifier": "in.ernet.dli.2015.265311",
+    "title": "Banglar Sadhak Vol. 2",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.265311",
+    "distance": 0.9432438560964945
+   },
+   {
+    "identifier": "in.ernet.dli.2015.483602",
+    "title": "Bhakt Charitaawalii Part 1",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.483602",
+    "distance": 0.9498127902566558
+   },
+   {
+    "identifier": "in.ernet.dli.2015.299636",
+    "title": "Vivekananda Smriti",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.299636",
+    "distance": 0.9509430901543787
+   },
+   {
+    "identifier": "in.ernet.dli.2015.357359",
+    "title": "Shri Shri Kali Kul-kundalini  Vol. 2",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.357359",
+    "distance": 0.9521631666544597
+   },
+   {
+    "identifier": "in.ernet.dli.2015.298859",
+    "title": "Banglar Sadhak Vol. 3",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.298859",
+    "distance": 0.9546366538068988
+   },
+   {
+    "identifier": "in.ernet.dli.2015.426212",
+    "title": "Gayanganga",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.426212",
+    "distance": 0.9610709128462406
+   },
+   {
+    "identifier": "in.ernet.dli.2015.404114",
+    "title": "Avatar Kathank [ Part - I ]",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.404114",
+    "distance": 0.9622601275673144
+   },
+   {
+    "identifier": "in.ernet.dli.2015.456946",
+    "title": "Sri Sri Ramkrishna Lilamrita",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.456946",
+    "distance": 0.9681479231135908
+   },
+   {
+    "identifier": "in.ernet.dli.2015.357285",
+    "title": "Shri Madbhaktibinod Charit",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.357285",
+    "distance": 0.971855120893409
+   }
+  ]
+ }
+}

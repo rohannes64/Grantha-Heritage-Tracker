@@ -20,87 +20,45 @@
     "cat__script_Telugu"
   ],
   "feature_sets": {
-    "A": {
-      "linkage": "average",
+    "V": {
+      "linkage": "ward",
       "k": 3,
       "rows": [
         {
           "weight": 0.0,
-          "silhouette": 0.23101526370010422,
-          "silhouette_text_space": 0.23101526370010422,
-          "nmi_script": 0.5726209934183256,
-          "nmi_era": 0.0025683840563968108,
+          "silhouette": 0.03505982047172203,
+          "silhouette_text_space": 0.03505982047172203,
+          "nmi_script": 0.019299247199408814,
+          "nmi_era": 0.016633098380156565,
           "ari_vs_text_only": 1.0,
-          "largest_share": 0.7284716834755625
+          "largest_share": 0.4605479862254829
         },
         {
           "weight": 0.25,
-          "silhouette": 0.22982618896042353,
-          "silhouette_text_space": 0.23486016923259806,
-          "nmi_script": 0.6932812720696969,
-          "nmi_era": 0.0007282211156011105,
-          "ari_vs_text_only": 0.03948273445865086,
-          "largest_share": 0.4848719937936385
+          "silhouette": 0.04161167134527588,
+          "silhouette_text_space": 0.042042940270037285,
+          "nmi_script": 0.033155816573817075,
+          "nmi_era": 0.009454196511197065,
+          "ari_vs_text_only": 0.20857570403266915,
+          "largest_share": 0.44849528372510855
         },
         {
           "weight": 0.5,
-          "silhouette": 0.2247061480822278,
-          "silhouette_text_space": 0.24044592478309093,
-          "nmi_script": 0.6497744667476144,
-          "nmi_era": 0.0022505280758123025,
-          "ari_vs_text_only": -0.10467183032146925,
-          "largest_share": 0.6082234290147401
+          "silhouette": 0.026902975743681834,
+          "silhouette_text_space": 0.02824336878517851,
+          "nmi_script": 0.0325667279543057,
+          "nmi_era": 0.01729921072168858,
+          "ari_vs_text_only": 0.4153697091976938,
+          "largest_share": 0.4805360083844887
         },
         {
           "weight": 1.0,
-          "silhouette": 0.29919743122400655,
-          "silhouette_text_space": -0.019166309830888267,
-          "nmi_script": 0.007399223668575167,
-          "nmi_era": 0.010812167894497326,
-          "ari_vs_text_only": -0.010208687652175544,
-          "largest_share": 0.9930178432893716
-        }
-      ]
-    },
-    "G": {
-      "linkage": "average",
-      "k": 6,
-      "rows": [
-        {
-          "weight": 0.0,
-          "silhouette": 0.06392428606881888,
-          "silhouette_text_space": 0.06392428606881888,
-          "nmi_script": 0.05265876931040313,
-          "nmi_era": 0.011550267444523726,
-          "ari_vs_text_only": 1.0,
-          "largest_share": 0.26338246702870444
-        },
-        {
-          "weight": 0.25,
-          "silhouette": 0.043853856305266635,
-          "silhouette_text_space": 0.0073055197392404335,
-          "nmi_script": 0.04537636882226983,
-          "nmi_era": 0.011591004976334468,
-          "ari_vs_text_only": 0.42755497861664316,
-          "largest_share": 0.39798293250581845
-        },
-        {
-          "weight": 0.5,
-          "silhouette": 0.048588623546736695,
-          "silhouette_text_space": -0.08251533433314027,
-          "nmi_script": 0.02633038616429737,
-          "nmi_era": 0.008388837510646572,
-          "ari_vs_text_only": 0.21922792091078958,
-          "largest_share": 0.5178432893716058
-        },
-        {
-          "weight": 1.0,
-          "silhouette": 0.10680184221021416,
-          "silhouette_text_space": -0.07564018569834463,
-          "nmi_script": 0.05610558606308704,
-          "nmi_era": 0.009552848491475025,
-          "ari_vs_text_only": 0.003451577632584958,
-          "largest_share": 0.9072924747866563
+          "silhouette": 0.05921564899507406,
+          "silhouette_text_space": 0.022797657359766587,
+          "nmi_script": 0.09208177927239171,
+          "nmi_era": 0.011885977181463107,
+          "ari_vs_text_only": 0.20507014940360693,
+          "largest_share": 0.5877376852822279
         }
       ]
     }

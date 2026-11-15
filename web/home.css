@@ -24,14 +24,14 @@
 
 /* ---------- stages ---------- */
 .stage { padding-block: var(--section-gap-s); border-top: var(--rule-hair) solid var(--color-rule); }
-.stage .container { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-2xl); align-items: start; }
+.stage .container { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-2xl) var(--gap-columns); align-items: start; }
 .stage h2 { font-size: var(--text-section); }
 .stage .stage-text p { margin-top: var(--space-md); color: var(--color-ink-2); max-width: 34ch; }
 .stage--first { padding-top: var(--section-gap); }
 @media (max-width: 60rem) { .stage .container { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); } }
 
 /* stage 1: the page and what OCR read, side by side */
-.readout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-xl); }
+.readout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-xl) var(--gap-columns); }
 .readout [data-slot] { aspect-ratio: 3 / 4; min-height: 380px; }
 .readout [data-slot] > img { object-position: 50% 18%; }
 .ocr-text { font-size: var(--text-lg); line-height: 1.7; white-space: pre-line; color: var(--color-ink); }
@@ -64,14 +64,14 @@
 
 /* what it reads: languages as a sheet */
 .langs { padding-block: var(--section-gap-l) var(--section-gap-s); }
-.langs .container { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-2xl); }
+.langs .container { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-2xl) var(--gap-columns); }
 .langs h2 { font-size: var(--text-section); }
 .langs p { margin-top: var(--space-md); color: var(--color-ink-2); max-width: 34ch; }
 @media (max-width: 60rem) { .langs .container { grid-template-columns: minmax(0, 1fr); } }
 
 /* close */
 .close { padding-block: var(--section-gap); border-top: var(--rule-hair) solid var(--color-rule); }
-.close .container { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-2xl); align-items: center; }
+.close .container { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-2xl) var(--gap-columns); align-items: center; }
 .close h2 { font-size: var(--text-section); }
 .close .actions { margin-top: var(--space-xl); }
 .close figure { margin: 0; }

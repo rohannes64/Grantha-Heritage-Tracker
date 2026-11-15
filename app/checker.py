@@ -17,7 +17,7 @@ from sklearn.metrics import pairwise_distances
 from pipeline import config, tags as tagging, text
 from pipeline.features import apply_stopwords
 
-MIN_TOKENS_TO_ASSIGN = 20      # below this, no assignment at all
+from pipeline.config import MIN_TOKENS_TO_ASSIGN   # below this, no assignment at all
 MIN_TOKENS_CONFIDENT = 100     # same bar the archive books had to clear
 
 
@@ -65,7 +65,8 @@ class Checker:
         return [self.word_terms[prod.col[i]] for i in order]
 
     def check_text(self, raw: str, script: str | None = None, ocr_conf: float | None = None,
-                   lang: str | None = None) -> dict:
+                   lang: str | None = None, keep_vector: bool = False) -> dict:
+        """keep_vector: also return the page's feature vector as "_vector" (for check enrichers; never sent out)."""
         script = script or detect_script(raw)
         tokens = text.remove_stopwords(text.clean_tokens(raw, script))
         th = self.b["thresholds"]
@@ -111,7 +112,8 @@ class Checker:
                    for i in nearest]
         xy = self.b["pca"].transform(z)[0]
         status = "caution" if cautions else "ok"
-        return base | {
+        extra = {"_vector": z[0]} if keep_vector else {}
+        return base | extra | {
             "status": status,
             "hierarchical": {"cluster": c, "name": h["names"][str(c)], "distance": float(dc[c]), "level": level,
                              "spread": sp, "runner_up": runner_up,

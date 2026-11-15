@@ -1,0 +1,24 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.bengal.10689.10068",
+  "catalogue_class": null,
+  "k": 25,
+  "suggestions": [
+   {
+    "class": "language and literature",
+    "score": 0.5193743467871937
+   },
+   {
+    "class": "religion",
+    "score": 0.24271252906914226
+   },
+   {
+    "class": "generalities",
+    "score": 0.15944256872547027
+   }
+  ],
+  "neighbours_used": 25,
+  "basis": "nearest coded books in the model"
+ }
+}

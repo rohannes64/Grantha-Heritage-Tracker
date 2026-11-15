@@ -1,0 +1,20 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.bengal.10689.10068",
+  "title": "Bandhab - Vol.4; No.1-12 বান্ধব - খন্ড ৪; সংখ্যা ১-২",
+  "creator": "Ghosh, Kaliprasanna, ed.",
+  "year": 1878.0,
+  "era": "pre-1900",
+  "lang_tag": "ben",
+  "script": "Bengali",
+  "mean_conf": 62.31373725254949,
+  "classification": null,
+  "total_pages": 567,
+  "text_source": "hocr",
+  "n_tokens": 4000,
+  "url": "https://archive.org/details/dli.bengal.10689.10068",
+  "hier": 2,
+  "dbscan": -1
+ }
+}

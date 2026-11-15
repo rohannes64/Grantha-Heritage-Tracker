@@ -1,6 +1,10 @@
 """Whole-book text from the Internet Archive's own OCR, for every harvested book.
 
-    python -m pipeline.fulltext [--langs hin,ben] [--workers 8]
+    python -m pipeline.fulltext [--langs hin,ben] [--shards 3] [--workers 24]
+
+Each language can be split into --shards interleaved slices, one process each, so a book whose archive
+storage node keeps failing (HTTP 500 and retry backoff) only stalls its own slice. To keep the total
+request rate polite with more processes, raise HERITAGE_REQUEST_INTERVAL (seconds between requests per process).
 
 For each harvested book, in order of preference:
   1. hOCR search text + page index (page by page). The pages we read ourselves with Tesseract
@@ -49,10 +53,17 @@ def fetch_one(client: IAClient, ident: str, ocr_files: str | None, leaves: list[
     return {"source": "none", "text": "", "pages_used": 0, "held_out_leaves": []}
 
 
-def run_language(lang: str) -> str:
+def shard_rows(rows: list, shard: int, shards: int) -> list:
+    """Every shards-th row starting at shard: the slices partition the language's books."""
+    return rows[shard::shards]
+
+
+def run_language(job) -> str:
+    lang, shard, shards = job if isinstance(job, tuple) else (job, 0, 1)
     con = db.connect()
-    rows = con.execute("SELECT identifier, ia_ocr_files FROM documents WHERE status='harvested' AND lang_tag=?",
-                       (lang,)).fetchall()
+    rows = con.execute("SELECT identifier, ia_ocr_files FROM documents WHERE status='harvested' AND lang_tag=? "
+                       "ORDER BY identifier", (lang,)).fetchall()
+    rows = shard_rows(rows, shard, shards)
     client = IAClient()
     OUT.mkdir(parents=True, exist_ok=True)
     done = failed = 0
@@ -72,18 +83,19 @@ def run_language(lang: str) -> str:
         tmp.replace(dest)
         done += 1
         if done % 50 == 0:
-            print(f"{lang}: {done} written", flush=True)
-    return f"{lang}: {done} written, {failed} failed"
+            print(f"{lang}[{shard}/{shards}]: {done} written", flush=True)
+    return f"{lang}[{shard}/{shards}]: {done} written, {failed} failed"
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--langs", default=",".join(config.LANGUAGES))
+    ap.add_argument("--shards", type=int, default=1, help="processes per language")
     ap.add_argument("--workers", type=int, default=8)
     a = ap.parse_args()
-    langs = a.langs.split(",")
+    jobs = [(lang, i, a.shards) for lang in a.langs.split(",") for i in range(a.shards)]
     with ProcessPoolExecutor(max_workers=a.workers) as ex:
-        for msg in ex.map(run_language, langs):
+        for msg in ex.map(run_language, jobs):
             print(msg, flush=True)
 
 

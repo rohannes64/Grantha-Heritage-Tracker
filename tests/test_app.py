@@ -74,3 +74,31 @@ def test_api(bundle, tmp_path, monkeypatch):
     assert client.post("/api/check", data={}).status_code == 400
     assert client.get("/api/documents/law-1").json()["identifier"] == "law-1"
     assert client.get("/api/documents/nope").status_code == 404
+
+
+def test_fixtures_record_exactly_what_the_api_returns(bundle, tmp_path, monkeypatch):
+    import json
+    import joblib
+    import sys
+    from fastapi.testclient import TestClient
+    sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[1] / "scripts"))
+    import make_fixtures
+    import app.main as main
+    path = tmp_path / "bundle.joblib"
+    joblib.dump(bundle, path)
+    monkeypatch.setattr(main, "BUNDLE", path)
+    main.checker.cache_clear()
+    client = TestClient(main.app)
+    docs = main.checker().docs
+    reqs = make_fixtures.requests_for(docs, {"identifier": "page", "text": (TOPICS["law"] + " ") * 15, "lang": "eng"}, main.checker().b.keys())
+    idx = make_fixtures.record(client, reqs, tmp_path / "fx", {"bundle_sha256": "test"})
+    ids = make_fixtures.sample_ids(docs)
+    assert ids == sorted(ids) or len(set(d["lang_tag"] for d in docs)) == len(ids)
+    rec = json.loads((tmp_path / "fx" / f"get_documents__{ids[0]}.json").read_text(encoding="utf-8"))
+    assert rec == {"status": 200, "body": client.get(f"/api/documents/{ids[0]}").json()}
+    assert "post_check__page" in idx["fixtures"] and "get_api_health" in idx["fixtures"]
+    ed = json.loads((tmp_path / "fx" / f"get_editions__{ids[0]}.json").read_text(encoding="utf-8"))
+    assert ed["status"] == 200 and ed["body"]["identifier"] == ids[0]
+    old = make_fixtures.requests_for(docs, None, [k for k in main.checker().b if k != "triage_books"])
+    assert not any("triage" in path for _, _, path, _ in old)          # pre-triage bundle: triage not recorded
+    main.checker.cache_clear()

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grantha: archive map</title>
+<meta name="description" content="Every book in the study as one dot in three dimensions, coloured by language: first as the model places them, then with each language’s average removed.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="galaxy.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header class="slab"><div class="container slab-container"><div class="slab-brand"><a class="wordmark" href="./">Grantha</a></div>
+<nav class="slab-nav" aria-label="Main"><ul class="nav-list">
+  <li><a href="check.html">Check a page</a></li>
+  <li><a href="browse.html">Browse groups</a></li>
+  <li><a href="galaxy.html" aria-current="page">Archive map</a></li>
+  <li><a href="triage.html">Scan quality</a></li>
+  <li><a href="editions.html">Editions</a></li>
+  <li class="nav-divider" aria-hidden="true"></li>
+  <li><a href="impact.html">Impact</a></li>
+  <li><a href="study.html">The study</a></li>
+  <li><a href="about.html">About</a></li>
+</ul></nav></div></header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>Archive map</h1>
+    <p>Every dot is one book, placed by how the model reads its text. Colour by language or topic group.</p>
+  </div>
+
+  <noscript><p class="state">The map is drawn with JavaScript, which is turned off. The same books are listed by topic group on the <a href="browse.html">Browse groups</a> page.</p></noscript>
+
+  <div class="gx-bar">
+    <fieldset class="seg gx-view" id="view">
+      <legend>View</legend>
+      <input type="radio" name="view" id="view-raw" value="uncentred" checked><label for="view-raw">Raw</label>
+      <input type="radio" name="view" id="view-centred" value="centred"><label for="view-centred">Language removed</label>
+      <input type="radio" name="view" id="view-umap" value="umap" hidden><label for="view-umap" hidden>Neighbourhoods</label>
+    </fieldset>
+    <p class="gx-note" id="view-note" aria-live="polite">
+      <span data-view="uncentred">As the model places the books. Books sit mostly with their own language: the model sees language first.<span class="gx-share" id="share-uncentred"></span></span>
+      <span data-view="centred" hidden>Each language’s average position is taken away. Books in different languages mix, so a book’s nearest neighbours can now be in other scripts.<span class="gx-share" id="share-centred"></span></span>
+      <span data-view="umap" hidden>Books placed by their closest neighbours in the language-removed space (3-D UMAP). Subject pockets pull apart into visible islands instead of a uniform ball.<span class="gx-share" id="share-umap"></span></span>
+    </p>
+  </div>
+
+  <div class="gx-stage">
+    <figure class="gx-figure">
+      <div class="gx-canvas" id="canvas-wrap">
+        <div class="gx-gl" id="gl" tabindex="0" role="img" aria-label="Map of the books, loading" aria-describedby="view-note axes gx-help"></div>
+        <p class="gx-status" id="gx-status">Loading the map</p>
+        <div class="gx-axis-labels" id="axis-labels" aria-hidden="true"></div>
+      </div>
+      <figcaption class="gx-caption">
+        <ul class="gx-axes" id="axes" aria-label="What each axis shows"></ul>
+        <p class="small muted" id="gx-help">Drag to turn, scroll or pinch to zoom, click a dot to pick a book. Press V to switch the view, Escape to clear the book.</p>
+      </figcaption>
+    </figure>
+
+    <aside class="gx-side" aria-label="Map key and book">
+      <section aria-labelledby="langs-title">
+        <div class="gx-legend-head">
+          <h2 id="langs-title" class="gx-h">Languages</h2>
+          <fieldset class="seg seg-sm" id="colour-by">
+            <legend class="gx-sr-only">Colour dots by</legend>
+            <input type="radio" name="colour" id="col-lang" value="lang" checked><label for="col-lang">Language</label>
+            <input type="radio" name="colour" id="col-group" value="group"><label for="col-group">Group</label>
+          </fieldset>
+        </div>
+        <p class="small muted" id="legend-note">Choose a language to light up only its books.</p>
+        <ul class="gx-langs" id="langs"></ul>
+      </section>
+
+      <section aria-labelledby="find-title">
+        <h2 id="find-title" class="gx-h"><label for="find">Find a book</label></h2>
+        <div class="gx-find">
+          <input class="input" id="find" type="search" autocomplete="off" spellcheck="false" placeholder="Title in any script" role="combobox" aria-expanded="false" aria-controls="find-list" aria-autocomplete="list" disabled>
+          <ul class="gx-find-list" id="find-list" role="listbox" aria-label="Matching books" hidden></ul>
+        </div>
+        <div class="gx-samples" id="sample-books" hidden aria-label="Sample books"></div>
+      </section>
+
+      <section class="gx-book" id="book" aria-labelledby="book-title" aria-live="polite">
+        <h2 id="book-title" class="gx-h" tabindex="-1">No book picked</h2>
+        <p class="ink-2">Pick a dot or find a title. Its closest books in other scripts are joined to it on the map.</p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+<script type="x-shader/x-vertex" id="dots-vs">
+attribute vec3 posB;
+attribute vec3 tint;
+attribute float lang;
+uniform float uT;
+uniform float uSize;
+uniform float uScale;
+uniform float uMin;
+uniform float uFocus;
+uniform float uDim;
+varying vec3 vColor;
+varying float vAlpha;
+void main() {
+  vec3 p = mix(position, posB, uT);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float on = (uFocus < 0.0 || abs(lang - uFocus) < 0.5) ? 1.0 : 0.0;
+  vAlpha = mix(0.08, 0.92, on) * uDim;
+  vColor = tint;
+  gl_PointSize = max(uMin, uSize * uScale / -mv.z) * mix(0.7, 1.0, on);
+}
+</script>
+<script type="x-shader/x-fragment" id="dots-fs">
+varying vec3 vColor;
+varying float vAlpha;
+void main() {
+  float d = length(gl_PointCoord - vec2(0.5));
+  if (d > 0.5) discard;
+  gl_FragColor = vec4(vColor, vAlpha * smoothstep(0.5, 0.36, d));
+}
+</script>
+<script type="x-shader/x-vertex" id="marks-vs">
+attribute vec3 tint;
+attribute float kind;
+uniform float uPR;
+varying vec3 vColor;
+varying float vKind;
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  vColor = tint;
+  vKind = kind;
+  gl_PointSize = uPR * (kind < 0.5 ? 24.0 : (kind < 1.5 ? 15.0 : 16.0));
+}
+</script>
+<script type="x-shader/x-fragment" id="marks-fs">
+uniform vec3 uRing;
+uniform vec3 uField;
+varying vec3 vColor;
+varying float vKind;
+void main() {
+  float d = length(gl_PointCoord - vec2(0.5));
+  if (d > 0.5) discard;
+  if (vKind > 1.5) {
+    if (d < 0.38) discard;
+    gl_FragColor = vec4(uRing, 0.85);
+    return;
+  }
+  float ringIn = vKind < 0.5 ? 0.30 : 0.36;
+  vec3 col = d > ringIn ? uRing : (vKind < 0.5 && d > ringIn - 0.07 ? uField : vColor);
+  gl_FragColor = vec4(col, 1.0);
+}
+</script>
+<script type="module" src="js/galaxy.js"></script>
+</body>
+</html>

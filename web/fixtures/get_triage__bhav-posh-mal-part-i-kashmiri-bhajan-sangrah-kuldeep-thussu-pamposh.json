@@ -1,0 +1,15 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+  "verdict": "fine",
+  "score": 0.0,
+  "reasons": [],
+  "signals": {
+   "mean_conf": 75.61261261261261,
+   "text_source": "hocr",
+   "n_tokens": 4000,
+   "dbscan_noise": false
+  }
+ }
+}

@@ -36,8 +36,8 @@ from sklearn.metrics import (adjusted_rand_score, normalized_mutual_info_score, 
 from . import config
 from .features import SET_NAMES as FEATURE_NAMES, STUDY_SETS
 
-PROCESSED = config.DATA / "processed"
-STUDY = config.REPORTS / "study"
+PROCESSED = config.PROCESSED
+STUDY = config.STUDY
 METRICS = {"euclidean": "Euclidean", "cityblock": "Manhattan"}
 LINKAGES = ["ward", "average", "complete"]
 K_RANGE = range(2, 16)
@@ -103,14 +103,25 @@ def knn_agreement(D: np.ndarray, labels: np.ndarray, k: int = 10) -> float | Non
     return float(np.mean(hits))
 
 
-def distance_study(Z, scripts, classes) -> dict:
+def distance_matrices(Z) -> dict:
+    """Full pairwise distances for every metric, computed once per feature set and shared by the
+    distance comparison, the hierarchical grid, the bootstraps and DBSCAN."""
+    D = {m: pairwise_distances(Z, metric=m) for m in METRICS}
+    for m in D:
+        np.fill_diagonal(D[m], 0.0)   # float rounding can leave ~1e-8 on the diagonal; silhouette rejects it
+    return D
+
+
+def distance_study(D_by_metric, scripts, classes, cache: dict) -> dict:
+    """Compares the metrics. `cache` receives the linkages it builds, keyed (method, metric), so the
+    hierarchical grid reuses them instead of building the same trees again."""
     res = {}
     for m in METRICS:
-        D = pairwise_distances(Z, metric=m)
+        D = D_by_metric[m]
         cond = squareform(D, checks=False)
         r = {"relative_contrast": relative_contrast(D)}
         for method in ["average", "complete"]:
-            L = linkage(cond, method=method)
+            L = cache[(method, m)] = linkage(cond, method=method)
             r[f"cophenetic_{method}"] = float(cophenet(L, cond)[0])
             sils = [silhouette_score(D, fcluster(L, k, "maxclust"), metric="precomputed")
                     for k in K_RANGE if len(set(fcluster(L, k, "maxclust"))) > 1]
@@ -131,13 +142,16 @@ def distance_study(Z, scripts, classes) -> dict:
 
 
 # ---------------------------------------------------------------- 2. hierarchical
-def hierarchical_grid(D_by_metric, chosen) -> tuple[list[dict], dict]:
+def hierarchical_grid(D_by_metric, chosen, cache=None) -> tuple[list[dict], dict]:
     n = D_by_metric["euclidean"].shape[0]
     rows, linkages = [], {}
+    cache = {} if cache is None else cache
     for method in LINKAGES:
         metric = "euclidean" if method == "ward" else chosen
         D = D_by_metric[metric]
-        L = linkage(squareform(D, checks=False), method=method)
+        L = cache.get((method, metric))
+        if L is None:
+            L = linkage(squareform(D, checks=False), method=method)
         linkages[method] = L
         for k in K_RANGE:
             lab = fcluster(L, k, "maxclust")
@@ -219,12 +233,13 @@ def hdbscan_row(D, hlab) -> dict:
             "labels": lab.tolist()}
 
 
-def high_conf_refit(Z, conf, method, metric, k, hlab) -> dict:
-    """The chosen setting refitted on books whose OCR confidence is >= 70: do the same groups return?"""
+def high_conf_refit(D, conf, method, k, hlab) -> dict:
+    """The chosen setting refitted on books whose OCR confidence is >= 70: do the same groups return?
+    D: the full distance matrix of the chosen metric (the subset is sliced from it, not recomputed)."""
     m = conf >= HIGH_CONF
     if m.sum() < 50:
         return {"books": int(m.sum()), "ari_vs_full": None}
-    L = linkage(squareform(pairwise_distances(Z[m], metric=metric), checks=False), method=method)
+    L = linkage(squareform(D[np.ix_(m, m)], checks=False), method=method)
     lab = fcluster(L, k, "maxclust") - 1
     return {"books": int(m.sum()), "share": float(m.mean()), "ari_vs_full": float(adjusted_rand_score(hlab[m], lab))}
 
@@ -360,14 +375,14 @@ def run_feature_set(fs, bundle, docs, rng, fixed=None) -> dict:
     classes = top_class(docs["classification"]).to_numpy()
     print(f"[{fs}] {FEATURE_NAMES[fs]}: {n} books x {Z.shape[1]} dims", flush=True)
 
-    dist = distance_study(Z, scripts, classes)
+    D = distance_matrices(Z)
+    trees = {}
+    dist = distance_study(D, scripts, classes, trees)
     chosen = dist["chosen"]
     print(f"[{fs}] distance: chosen {METRICS[chosen]} (wins {dist['wins']})", flush=True)
-    D = {m: pairwise_distances(Z, metric=m) for m in METRICS}
-    for m in D:
-        np.fill_diagonal(D[m], 0.0)   # float rounding can leave ~1e-8 on the diagonal; silhouette rejects it
 
-    hrows, linkages = hierarchical_grid(D, chosen)
+    hrows, linkages = hierarchical_grid(D, chosen, trees)
+    del trees
     hbest, hlab, h_boot, h_ok = pick_hierarchical(hrows, linkages, D, scripts, rng, fixed)
     hmetric = hbest["metric"]
     print(f"[{fs}] hierarchical: {hbest['linkage']} k={hbest['k']} silhouette={hbest['silhouette']:.3f} "
@@ -430,7 +445,7 @@ def run_feature_set(fs, bundle, docs, rng, fixed=None) -> dict:
 
     extras = {"hdbscan": hdbscan_row(D[chosen], hlab),
               "within_script_silhouette": within_script_silhouette(D[hmetric], hlab, scripts),
-              "high_conf_refit": high_conf_refit(Z, conf, hbest["linkage"], hmetric, hbest["k"], hlab)}
+              "high_conf_refit": high_conf_refit(D[hmetric], conf, hbest["linkage"], hbest["k"], hlab)}
     print(f"[{fs}] extras: HDBSCAN {extras['hdbscan']['n_clusters']} clusters, "
           f"{extras['hdbscan']['noise_share']:.0%} noise; within-script silhouette "
           f"{extras['within_script_silhouette']['weighted_mean']}; high-confidence refit ARI "
@@ -485,6 +500,10 @@ def main() -> None:
     fit = bundle.get("fit", "all")
     train_sel = STUDY / "selection_train.json"
     fixed = json.loads(train_sel.read_text()) if fit == "all" and train_sel.exists() else None
+    if fixed and fixed.get("chosen") not in STUDY_SETS:
+        # never silently re-choose on all books (that would pick the setting using val/test books)
+        raise SystemExit(f"{train_sel} chose {fixed.get('chosen')!r}, which is not being studied {STUDY_SETS}; "
+                         "run features --fit train and study first")
     results = {}
     for fs in STUDY_SETS:
         if fs in bundle:

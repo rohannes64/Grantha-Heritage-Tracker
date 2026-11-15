@@ -1,0 +1,17 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.bengal.10689.10068",
+  "verdict": "fine",
+  "score": 0.2,
+  "reasons": [
+   "the topic model treats this book as noise (it matches no dense group)"
+  ],
+  "signals": {
+   "mean_conf": 62.31373725254949,
+   "text_source": "hocr",
+   "n_tokens": 4000,
+   "dbscan_noise": true
+  }
+ }
+}

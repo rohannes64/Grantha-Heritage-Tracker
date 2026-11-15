@@ -1,0 +1,20 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "atthefeetofbhagavanduncangreenless_202004_777_j",
+  "title": "At The Feet Of Bhagavan Duncan Greenless",
+  "creator": "Omprakash Vora",
+  "year": null,
+  "era": "undated",
+  "lang_tag": "eng",
+  "script": "Latin",
+  "mean_conf": 95.12879409351928,
+  "classification": null,
+  "total_pages": 115,
+  "text_source": "hocr",
+  "n_tokens": 4000,
+  "url": "https://archive.org/details/atthefeetofbhagavanduncangreenless_202004_777_j",
+  "hier": 2,
+  "dbscan": 0
+ }
+}
