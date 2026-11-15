@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grantha: presenter mode</title>
+<meta name="description" content="A full-screen walk-through of the Grantha study for a talk: the problem, the archive map, the results, a catalogue card, scan quality and editions.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="check.css">
+<link rel="stylesheet" href="present.css">
+</head>
+<body>
+<header class="slab">
+  <div class="container">
+    <a class="wordmark" href="./">Grantha</a>
+    <nav aria-label="Main"><ul>
+      <li><a href="check.html">Check a page</a></li>
+      <li><a href="browse.html">Browse groups</a></li>
+      <li><a href="galaxy.html">Archive map</a></li>
+      <li><a href="triage.html">Scan quality</a></li>
+      <li><a href="editions.html">Editions</a></li>
+      <li><a href="study.html">The study</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main class="deck" id="deck" aria-roledescription="slide deck" aria-label="The Grantha study, presented">
+  <p class="deck-help" id="deck-help">Presenter mode. With scripting on, arrow keys or the space bar move between slides and Escape leaves; without it, the slides read top to bottom.</p>
+
+  <section class="slide" id="s-problem" aria-labelledby="s-problem-h">
+    <div class="slide-body">
+      <h1 id="s-problem-h" tabindex="-1">What is inside the archive?</h1>
+      <p class="slide-lead" data-fill="problem-lead">The Digital Library of India holds scanned books in many Indian languages, and its catalogue rarely says what a book is about.</p>
+      <p class="slide-text">The archive’s own subject field turned out to record where a book was scanned, not its topic. So the study reads the pages and groups books by what they say.</p>
+      <div class="figures-row slide-figures" data-fill="problem-figures" hidden></div>
+    </div>
+  </section>
+
+  <section class="slide" id="s-map" aria-labelledby="s-map-h">
+    <div class="slide-body">
+      <h2 id="s-map-h" tabindex="-1">The archive as a map</h2>
+      <p class="slide-text">Every book is a point. Books whose pages read alike sit close together, whatever script they are printed in.</p>
+      <div class="map-slot" data-fill="map"><p><a class="btn" href="galaxy.html">Open the archive map</a></p></div>
+    </div>
+  </section>
+
+  <section class="slide" id="s-found" aria-labelledby="s-found-h">
+    <div class="slide-body">
+      <h2 id="s-found-h" tabindex="-1">What the study found</h2>
+      <p class="slide-lead" data-fill="found-lead">The targets were set before any result was seen. The results are on the study page.</p>
+      <div data-fill="found-table"><p><a href="study.html#results">Results at a glance</a></p></div>
+    </div>
+  </section>
+
+  <section class="slide" id="s-card" aria-labelledby="s-card-h">
+    <div class="slide-body">
+      <h2 id="s-card-h" tabindex="-1">A catalogue card for one page</h2>
+      <p class="slide-text">Give the app a page and it drafts a catalogue entry from the archive books the page sits closest to.</p>
+      <div data-fill="card"><p><a href="check.html">Check a page</a></p></div>
+    </div>
+  </section>
+
+  <section class="slide" id="s-triage" aria-labelledby="s-triage-h">
+    <div class="slide-body">
+      <h2 id="s-triage-h" tabindex="-1">Scan quality</h2>
+      <p class="slide-text">Some scans are too faint or damaged to read well. The scan-quality page sorts every book into fine, read the scan again, or scan the book again, and says why.</p>
+      <div data-fill="triage"></div>
+      <p class="mt-xl"><a class="btn" href="triage.html">Open scan quality</a></p>
+    </div>
+  </section>
+
+  <section class="slide" id="s-editions" aria-labelledby="s-editions-h">
+    <div class="slide-body">
+      <h2 id="s-editions-h" tabindex="-1">Editions</h2>
+      <p class="slide-text">The same text was often printed more than once. The editions page lists books that look like other editions of a book, with the title and author match behind each one.</p>
+      <div data-fill="editions"></div>
+      <p class="mt-xl"><a class="btn" href="editions.html">Open editions</a></p>
+    </div>
+  </section>
+
+  <section class="slide" id="s-end" aria-labelledby="s-end-h">
+    <div class="slide-body">
+      <h2 id="s-end-h" tabindex="-1">Try it</h2>
+      <p class="slide-text">Everything shown here is live on this site, and every figure comes from the study’s own result files.</p>
+      <ul class="end-links">
+        <li><a class="btn btn--primary" href="check.html">Check a page</a></li>
+        <li><a class="btn" href="browse.html">Browse groups</a></li>
+        <li><a class="btn" href="study.html">Read the study</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <nav class="deck-bar" aria-label="Slides" hidden>
+    <button class="deck-btn" type="button" id="deck-prev">Previous</button>
+    <p class="deck-count" id="deck-count"></p>
+    <button class="deck-btn" type="button" id="deck-next">Next</button>
+    <span class="deck-spacer"></span>
+    <button class="deck-btn" type="button" id="deck-full">Full screen</button>
+    <a class="deck-btn" id="deck-leave" href="study.html">Leave</a>
+  </nav>
+</main>
+<script type="module" src="js/present.js"></script>
+</body>
+</html>

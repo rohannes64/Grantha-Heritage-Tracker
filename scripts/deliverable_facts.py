@@ -1,6 +1,8 @@
 """Every number the deck, viva guide and notes quote, gathered from the pipeline's result files.
 
-Writes reports/deliverable_facts.json. The deliverable builders (scratch/build_hallmark_presentation_v2.py,
+Writes reports/deliverable_facts.json and an identical copy at web/data/facts.json (the site's results panel and
+presenter mode read the copy). Feature evaluations in reports/features/*.json are included under "features" when
+present, keyed by file name. The deliverable builders (scratch/build_hallmark_presentation_v2.py,
 scratch/generate_viva_guide_pdf.py) read only this file, so a number cannot appear in a deliverable
 unless a result file holds it. Run on the machine that has data/ (after the protocol run):
 
@@ -44,6 +46,11 @@ def evaluation(path: Path) -> dict:
                                    "points_above_best_baseline", "permutation_p", "labelled_train", "labelled_heldout",
                                    "accuracy_groups_ci95", "points_above_best_baseline_ci95", "group_to_subject",
                                    "books_with_a_code", "books_mapped", "note")}}
+
+
+def features(folder: Path) -> dict:
+    """Each feature evaluation (reports/features/<name>.json) under its name, e.g. {"suggest": {...}}."""
+    return {f.stem: load(f) for f in sorted(folder.glob("*.json"))} if folder.is_dir() else {}
 
 
 def group_profiles(res: dict, docs: pd.DataFrame, g2s: dict, ids: list[str]) -> list[dict]:
@@ -112,9 +119,14 @@ def main() -> None:
         facts["comparison_study"] = {"feature_set": csel["chosen"], "selection": csel,
                                      "test": evaluation(c / "eval" / "evaluation_test.json"),
                                      "val": evaluation(c / "eval" / "evaluation_val.json")}
-    out = rep / "deliverable_facts.json"
-    out.write_text(json.dumps(facts, indent=2, default=float), encoding="utf-8")
-    print(f"wrote {out}")
+    feats = features(rep / "features")
+    if feats:
+        facts["features"] = feats
+    text = json.dumps(facts, indent=2, default=float)
+    for out in (rep / "deliverable_facts.json", BASE / "web" / "data" / "facts.json"):
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+        print(f"wrote {out}")
 
 
 if __name__ == "__main__":

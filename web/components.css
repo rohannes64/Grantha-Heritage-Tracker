@@ -16,13 +16,21 @@ a { text-decoration-color: var(--color-rule); }
 .slab { position: sticky; top: 0; z-index: var(--z-sticky-nav); background: var(--color-paper-3); border-bottom: var(--rule-hair) solid var(--color-rule); }
 .slab .container { display: flex; align-items: center; justify-content: space-between; gap: var(--space-lg); min-height: 72px; }
 .wordmark { font-family: var(--font-display); font-weight: 400; font-size: var(--text-xl); text-transform: uppercase; text-decoration: none; white-space: nowrap; }
-.slab nav ul { display: flex; gap: var(--space-lg); margin: 0; padding: 0; list-style: none; }
+.slab nav ul { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0 var(--space-lg); margin: 0; padding: 0; list-style: none; }
 .slab nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--text-sm); color: var(--color-ink-2); text-decoration: none; white-space: nowrap; }
 .slab nav a:hover { color: var(--color-ink); }
 .slab nav a[aria-current="page"] { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-accent); text-underline-offset: 0.4em; }
-@media (max-width: 48rem) {
+/* seven links: between tablet and laptop widths they tighten, then wrap under the wordmark;
+   on a phone the header stops being sticky so three rows of links never cover the page */
+@media (max-width: 80rem) { .slab nav ul { gap: 0 var(--space-md); } }
+@media (max-width: 64rem) {
   .slab .container { flex-wrap: wrap; min-height: 0; padding-block: var(--space-xs); gap: 0 var(--space-md); }
-  .slab nav ul { gap: var(--space-md); flex-wrap: wrap; }
+  .slab nav { flex-basis: 100%; }
+  .slab nav ul { justify-content: flex-start; }
+}
+@media (max-width: 40rem) {
+  .slab { position: static; }
+  .slab nav ul { gap: 0 var(--space-md); }
 }
 
 /* ---------- controls (eight states) ---------- */
@@ -121,6 +129,39 @@ details.more > .more-body { padding: 0 0 var(--space-xl); display: grid; gap: va
 /* inline bars inside tables (single series) */
 .hbar { display: block; height: 8px; background: var(--color-rule); min-width: 2px; }
 .hbar > i { display: block; height: 100%; background: var(--color-accent); }
+
+/* result figure (study results panel, presenter): bars on one none-to-all scale, whisker = interval, dashed = aim */
+.rf { display: grid; gap: var(--space-md); align-content: start; min-width: 0; }
+.rf-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-xs) var(--space-md); }
+.rf-head h3 { font-size: var(--text-title); }
+.rf-status { font-size: var(--text-sm); padding: var(--space-3xs) var(--space-xs); border: var(--rule-hair) solid var(--color-rule); white-space: nowrap; }
+.rf-status--met { color: var(--color-success); border-color: var(--color-success); }
+.rf-status--miss { color: var(--color-error); border-color: var(--color-error); }
+.rf-status--none { color: var(--color-muted); }
+.rf-figure { display: grid; gap: var(--space-3xs); }
+.rf-figure .figure { font-size: clamp(2.5rem, 2.5vw + 1.25rem, 4rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.rf-rows { margin: 0; padding: 0; list-style: none; display: grid; border-top: var(--rule-hair) solid var(--color-rule); }
+.rf-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 6ch; gap: var(--space-xs) var(--space-md); align-items: center; padding: var(--space-sm) 0; border-bottom: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); color: var(--color-ink-2); }
+.rf-row.is-main { color: var(--color-ink); }
+.rf-label { display: grid; gap: var(--space-3xs); min-width: 0; overflow-wrap: break-word; }
+.rf-ci-text { color: var(--color-muted); font-size: var(--text-xs); }
+.rf-value { text-align: right; font-variant-numeric: tabular-nums; }
+.rf-track { position: relative; display: block; height: 14px; background: var(--color-paper-3); }
+.rf-bar { position: absolute; inset-block: 0; inset-inline-start: 0; width: calc(var(--x) * 100%); background: var(--color-muted); opacity: 0.6; }
+.rf-row.is-main .rf-bar { background: var(--color-accent); opacity: 1; }
+.rf-ci { position: absolute; top: 50%; height: 2px; margin-top: -1px; inset-inline-start: calc(var(--lo) * 100%); width: calc((var(--hi) - var(--lo)) * 100%); min-width: 2px; background: var(--color-ink); }
+.rf-ci::before, .rf-ci::after { content: ""; position: absolute; top: -6px; width: 2px; height: 14px; background: var(--color-ink); }
+.rf-ci::before { inset-inline-start: -1px; } .rf-ci::after { inset-inline-end: -1px; }
+.rf-aim { position: absolute; top: calc(-1 * var(--space-xs)); bottom: calc(-1 * var(--space-xs)); inset-inline-start: calc(var(--x) * 100%); border-inline-start: 2px dashed var(--color-ink); }
+.rf-legend { margin-top: 0; }
+.sw--whisker { height: 10px; width: 18px; background: linear-gradient(var(--color-ink), var(--color-ink)) center / 100% 2px no-repeat, linear-gradient(var(--color-ink), var(--color-ink)) left / 2px 100% no-repeat, linear-gradient(var(--color-ink), var(--color-ink)) right / 2px 100% no-repeat; }
+.sw--aim { width: 0; height: 14px; background: none; border-inline-start: 2px dashed var(--color-ink); }
+.rf-meaning { color: var(--color-ink-2); max-width: 62ch; }
+@media (max-width: 40rem) {
+  .rf-row { grid-template-columns: minmax(0, 1fr) 6ch; }
+  .rf-label { grid-column: 1 / -1; }
+}
+.results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--space-2xl) var(--gap-columns); margin-top: var(--space-xl); }
 
 /* states */
 .skeleton { background: var(--color-paper-3); min-height: 1.2em; }

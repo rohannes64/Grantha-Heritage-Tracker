@@ -170,3 +170,128 @@ export function setParam(k, v) {
   if (v == null) p.delete(k); else p.set(k, v);
   history.replaceState(null, "", `${location.pathname}${p.toString() ? "?" + p : ""}${location.hash}`);
 }
+
+// ---------- headline results (web/data/facts.json, a copy of reports/deliverable_facts.json)
+
+// The evaluation's intervals are the central 95% of its bootstrap (pipeline/evaluate.py, interval()).
+export const CI_LEVEL = 95;
+const ci = (v) => (Array.isArray(v) && v.length === 2 && v[0] != null && v[1] != null ? v : null);
+const pct = (x) => fmt.p(x);
+const dec = (x) => fmt.f(x, 2);
+const COIN_TOSS_AUC = 0.5;
+const signed = (x, d) => fmt.f(x, d).replace(/^-/, "−");   // a true minus sign
+
+/** The study's headline results and the feature evaluations, each with what it is compared against.
+ *  Returns [{id, title, meaning, scale, show, rows: [{label, x, ci, main}], aim, met, extra, measured}];
+ *  a result the facts do not hold is left out. */
+export function headlineResults(facts) {
+  const out = [];
+  const evs = (facts && facts.evaluation) || {};
+  const ev = evs.test || evs.val;
+  const split = evs.test ? "test" : "validation";
+  if (ev) {
+    const T = ev.targets || {}, met = ev.met || {};
+    if (ev.t2_accuracy != null) {
+      const best = Math.max(ev.t2_baseline_common ?? 0, ev.t2_baseline_script ?? 0);
+      const aim = T.T2_points_above_baseline != null ? best + T.T2_points_above_baseline / 100 : null;
+      const pci = ci(ev.t2_points_ci95);
+      out.push({ id: "subject", title: "Guessing a book's subject", show: pct, scale: "share",
+        meaning: "Each group is given the subject most of its training books have. A book the model never saw is then given the subject of the group it lands in. The two simple guesses use no grouping at all; the study's guess has to beat the better of them by a margin set in advance.",
+        rows: [{ label: "The study's guess", x: ev.t2_accuracy, ci: ci(ev.t2_accuracy_ci95), main: true },
+          { label: "Always the most common subject", x: ev.t2_baseline_common },
+          { label: "The most common subject of the book's script", x: ev.t2_baseline_script }],
+        aim: aim == null ? null : { x: aim, label: `aim: ${pct(aim)}, the better simple guess plus ${fmt.f(T.T2_points_above_baseline, 0)} points` },
+        met: met.T2 ?? null,
+        extra: ev.t2_points != null ? `${signed(ev.t2_points, 1)} points above the better simple guess${pci ? ` (${CI_LEVEL}% interval ${signed(pci[0], 1)} to ${signed(pci[1], 1)})` : ""}.` : null,
+        measured: ev.t2_labelled_heldout != null ? `Tested on ${fmt.n(ev.t2_labelled_heldout)} labelled ${split} books.` : null });
+    }
+    if (ev.t1_agreement != null) {
+      out.push({ id: "page", title: "One page finds its own book's group", show: pct, scale: "share",
+        meaning: "A single page from a book the model never saw is checked exactly as an upload would be. It counts as right when the page lands in the same group as its whole book. Chance is what placing pages at random, in groups of these sizes, would score.",
+        rows: [{ label: "Pages placed with their own book", x: ev.t1_agreement, ci: ci(ev.t1_agreement_ci95), main: true },
+          { label: "Chance", x: ev.t1_chance }],
+        aim: T.T1_page_agreement != null ? { x: T.T1_page_agreement, label: `aim: ${pct(T.T1_page_agreement)}` } : null,
+        met: met.T1 ?? null,
+        extra: ev.t1_abstain_rate != null ? `${pct(ev.t1_abstain_rate)} of pages had too little text and were declined, as the app would.` : null,
+        measured: ev.held_out_books != null ? `Pages from ${fmt.n(ev.held_out_books)} ${split} books.` : null });
+    }
+    if (ev.t3_bootstrap != null) {
+      out.push({ id: "stability", title: "The groups come back when the books change", show: dec, scale: "score",
+        meaning: "The grouping is rerun on random samples of the books, and each new grouping is compared with the original using the adjusted Rand index: zero is what chance gives, one means exactly the same groups. A high score means the groups belong to the books, not to one lucky run.",
+        rows: [{ label: "Agreement between reruns (median)", x: ev.t3_bootstrap, main: true }],
+        aim: T.T3_bootstrap_ari != null ? { x: T.T3_bootstrap_ari, label: `aim: ${dec(T.T3_bootstrap_ari)}` } : null,
+        met: met.T3 ?? null, extra: "No interval is recorded for this result.",
+        measured: "Measured on the training books." });
+    }
+  }
+  const f = (facts && facts.features) || {};
+  const s = f.suggest;
+  if (s && s.top1 != null) {
+    out.push({ id: "suggest", title: "Suggesting a catalogue class", show: pct, scale: "share",
+      meaning: "For a book the model never saw, the nearest books that carry a catalogue class vote on its class, the closer ones counting more. The simple guess always names the most common class.",
+      rows: [{ label: "Right class suggested first", x: s.top1, ci: ci(s.top1_ci95), main: true },
+        { label: "Right class among the suggestions", x: s.top3, ci: ci(s.top3_ci95) },
+        { label: "Always the most common class", x: s.baseline_most_common }],
+      aim: null, met: null, measured: s.heldout_books != null ? `Tested on ${fmt.n(s.heldout_books)} held-out books that carry a class.` : null });
+  }
+  const e = f.editions;
+  if (e && (e.precision != null || e.recall != null)) {
+    out.push({ id: "editions", title: "Finding other editions of a book", show: pct, scale: "share",
+      meaning: "Books with the same title and author are taken as editions of one text. The first bar is the share of suggested editions that really are one; the second is the share of real editions that get suggested.",
+      rows: [{ label: "Suggestions that are real editions", x: e.precision, ci: ci(e.precision_ci95), main: true },
+        { label: "Real editions that are found", x: e.recall, ci: ci(e.recall_ci95) }],
+      aim: null, met: null, measured: e.heldout_books != null ? `Tested on ${fmt.n(e.heldout_books)} held-out books${e.groups_heldout != null ? `, of which only ${fmt.n(e.groups_heldout)} title-and-author groups have more than one edition, so the intervals are wide` : ""}.` : null });
+  }
+  const t = f.triage;
+  if (t) {
+    out.push({ id: "triage", title: "Spotting books with poor scans", show: dec, scale: "score",
+      meaning: "The scan-quality rule gives every book a score. It is tested on books where our reading of the page can be compared with the archive's own reading. The score shown is the chance that a badly read book is rated worse than a well read one, so a coin toss would sit at one half.",
+      // a coin toss scores one half on this measure by definition (no file holds it; it is not a result)
+      rows: t.auc != null ? [{ label: "The scan-quality rule", x: t.auc, ci: ci(t.auc_ci95), main: true }, { label: "A coin toss", x: COIN_TOSS_AUC }] : [],
+      aim: null, met: null, empty: t.auc == null ? "Not measured yet: too few books have both readings." : null,
+      measured: t.books != null ? `Tested on ${fmt.n(t.books)} books with both readings.` : null });
+  }
+  const r = f.related;
+  if (r && r.knn_other_script_share) {
+    const k = r.knn_other_script_share;
+    out.push({ id: "related", title: "Related books in other scripts", show: pct, scale: "share",
+      meaning: "Of each book's nearest neighbours, the share written in a different script. Removing each language's average position is what lets a book find neighbours in other scripts at all.",
+      rows: [{ label: "With each language's average removed", x: k.centred, main: true },
+        { label: "As the encoder gives them", x: k.uncentred }],
+      aim: null, met: null, measured: r.books != null ? `Measured on ${fmt.n(r.books)} training books, ${fmt.n(r.k)} neighbours each.` : null });
+  }
+  return out;
+}
+
+const clamp01 = (x) => Math.max(0, Math.min(1, Number(x) || 0));
+
+/** One result as a labelled bar chart: a bar per row, a whisker for its interval, a dashed line for the aim.
+ *  Every value is printed beside its bar, so the bars themselves are hidden from screen readers. */
+export function resultFigure(r0, { headingLevel = "h3", variant = null } = {}) {
+  // rows without a value are left out, except the main one, which then reads "n/a"
+  const r = { ...r0, rows: r0.rows.filter((x) => x.main || x.x != null) };
+  const head = `${r.id}-result-h`;
+  const status = r.met === true ? ["Target met", "rf-status--met"] : r.met === false ? ["Target not met", "rf-status--miss"]
+    : [r.aim ? "Not judged against its target" : "No target was set in advance", "rf-status--none"];
+  const main = r.rows.find((x) => x.main) || r.rows[0];
+  const row = (x) => el("li", { class: x.main ? "rf-row is-main" : "rf-row" },
+    el("span", { class: "rf-label" }, x.label,
+      x.ci ? el("span", { class: "rf-ci-text", text: `${CI_LEVEL}% interval ${r.show(x.ci[0])} to ${r.show(x.ci[1])}` }) : null),
+    el("span", { class: "rf-track", "aria-hidden": "true" },
+      el("i", { class: "rf-bar", style: `--x:${clamp01(x.x)}` }),
+      x.ci ? el("i", { class: "rf-ci", style: `--lo:${clamp01(x.ci[0])};--hi:${clamp01(x.ci[1])}` }) : null,
+      r.aim ? el("i", { class: "rf-aim", style: `--x:${clamp01(r.aim.x)}` }) : null),
+    el("span", { class: "rf-value", text: x.x == null ? "n/a" : r.show(x.x) }));
+  return el("article", { class: variant ? `rf rf--${variant}` : "rf", "aria-labelledby": head },
+    el("div", { class: "rf-head" },
+      el(headingLevel, { id: head, text: r.title }),
+      el("p", { class: `rf-status ${status[1]}`, text: status[0] })),
+    main && main.x != null ? el("p", { class: "rf-figure" }, el("span", { class: "figure", text: r.show(main.x) }), el("span", { class: "small muted", text: main.label })) : null,
+    r.rows.length ? el("ul", { class: "rf-rows" }, r.rows.map(row)) : el("p", { class: "ink-2", text: r.empty || "Not measured yet." }),
+    r.rows.length ? el("ul", { class: "legend rf-legend" },
+      el("li", {}, el("span", { class: "sw sw--accent" }), r.scale === "share" ? "each bar runs from none to all" : "each bar runs from zero to one"),
+      r.rows.some((x) => x.ci) ? el("li", {}, el("span", { class: "sw sw--whisker" }), `${CI_LEVEL}% interval`) : null,
+      r.aim ? el("li", {}, el("span", { class: "sw sw--aim" }), r.aim.label) : null) : null,
+    el("p", { class: "rf-meaning", text: r.meaning }),
+    r.extra || r.measured ? el("p", { class: "small muted", text: [r.extra, r.measured].filter(Boolean).join(" ") }) : null);
+}

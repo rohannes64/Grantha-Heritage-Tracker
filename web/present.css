@@ -1,0 +1,84 @@
+/* Hallmark · shape: app screen, presenter mode · genre: atmospheric · theme: Darkroom (deal 1/3, carried from app.css) · scope: app · screen: full-screen slides (problem, map, results, catalogue card, scan quality, editions) · nav: slab, hidden while presenting · footer: none, a slide bar instead · posture: restrained · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: V, the slides reuse the site's result figures and catalogue card rather than inventing a stage look; scale and one idea per slide carry it on a projector */
+
+/* Without scripting: the slides read as one page, top to bottom. */
+.deck { display: block; }
+.deck-help { margin: 0; padding: var(--space-md) var(--gutter); color: var(--color-muted); font-size: var(--text-sm); }
+.slide { padding: var(--space-2xl) var(--gutter); border-top: var(--rule-hair) solid var(--color-rule); }
+.slide-body { width: 100%; max-width: 1600px; margin-inline: auto; display: grid; gap: var(--space-lg); align-content: start; min-width: 0; }
+.slide h1 { font-size: clamp(3rem, 2vw + 2.5rem, 5rem); max-width: 30ch; }
+.slide h2 { font-size: clamp(2.25rem, 1.5vw + 1.5rem, 3.5rem); max-width: 32ch; }
+.slide h1, .slide h2 { overflow-wrap: break-word; min-width: 0; }
+.slide [tabindex="-1"]:focus { outline: none; }
+.slide-lead { font-size: clamp(1.25rem, 0.5vw + 1rem, 1.625rem); line-height: 1.4; max-width: 44ch; color: var(--color-ink); }
+.slide-text { font-size: clamp(1.125rem, 0.25vw + 1rem, 1.375rem); line-height: 1.5; max-width: 52ch; color: var(--color-ink-2); }
+.slide-figures { margin-top: var(--space-lg); }
+.slide-figures .figure { font-size: clamp(2.75rem, 1.5vw + 2rem, 4.5rem); font-variant-numeric: tabular-nums; }
+.slide-figures .small { font-size: var(--text-md); }
+.end-links { display: flex; flex-wrap: wrap; gap: var(--space-md); margin: var(--space-lg) 0 0; padding: 0; list-style: none; }
+
+/* With scripting: one slide fills the screen, the bar sits below it. Type grows with the screen for a projector. */
+html.deck-on { font-size: clamp(100%, min(1.3vw, 2.25vh), 170%); }
+.deck-on .slab { display: none; }
+.deck-on .deck { padding: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; height: 100vh; height: 100dvh; }
+.deck-on .deck-help { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.deck-on .slide { grid-row: 1; display: grid; align-items: center; min-height: 0; overflow-y: auto; border-top: 0; padding: var(--space-xl) var(--gutter); }
+.deck-on .slide.is-current { animation: slide-in var(--dur-long) var(--ease-out); }
+@keyframes slide-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .deck-on .slide.is-current { animation: none; } }
+
+.deck-bar { grid-row: 2; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-md); padding: var(--space-xs) var(--gutter); background: var(--color-paper-3); border-top: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); }
+.deck-count { min-width: 7ch; text-align: center; color: var(--color-ink-2); font-variant-numeric: tabular-nums; }
+.deck-spacer { flex: 1 1 0; }
+.deck-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-md); border: var(--rule-hair) solid var(--color-rule); background: transparent; color: var(--color-ink); font: inherit; text-decoration: none; cursor: pointer; transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+.deck-btn:hover { background: var(--color-paper-2); }
+.deck-btn:active { transform: translateY(1px); }
+.deck-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.deck-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+@media (max-width: 40rem) { .deck-spacer { display: none; } }
+
+/* the archive map, embedded */
+.map-slot { min-width: 0; }
+.map-frame { display: block; width: 100%; height: min(62vh, 760px); border: var(--rule-hair) solid var(--color-rule); background: var(--color-paper-2); }
+
+/* results */
+.deck .rf { gap: var(--space-lg); }
+.deck .rf-figure .figure { font-size: clamp(3rem, 1.5vw + 2.25rem, 5rem); font-variant-numeric: tabular-nums; }
+.deck .rf-row { font-size: var(--text-md); padding-block: var(--space-md); }
+.deck .rf-ci-text { font-size: var(--text-sm); }
+.deck .rf-track { height: 22px; }
+.deck .rf-meaning { font-size: var(--text-lg); line-height: 1.5; max-width: 60ch; }
+.deck .rf-status { font-size: var(--text-md); }
+/* one result per slide: words on the left, bars on the right, so it fits one screen */
+@media (min-width: 64rem) {
+  .rf--slide, .rf--brief { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); column-gap: var(--space-2xl); grid-auto-flow: row dense; align-items: start; }
+  .rf--slide > *, .rf--brief > * { grid-column: 1; }
+  .rf--slide > .rf-rows, .rf--brief > .rf-rows { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+  .rf--slide > .rf-legend, .rf--brief > .rf-legend { grid-column: 2; grid-row: 4; }
+  .rf--slide .rf-meaning { font-size: var(--text-md); }
+}
+.rf--brief .rf-meaning { display: none; }
+table.found { font-size: var(--text-lg); }
+table.found th[scope="row"] { color: var(--color-ink); font-weight: 400; vertical-align: top; padding-block: var(--space-md); }
+table.found td { padding-block: var(--space-md); }
+table.found .met { color: var(--color-success); }
+table.found .miss { color: var(--color-error); }
+
+/* the catalogue card, two columns on a wide screen */
+.present-card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: dense; gap: var(--space-2xl); align-items: start; }
+.present-card-sheet { grid-column: 2; }
+.present-card-side { grid-column: 1; grid-row: 1; display: grid; gap: var(--space-xl); min-width: 0; }
+.deck .present-card { padding: var(--space-lg) var(--space-xl); }
+.deck .present-card .figure { font-size: clamp(2rem, 1vw + 1.25rem, 3rem); font-variant-numeric: tabular-nums; }
+.deck .present-card .classes li, .deck .present-card .sheet > div { padding-block: var(--space-xs); }
+.deck .present-card-side { gap: var(--space-md); }
+#s-card .slide-text { max-width: 70ch; }
+@media (max-width: 64rem) { .present-card { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); } .present-card-sheet, .present-card-side { grid-column: 1; grid-row: auto; } .present-card-side { order: -1; } }
+
+/* short screens (a 720-line projector): tighter slides; the card slide's heading carries its sentence */
+@media (max-height: 50rem) and (min-width: 40rem) {
+  .deck-on .slide { padding-block: var(--space-lg); }
+  .slide-body { gap: var(--space-md); }
+  .deck-on #s-card .slide-text { display: none; }
+  .deck .present-card { gap: var(--space-lg); padding-block: var(--space-md); }
+}
