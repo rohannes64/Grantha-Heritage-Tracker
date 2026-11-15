@@ -167,6 +167,9 @@ run, and `scripts/deploy_vm.sh` ships the committed code to the VM and smoke-tes
   deployments to the run summary (`scripts/dora_metrics.py`). It runs in the `production` environment, so a
   reviewer approves each deploy. One-time setup: `scripts/setup_github_deploy.sh`, then the repository
   variables it prints; until they are set, the deploy workflow skips itself.
+- The live app currently runs on a home server whose poller pulls `main`; it deploys only commits whose CI
+  passed and records each deploy for the DORA metrics (see `docs/ops/home-server-cd.md`). `deploy.yml` is
+  for a GCE VM and stays inactive while its variables are unset.
 - Dependabot opens weekly update pull requests for pip packages, actions and Docker base images.
 
 ## Limits
