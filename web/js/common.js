@@ -295,3 +295,52 @@ export function resultFigure(r0, { headingLevel = "h3", variant = null } = {}) {
     el("p", { class: "rf-meaning", text: r.meaning }),
     r.extra || r.measured ? el("p", { class: "small muted", text: [r.extra, r.measured].filter(Boolean).join(" ") }) : null);
 }
+
+// ---- shared shell chrome: semi-light / darkroom toggle + GPU reading progress
+(function initShellChrome() {
+  const KEY = "grantha-theme";
+  const apply = (mode) => {
+    if (mode === "dark") document.documentElement.dataset.theme = "dark";
+    else delete document.documentElement.dataset.theme;
+  };
+  let saved = null;
+  try { saved = localStorage.getItem(KEY); } catch {}
+  apply(saved);
+
+  const mount = () => {
+    const slab = document.querySelector(".slab");
+    const box = slab && slab.querySelector(".container");
+    if (!slab || !box) return;
+    if (!slab.querySelector("#theme-toggle")) {
+      const btn = el("button", {
+        type: "button",
+        id: "theme-toggle",
+        class: "theme-toggle",
+        "aria-pressed": String(saved === "dark"),
+        text: saved === "dark" ? "Semi-light" : "Darkroom",
+        onclick: () => {
+          const dark = document.documentElement.dataset.theme !== "dark";
+          apply(dark ? "dark" : "light");
+          try { localStorage.setItem(KEY, dark ? "dark" : "light"); } catch {}
+          btn.setAttribute("aria-pressed", String(dark));
+          btn.textContent = dark ? "Semi-light" : "Darkroom";
+        },
+      });
+      box.append(btn);
+    }
+    if (!slab.querySelector(".read-progress")) {
+      const bar = el("span", { class: "read-progress", "aria-hidden": "true" });
+      slab.append(bar);
+      const update = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const p = max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;
+        bar.style.transform = `scaleX(${p.toFixed(4)})`;
+      };
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update, { passive: true });
+      update();
+    }
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
+  else mount();
+})();

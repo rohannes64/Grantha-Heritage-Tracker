@@ -2,6 +2,16 @@ import { getJSON, el, esc, fmt, scatter, lines, dendrogram, hbar, LANG, params, 
 
 // Results at a glance: the headline figures for the model behind the app, from data/facts.json
 // (written by scripts/deliverable_facts.py), drawn on their own so the rest of the page never waits for them.
+const toggleAllBtn = document.getElementById("toggle-all-details");
+if (toggleAllBtn) {
+  toggleAllBtn.addEventListener("click", () => {
+    const open = toggleAllBtn.getAttribute("aria-pressed") !== "true";
+    for (const d of document.querySelectorAll("#study details.more")) d.open = open;
+    toggleAllBtn.setAttribute("aria-pressed", String(open));
+    toggleAllBtn.textContent = open ? "Collapse all details" : "Expand all details";
+  });
+}
+
 const resultsBody = document.getElementById("results-body");
 getJSON("data/facts.json").then((facts) => {
   const all = headlineResults(facts);

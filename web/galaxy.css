@@ -15,10 +15,10 @@
   --grp-0: oklch(82% 0.15 80);
   --grp-1: oklch(72% 0.16 225);
   --grp-2: oklch(72% 0.19 345);
-  --gx-field: var(--color-paper);
-  --gx-axis: var(--color-muted);
-  --gx-pick: var(--color-ink);
-  --gx-link: var(--color-ink-2);
+  --gx-field: oklch(16% 0.01 55);
+  --gx-axis: oklch(64% 0.012 65);
+  --gx-pick: oklch(94% 0.01 75);
+  --gx-link: oklch(82% 0.012 75);
 }
 
 /* the view switch and the sentence that says what it shows */
@@ -39,12 +39,12 @@
 .gx-gl canvas { display: block; width: 100%; height: 100%; }
 .gx-gl:focus { outline: none; }
 .gx-gl:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
-.gx-status { position: absolute; inset: auto var(--space-lg) var(--space-lg) var(--space-lg); color: var(--color-ink-2); max-width: 48ch; pointer-events: none; }
+.gx-status { position: absolute; inset: auto var(--space-lg) var(--space-lg) var(--space-lg); color: var(--gx-link); max-width: 48ch; pointer-events: none; }
 .gx-status a { pointer-events: auto; }
-.gx-status.is-error { inset: var(--space-lg); display: grid; align-content: center; gap: var(--space-sm); color: var(--color-ink); font-size: var(--text-lead); }
+.gx-status.is-error { inset: var(--space-lg); display: grid; align-content: center; gap: var(--space-sm); color: var(--gx-pick); font-size: var(--text-lead); }
 
 .gx-axis-labels { position: absolute; inset: 0; pointer-events: none; }
-.gx-axis-labels span { position: absolute; left: 0; top: 0; padding: var(--space-3xs) var(--space-2xs); font-size: var(--text-sm); color: var(--color-ink-2); background: color-mix(in oklab, var(--gx-field) 70%, transparent); white-space: nowrap; will-change: transform; }
+.gx-axis-labels span { position: absolute; left: 0; top: 0; padding: var(--space-3xs) var(--space-2xs); font-size: var(--text-sm); color: var(--gx-link); background: color-mix(in oklab, var(--gx-field) 70%, transparent); white-space: nowrap; will-change: transform; }
 
 .gx-caption { display: grid; gap: var(--space-xs); }
 .gx-axes { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2xs) var(--space-lg); color: var(--color-ink-2); font-size: var(--text-sm); }

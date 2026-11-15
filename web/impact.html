@@ -61,6 +61,7 @@
       </div>
       <figure class="impact-video">
         <video src="assets/impact-centring.mp4" poster="assets/impact-centring.jpg" autoplay loop muted playsinline controls preload="metadata" aria-label="Animation showing per-language centring merging eight isolated language clusters into cross-script topic groups"></video>
+        <div class="video-controls" aria-label="Animation playback controls"></div>
         <figcaption>Rendered with raea · Per-language centring aligns books by subject instead of script.</figcaption>
       </figure>
     </div>
@@ -70,6 +71,7 @@
     <div class="impact-grid">
       <figure class="impact-video">
         <video src="assets/impact-triage.mp4" poster="assets/impact-triage.jpg" autoplay loop muted playsinline controls preload="metadata" aria-label="Animation showing single-page OCR orientation detection, weak-OCR abstention, and topic matching"></video>
+        <div class="video-controls" aria-label="Animation playback controls"></div>
         <figcaption>Rendered with raea · Single-page OCR routing with a 20-token weak-scan safety gate.</figcaption>
       </figure>
       <div class="impact-copy">
@@ -106,8 +108,20 @@
       </div>
       <figure class="impact-video">
         <video src="assets/impact-archivist.mp4" poster="assets/impact-archivist.jpg" autoplay loop muted playsinline controls preload="metadata" aria-label="Animation showing archivist workbench accuracy metrics for Top-3 class suggestion and edition detection"></video>
+        <div class="video-controls" aria-label="Animation playback controls"></div>
         <figcaption>Rendered with raea · Held-out archivist workbench benchmarks (Vertex AI feature set V).</figcaption>
       </figure>
+    </div>
+  </section>
+
+  <section class="study-section" id="lang-explorer" aria-labelledby="exp-title">
+    <h2 id="exp-title">Interactive corpus explorer</h2>
+    <p class="summary">Select a language to inspect its usable sample, OCR confidence and topic-group balance from the study data.</p>
+    <div class="explorer-box mt-lg">
+      <div class="chip-bar" id="lang-chips" role="group" aria-label="Choose a language"></div>
+      <dl class="sheet" id="lang-sheet" aria-live="polite">
+        <div><dt>Status</dt><dd>Loading corpus statistics…</dd></div>
+      </dl>
     </div>
   </section>
 </main>
@@ -122,5 +136,6 @@
     </div>
   </div>
 </footer>
+<script type="module" src="js/impact.js"></script>
 </body>
 </html>

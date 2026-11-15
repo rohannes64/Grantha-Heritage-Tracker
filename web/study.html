@@ -40,7 +40,11 @@
     <h2 id="results-h">Results at a glance</h2>
     <p class="summary">What the study set out to show, and whether it did. Each result sits beside the simple guess it has to beat; the targets were fixed before any result was seen, and a missed target is shown as missed. Where an interval is recorded, the thin line across a bar is the range the result would likely fall in on another sample of books.</p>
     <div id="results-body"><p class="ink-2 mt-lg">Loading the results.</p><noscript><p class="mt-lg">The results are drawn with JavaScript. The raw figures are in <a href="data/facts.json">data/facts.json</a>.</p></noscript></div>
-    <p class="mt-xl"><a class="btn" href="present.html">Present the study</a></p>
+    <div class="study-tools">
+      <a class="btn btn--primary" href="present.html">Present the study</a>
+      <a class="btn" href="grantha-reproducibility.pdf">Download PDF guide</a>
+      <button type="button" class="chip" id="toggle-all-details" aria-pressed="false">Expand all details</button>
+    </div>
   </section>
   <div class="toolbar">
     <fieldset class="seg" id="fs">
