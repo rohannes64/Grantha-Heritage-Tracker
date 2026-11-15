@@ -3,7 +3,7 @@
 # the website, and the chosen sentence-embedding model if it runs locally. No page scans are included.
 # With the Gemini encoder (feature set G) a check needs internet and GEMINI_API_KEY, which docker compose
 # passes in at run time from .env (.env is in .dockerignore, so it never enters the image).
-FROM python:3.12-slim-bookworm
+FROM python:3.15-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
