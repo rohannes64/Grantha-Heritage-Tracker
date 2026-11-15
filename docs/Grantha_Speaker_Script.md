@@ -174,9 +174,65 @@ The number on the left is our test of exactly this. We took one page from each t
 
 On the right is a real check of a Tamil page. The app shows the closest archive books, with links, so the archivist can see why it decided. It also says when it is unsure: here DBSCAN says the page is not in any crowded region, and the app shows that too. When a page has fewer than 20 readable words, it refuses to guess.
 
-## Slide 14: What it does not do yet
+## Slide 14: On the archive map, English books sit apart until centring mixes them in
 
 [ETIKALA SAI PRANAV - SLIDE 14]
+
+This is the picture behind our main finding, and it is a page of the site: the archive map.
+
+Each dot is one book, placed by the numbers the model gives its text, flattened to two directions. The red dots are English books; the grey dots are every other language.
+
+On the left, the numbers as the model gives them: the English books sit in their own corner. On the right, after we subtract each language's average: the same books sit among the others, so a book's neighbours can come from any script.
+
+The slide shows a sample of the 13,358 books. On the site the map is in 3-D with every book: you can turn it, colour the dots by language or by group, and open sample books. A flat picture loses detail, so we use the map to explain and the measurements to prove.
+
+## Slide 15: The scan quality page lists books to scan again, but its score is not proven
+
+[ETIKALA SAI PRANAV - SLIDE 15]
+
+The archive also needs to know which scans to redo. The scan quality page gives every downloaded book one of three verdicts: fine, read again with OCR, or scan again.
+
+The chart counts the flagged books in each language, taken from the app. Red is scan again: our OCR was unsure and the archive has no text of its own. Grey is read again: the book has too few readable words.
+
+Does the score work? We tested it on 341 books where we can compare our OCR with the archive's own. Its AUC is 0.50, where 0.5 is a coin toss, so it is no better than chance. We show the page as a work list built from plain rules, not as a proven predictor.
+
+## Slide 16: The edition finder is right when it answers, but finds 36% of known editions
+
+[ETIKALA SAI PRANAV - SLIDE 16]
+
+The last tool looks for other editions of the same book, so an archive does not catalogue or preserve the same work twice without knowing.
+
+Two books count as editions of one work when they share a title and an author, after spelling is evened out. The finder proposes the books that sit closer to a book than a set distance.
+
+Of the pairs it reported, 100.0% were true editions. Of the true editions, it found 36.4%, with a likely range of 8.3% to 66.7%. The range is wide because the test is small: only 11 groups of known editions among the test books. Careful but incomplete, and too little tested to trust yet.
+
+## Slide 17: One site puts every tool in an archivist's hands, in 7 pages
+
+[ETIKALA SAI PRANAV - SLIDE 17]
+
+Everything you have seen runs in one web app. These are its pages.
+
+Check a page is the working desk: upload a scan or paste text, and it returns the group, the closest archive books and a catalogue card. Browse groups lists each group's books. The archive map, scan quality and editions pages are the three tools from the last slides.
+
+Two pages explain rather than do. Impact tells the story as three archive problems, each beside its measured result. The study page shows every result with its method, has a presenter mode, and offers a guide for repeating the study as a PDF.
+
+The site was redesigned for reading, with a light and a dark theme. Behind the pages is an API that gives the same answers to other software, including a check for a whole list of books at once.
+
+## Slide 18: What this changes for an archive
+
+[ETIKALA SAI PRANAV - SLIDE 18]
+
+Before the limits, the case for the tool in three numbers. These are the three stories on the site's impact page.
+
+One, books meet across scripts. As the model gives them, only 2.7% of a book's 10 closest books are in another script. After centring, 37.2%.
+
+Two, a class for books that have none. On 1,168 held-out books that do have a class, the book's own class is among the first three suggestions 91.6% of the time; the top suggestion alone is right 58.6%, against 47.8% for always naming the most common class.
+
+Three, a loose page finds its book. A single page lands in its own book's group 75.2% of the time, against 35.9% by chance, and the app refuses to guess when a page has too few readable words: 2.6% of the test pages.
+
+## Slide 19: What it does not do yet
+
+[ETIKALA SAI PRANAV - SLIDE 19]
 
 Our limits, plainly.
 
@@ -188,9 +244,9 @@ The groups are broad: 3 groups for a whole library. Hard-to-read languages are u
 
 So we offer this as a helper that shows its evidence, not as a catalogue.
 
-## Slide 15: Take away the language, and subject starts to show
+## Slide 20: Take away the language, and subject starts to show
 
-[ETIKALA SAI PRANAV - SLIDE 15]
+[ETIKALA SAI PRANAV - SLIDE 20]
 
 To sum up in three sentences.
 

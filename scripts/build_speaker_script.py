@@ -1,4 +1,4 @@
-"""docs/Grantha_Speaker_Script.md: what each presenter says, slide by slide, for the 15-slide deck.
+"""docs/Grantha_Speaker_Script.md: what each presenter says, slide by slide, for the 20-slide deck.
 
     python scripts/build_speaker_script.py
 
@@ -6,7 +6,7 @@ Follows Grantha_Heritage_Tracker_SIH26096.pptx (built by scripts/build_deck.py) 
 written here, not copied from the deck's notes, so that every number comes from the result files through
 scripts/doc_results.py (each with its `# from: <file>:<key path>` comment). The worked example on slides 11 to 13
 names a recorded app answer (web/fixtures, the same files the deck shows); only its titles, scripts and
-classes are used, never a number from it. Presenters: Rohan slides 1 to 5, Rajith 6 to 10, Sai Pranav 11 to 15.
+classes are used, never a number from it. Presenters: Rohan slides 1 to 5, Rajith 6 to 10, Sai Pranav 11 to 20.
 """
 import sys
 from pathlib import Path
@@ -175,6 +175,54 @@ def slides() -> list[tuple[str, str, str]]:
          "links, so the archivist can see why it decided. It also says when it is unsure: here DBSCAN says the page "
          + ("sits in a crowded region" if chk["dbscan"]["in_dense_group"] else "is not in any crowded region")
          + ", and the app shows that too. When a page has fewer than 20 readable words, it refuses to guess."),
+        (SAI, "On the archive map, English books sit apart until centring mixes them in",
+         "This is the picture behind our main finding, and it is a page of the site: the archive map.\n\n"
+         "Each dot is one book, placed by the numbers the model gives its text, flattened to two directions. The red "
+         "dots are English books; the grey dots are every other language.\n\n"
+         "On the left, the numbers as the model gives them: the English books sit in their own corner. On the right, "
+         "after we subtract each language's average: the same books sit among the others, so a book's neighbours can "
+         "come from any script.\n\n"
+         f"The slide shows a sample of the {n(R.usable)} books. On the site the map is in 3-D with every book: you can "
+         "turn it, colour the dots by language or by group, and open sample books. A flat picture loses detail, so we "
+         "use the map to explain and the measurements to prove."),
+        (SAI, "The scan quality page lists books to scan again, but its score is not proven",
+         "The archive also needs to know which scans to redo. The scan quality page gives every downloaded book one of "
+         "three verdicts: fine, read again with OCR, or scan again.\n\n"
+         "The chart counts the flagged books in each language, taken from the app. Red is scan again: our OCR was "
+         "unsure and the archive has no text of its own. Grey is read again: the book has too few readable words.\n\n"
+         f"Does the score work? We tested it on {n(R.tri_books)} books where we can compare our OCR with the archive's "
+         f"own. Its AUC is {f2(R.tri_auc)}, where 0.5 is a coin toss, so it is no better than chance. We show the page "
+         "as a work list built from plain rules, not as a proven predictor."),
+        (SAI, f"The edition finder is right when it answers, but finds {pct(R.ed_recall, 0)} of known editions",
+         "The last tool looks for other editions of the same book, so an archive does not catalogue or preserve the "
+         "same work twice without knowing.\n\n"
+         "Two books count as editions of one work when they share a title and an author, after spelling is evened "
+         "out. The finder proposes the books that sit closer to a book than a set distance.\n\n"
+         f"Of the pairs it reported, {pct(R.ed_precision)} were true editions. Of the true editions, it found "
+         f"{pct(R.ed_recall)}, with a likely range of {pct_ci(R.ed_recall_ci)}. The range is wide because the test is "
+         f"small: only {R.ed_groups} groups of known editions among the test books. Careful but incomplete, and too "
+         "little tested to trust yet."),
+        (SAI, "One site puts every tool in an archivist's hands, in 7 pages",
+         "Everything you have seen runs in one web app. These are its pages.\n\n"
+         "Check a page is the working desk: upload a scan or paste text, and it returns the group, the closest archive "
+         "books and a catalogue card. Browse groups lists each group's books. The archive map, scan quality and "
+         "editions pages are the three tools from the last slides.\n\n"
+         "Two pages explain rather than do. Impact tells the story as three archive problems, each beside its measured "
+         "result. The study page shows every result with its method, has a presenter mode, and offers a guide for "
+         "repeating the study as a PDF.\n\n"
+         "The site was redesigned for reading, with a light and a dark theme. Behind the pages is an API that gives "
+         "the same answers to other software, including a check for a whole list of books at once."),
+        (SAI, "What this changes for an archive",
+         "Before the limits, the case for the tool in three numbers. These are the three stories on the site's impact "
+         "page.\n\n"
+         f"One, books meet across scripts. As the model gives them, only {pct(R.rel_uncentred)} of a book's "
+         f"{R.rel_k} closest books are in another script. After centring, {pct(R.rel_centred)}.\n\n"
+         f"Two, a class for books that have none. On {n(R.sug_heldout)} held-out books that do have a class, the "
+         f"book's own class is among the first three suggestions {pct(R.sug_top3)} of the time; the top suggestion "
+         f"alone is right {pct(R.sug_top1)}, against {pct(R.sug_base)} for always naming the most common class.\n\n"
+         f"Three, a loose page finds its book. A single page lands in its own book's group {pct(R.t1)} of the time, "
+         f"against {pct(R.t1_chance)} by chance, and the app refuses to guess when a page has too few readable words: "
+         f"{pct(R.t1_abstain)} of the test pages."),
         (SAI, "What it does not do yet",
          "Our limits, plainly.\n\n"
          f"We set three targets before seeing any results, and this study met {R.n_met} of them. A page lands with "

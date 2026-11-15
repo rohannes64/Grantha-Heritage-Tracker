@@ -799,11 +799,233 @@ text(s, 5.6, BODY_Y + 3.6, 7.0, 0.8, [
      S(size="body", color="muted"))])
 
 # ==============================================================================
-# 14. LIMITS
+# 14. THE ARCHIVE MAP (the site's map data, first two directions)
+# ==============================================================================
+GALAXY = load("web/data/galaxy.json") if (ROOT / "web/data/galaxy.json").exists() else None
+UMAP_BUILT = (ROOT / "web/data/galaxy_umap.json").exists()      # the site's third map view, shown only when built
+if GALAXY:
+    tags = [b["lang_tag"] for b in GALAXY["books"]]             # from: web/data/galaxy.json:books[].lang_tag
+
+    def apartness(view: str) -> dict:
+        """Per language: how far its books' middle sits from the middle of all books, in units of the overall spread."""
+        pts_ = GALAXY["views"][view]                            # from: web/data/galaxy.json:views.<view>
+        cx, cy = sum(p[0] for p in pts_) / len(pts_), sum(p[1] for p in pts_) / len(pts_)
+        spread = (sum((p[0] - cx) ** 2 + (p[1] - cy) ** 2 for p in pts_) / len(pts_)) ** 0.5
+        out = {}
+        for lang_ in set(tags):
+            own = [p for p, t in zip(pts_, tags) if t == lang_]
+            lx, ly = sum(p[0] for p in own) / len(own), sum(p[1] for p in own) / len(own)
+            out[lang_] = ((lx - cx) ** 2 + (ly - cy) ** 2) ** 0.5 / spread
+        return out
+
+    apart_un, apart_ce = apartness("uncentred"), apartness("centred")
+    star = max(apart_un, key=apart_un.get)                      # the language that sits furthest apart as given
+    star_name = LANG.get(star, star)
+    mixes_in = apart_ce[star] < 0.5 * apart_un[star]
+    step = max(1, len(tags) // 1500)                            # a light, even sample keeps the chart quick to open
+    s = new_slide(f"On the archive map, {star_name} books sit apart until centring mixes them in" if mixes_in else
+                  "The archive map shows every book as a dot, before and after centring", f"""
+This is the picture behind our main finding, and it is a page of the site: the archive map.
+
+Each dot is one book, placed by the numbers the model gives its text, flattened to the two directions that spread the books most. The red dots are {star_name} books; the grey dots are every other language.
+
+On the left, the numbers as the model gives them. {f"The {star_name} books sit in their own corner: the map is a map of languages." if mixes_in else f"The {star_name} books already overlap the others."} On the right, after we subtract each language's average. {"The same books now sit among the others, so a book's neighbours can come from any script." if mixes_in else "The picture changes little."}
+
+The slide shows a sample of the {n(usable)} books in two dimensions. On the site the map is in 3-D with every book: you can turn it, colour the dots by language or by group, light up one language, and open sample books from the map.{" A third view places books by their closest neighbours." if UMAP_BUILT else ""}
+
+One caution: a flat picture loses most of the detail, so we use the map to explain, and the measurements on the earlier slides to prove.
+""", source="web/data/galaxy.json: views.uncentred, views.centred, books[].lang_tag (first two directions; an even sample of books)")
+    for j, (view, label) in enumerate((("uncentred", "As the model gives them"), ("centred", "After centring"))):
+        x = MARGIN + j * 4.25
+        text(s, x, BODY_Y, 4.0, 0.4, [(label, S(size="body", bold=True))])
+        cd = XyChartData()
+        pts_ = GALAXY["views"][view]
+        for name, keep in (("other languages", lambda t: t != star), (star_name, lambda t: t == star)):
+            ser = cd.add_series(name)
+            for p, t in list(zip(pts_, tags))[::step]:          # from: web/data/galaxy.json:views.<view>[][0..1]
+                if keep(t):
+                    ser.add_data_point(p[0], p[1])
+        gf = s.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER, Inches(x - 0.1), Inches(BODY_Y + 0.4), Inches(4.1), Inches(4.3), cd)
+        ch = gf.chart
+        style_chart(ch, labels=False)
+        ch.value_axis.minimum_scale = None
+        ch.value_axis.format.line.fill.background()
+        ch.category_axis.tick_label_position = XL_TICK_LABEL_POSITION.NONE
+        ch.category_axis.format.line.fill.background()
+        for ser, color in zip(ch.series, ("neutral", "accent")):
+            ser.format.line.fill.background()
+            ser.marker.style = XL_MARKER_STYLE.CIRCLE
+            ser.marker.size = 3
+            ser.marker.format.fill.solid()
+            ser.marker.format.fill.fore_color.rgb = rgb(color)
+            ser.marker.format.line.fill.background()
+    swatch_key(s, 9.25, BODY_Y, [(f"{star_name} books", "accent"), ("books in every other language", "neutral")])
+    text(s, 9.25, BODY_Y + 1.0, 3.35, 3.7, [
+        ("Each dot is one book, placed by what its text says.", S(size="lead")),
+        (f"A sample of the {n(usable)} usable books, flattened to two directions.",        # from: corpus.usable
+         S(size="body", color="muted", space=14)),
+        ("On the site the map is 3-D: turn it, colour by language or by group, and open sample books.",
+         S(size="body", color="muted", space=10)),
+    ])
+
+# ==============================================================================
+# 15. SCAN QUALITY PAGE (recorded app output; score evaluation when present)
+# ==============================================================================
+tri_fix = fixture("get_api_triage__limit-50")
+tri_chance = bool(TRI) and TRI["auc_ci95"][0] <= 0.5 <= TRI["auc_ci95"][1]
+tri_langs = sorted(tri_fix["by_language"].items(), key=lambda kv: -(kv[1]["re-scan"] + kv[1]["re-ocr"]))  # from: fixture triage.by_language
+tri_top = LANG.get(tri_langs[0][0], tri_langs[0][0])
+if TRI:                                                    # from: reports/features/triage.json
+    th = TRI["rule_thresholds"]
+    tri_rule = (f"A book is flagged when its OCR confidence is under {th['min_conf']:.0f}, when it has fewer than "
+                f"{th['min_tokens']} readable words, or when it sits in no crowded region.")
+    tri_line = (f"Checked on {n(TRI['books'])} books against the archive's own OCR: AUC {TRI['auc']:.2f} "
+                f"(likely range {TRI['auc_ci95'][0]:.2f} to {TRI['auc_ci95'][1]:.2f}), where 0.5 is chance.")
+    tri_notes = (tri_rule + f"\n\nDoes the score work? We tested it on {n(TRI['books'])} books where we can compare our OCR with "
+                 f"the archive's own. AUC is a score of how well it separates good scans from bad: 1 is perfect, 0.5 is a coin "
+                 f"toss. Ours is {TRI['auc']:.2f}, with a likely range of {TRI['auc_ci95'][0]:.2f} to {TRI['auc_ci95'][1]:.2f}, "
+                 + ("so it is no better than chance. We show the page as a work list built from plain rules, not as a proven predictor."
+                    if tri_chance else "so it does better than chance."))
+else:
+    tri_rule = "A book is flagged when its OCR confidence is low, when it has few readable words, or when it sits in no crowded region."
+    tri_line = "How well the score predicts a bad scan is not measured yet."
+    tri_notes = tri_rule + "\n\nWe have not yet measured how well the score predicts a bad scan, so we show no accuracy for it."
+s = new_slide("The scan quality page lists books to scan again, but its score is not proven" if tri_chance or not TRI else
+              "The scan quality page lists the books worth scanning again", f"""
+The archive also needs to know which scans to redo. The scan quality page gives every downloaded book one of three verdicts: fine, read again with OCR, or scan again.
+
+The chart counts the flagged books in each language, taken from the app. Red is scan again: our OCR was unsure and the archive has no text of its own. Grey is read again: the book has too few readable words. {tri_top} has the most flagged books.
+
+{tri_notes}
+""", source="web/fixtures/get_api_triage__limit-50.json: by_language (recorded app output)" + ("; reports/features/triage.json" if TRI else ""))
+bar_chart(s, MARGIN - 0.1, BODY_Y - 0.15, 8.6, 4.9, [LANG.get(k, k) for k, _ in tri_langs],
+          [("scan again", [v["re-scan"] for _, v in tri_langs], "accent"),          # from: fixture triage.by_language[].re-scan
+           ("read again", [v["re-ocr"] for _, v in tri_langs], "neutral")],        # from: fixture triage.by_language[].re-ocr
+          number_format="#,##0", gap=45)
+swatch_key(s, 9.25, BODY_Y, [("scan again", "accent"), ("read again with OCR", "neutral")])
+text(s, 9.25, BODY_Y + 1.0, 3.35, 3.8, [
+    ("Three verdicts: fine, read again, scan again.", S(size="lead")),
+    (tri_rule, S(size="small", color="muted", space=14)),
+    (tri_line, S(size="body", color="ink" if TRI else "muted", space=10)),
+])
+
+# ==============================================================================
+# 16. EDITION FINDER (evaluation; shown without numbers when absent)
+# ==============================================================================
+ed_recorded = [fixture(p.stem) for p in sorted((ROOT / "web" / "fixtures").glob("get_editions__*.json"))]
+ed_found = sum(bool(e["candidates"]) for e in ed_recorded)          # from: web/fixtures/get_editions__*.json:candidates
+ed_how = ("Two books count as editions of one work when they share a title and an author, after spelling is evened out. "
+          "The finder proposes the books that sit closer to a book than a set distance.")
+if EDI:                                                    # from: reports/features/editions.json
+    ed_p, ed_r, ed_rci = EDI["precision"], EDI["recall"], EDI["recall_ci95"]
+    ed_exact, ed_misses = ed_p >= 0.995, ed_r < 0.5
+    title16 = ((f"The edition finder is right when it answers, but finds {pct(ed_r, 0)} of known editions" if ed_exact else
+                f"The edition finder finds {pct(ed_r, 0)} of known editions") if ed_misses else
+               "The edition finder finds most known editions")
+    ed_notes = f"""
+Precision asks: of the pairs the finder reported, how many were true editions? {pct(ed_p)}{", so it raised no false alarm" if ed_exact else ""}. Recall asks: of the true editions, how many did it find? {pct(ed_r)}, with a likely range of {pct(ed_rci[0])} to {pct(ed_rci[1])}.
+
+That range is wide because the test is small: only {EDI['groups_heldout']} groups of known editions among the test books. So we call this tool {"careful but incomplete" if ed_exact and ed_misses else "promising"}, and too little tested to trust yet.
+"""
+else:
+    title16 = "The edition finder looks for other printings of the same book"
+    ed_notes = "\nWe have not yet measured how many editions it finds on books kept aside, so we show no accuracy for it.\n"
+s = new_slide(title16, f"""
+The last tool looks for other editions of the same book, so an archive does not catalogue or preserve the same work twice without knowing.
+
+{ed_how}
+{ed_notes}
+{"One more honest note: none of the example books we recorded from the app has another edition in our sample, so we show the measurement and no worked example." if not ed_found else ""}
+""", source="reports/features/editions.json: precision, recall, recall_ci95, groups_heldout" if EDI else "method as built in pipeline/")
+if EDI:
+    bar_chart(s, MARGIN - 0.1, BODY_Y - 0.15, 8.6, 3.0, ["Reported pairs that are true editions (precision)",
+                                                       "True editions it found (recall)"],
+              [("test books", [ed_p, ed_r], ["neutral", "accent"])],          # from: reports/features/editions.json:precision, recall
+              number_format="0.0%", gap=55, max_scale=1.3)
+    text(s, MARGIN, BODY_Y + 3.1, 8.2, 1.5, [(ed_how, S(size="body", color="muted"))])
+    text(s, 9.25, BODY_Y, 3.35, 4.7, [
+        (f"Tested on {EDI['groups_heldout']} groups of known editions among the test books.", S(size="lead")),  # from: editions.groups_heldout
+        (f"Recall {pct(ed_r)}, likely range {pct(ed_rci[0])} to {pct(ed_rci[1])}.", S(size="body", space=14)),  # from: editions.recall, recall_ci95
+        ("Too few groups to trust yet.", S(size="body", color="muted", space=8)),
+    ])
+else:
+    text(s, MARGIN, BODY_Y, 8.2, 2.0, [(ed_how, S(size="lead")),
+                                       ("Its accuracy on held-out books is not measured yet.", S(size="body", color="muted", space=14))])
+
+# ==============================================================================
+# 17. THE SITE
+# ==============================================================================
+site_pages = [("Check a page", "Upload a scan or paste text: its group, closest books, catalogue card."),
+              ("Browse groups", "The books in each group, with their languages."),
+              ("Archive map", "Every book as a dot in 3-D, coloured by language or by group."),
+              ("Scan quality", "Books to read again or scan again, language by language."),
+              ("Editions", "Other editions of a chosen book."),
+              ("Impact", "Three archive problems, each with its measured result."),
+              ("The study", "Every result with its method, a presenter mode, a PDF guide.")]
+s = new_slide(f"One site puts every tool in an archivist's hands, in {len(site_pages)} pages", f"""
+Everything you have seen runs in one web app. These are its pages.
+
+Check a page is the working desk: upload a scan or paste text, and it returns the group, the closest archive books and a catalogue card for the page. Browse groups lists each group's books. The archive map, scan quality and editions pages are the three tools from the last slides.
+
+Two pages explain rather than do. Impact tells the story as three archive problems, books split by script, loose pages, and the cataloguing backlog, each beside its measured result. The study page shows every result with its method, has a presenter mode, and offers a guide for repeating the study as a PDF.
+
+The site was redesigned for reading: a lighter, paper-like look with a dark mode one click away, and shorter navigation. Behind the pages is an API that gives the same answers to other software, including a check for a whole list of books at once.
+""", source="web/*.html (the pages as built); app/ (the API behind them)")
+rows = [[("Page", S(bold=True)), ("What it gives the archivist", S(bold=True))]] + \
+       [[(page, S()), (what, S(color="muted"))] for page, what in site_pages]
+plain_table(s, MARGIN, BODY_Y, 8.2, rows, [1.9, 6.3], row_h=0.5)
+text(s, 9.25, BODY_Y, 3.35, 4.7, [
+    ("One web app, in a light or a dark theme.", S(size="lead")),
+    ("Its results panel reads the same facts file as this deck.", S(size="body", color="muted", space=14)),
+    ("An API gives the same answers to other software, with a batch check for a list of books.",
+     S(size="body", color="muted", space=10)),
+])
+
+# ==============================================================================
+# 18. IMPACT (the three stories of the site's impact page, each with its measured number)
+# ==============================================================================
+if REL and SUG:
+    rs = REL["knn_other_script_share"]                     # from: reports/features/related.json:knn_other_script_share
+    abstain = TEST.get("t1_abstain_rate")                  # from: deliverable_facts.json:evaluation.test.t1_abstain_rate
+    sug_beats = SUG["top1"] > SUG["baseline_most_common"]
+    stories = [
+        (pct(rs["centred"]), "Books meet across scripts",                                  # from: related.knn_other_script_share.centred
+         f"of a book's {REL['k']} closest books are in another script after centring, against {pct(rs['uncentred'])} before."),
+        (pct(SUG["top3"]), "Suggests a missing class",                                # from: suggest.top3
+         f"of {n(SUG['heldout_books'])} held-out books have their own class in the first three suggestions. The top one is "
+         f"right {pct(SUG['top1'])}, against {pct(SUG['baseline_most_common'])} for the simple guess."),
+        (pct(t1), "A loose page finds its book",                                           # from: evaluation.test.t1_agreement
+         f"of single test pages land in their book's group, against {pct(TEST['t1_chance'])} by chance."
+         + (f" Pages with too few words are refused: {pct(abstain)} of them." if abstain is not None else "")),
+    ]
+    s = new_slide("What this changes for an archive", f"""
+Before the limits, the case for the tool in three numbers. These are the three stories on the site's impact page.
+
+One, books meet across scripts. As the model gives them, only {pct(rs['uncentred'])} of a book's {REL['k']} closest books are in another script. After centring, {pct(rs['centred'])}. This shows that other scripts now reach a book's neighbours; whether each neighbour shares the subject is for the archivist to judge.
+
+Two, a class for books that have none. On {n(SUG['heldout_books'])} held-out books that do have a class, the book's own class is among the first three suggestions {pct(SUG['top3'])} of the time. The top suggestion alone is right {pct(SUG['top1'])}, which is {"better than" if sug_beats else "no better than"} always naming the most common class, at {pct(SUG['baseline_most_common'])}. We have no simple guess to compare the first-three number with.
+
+Three, a loose page finds its book. A single page lands in its own book's group {pct(t1)} of the time, against {pct(TEST['t1_chance'])} by chance; that is {"at" if MET['T1'] else "below"} our target of {pct(t1_target, 0)}.{f" And when a page has too few readable words the app refuses to guess, which happened for {pct(abstain)} of the test pages." if abstain is not None else ""}
+
+Each number is measured on books kept aside from the ones the model learned from{"" if REL.get("split") != "train" else ", except the first, which is counted on the training books"}.
+""", source="reports/features/related.json, reports/features/suggest.json; reports/deliverable_facts.json: evaluation.test.t1_agreement, "
+            "t1_chance, t1_abstain_rate")
+    w3 = (SLIDE_W - 2 * MARGIN - 2 * GAP) / 3
+    for i, (stat, head_t, body_t) in enumerate(stories):
+        x = MARGIN + i * (w3 + GAP)
+        text(s, x, BODY_Y + 0.1, w3, 1.0, [(stat, S(font="head", size="display", color="accent", line=1.0))],
+             anchor=MSO_ANCHOR.BOTTOM)
+        hline(s, x, BODY_Y + 1.3, w3, "ink")
+        text(s, x, BODY_Y + 1.5, w3, 0.5, [(head_t, S(font="head", size="lead"))])
+        text(s, x, BODY_Y + 2.1, w3, 2.2, [(body_t, S(size="body", color="muted"))])
+    text(s, MARGIN, BODY_Y + 4.2, 11.5, 0.5,
+         [("Measured, not promised: the limits are on the next slide.", S(size="body"))])
+
+# ==============================================================================
+# 19. LIMITS
 # ==============================================================================
 n_met = sum(MET.values())
 cat_gain = CAT.get("points_above_best_baseline")
-tri_chance = bool(TRI) and TRI["auc_ci95"][0] <= 0.5 <= TRI["auc_ci95"][1]
 limit_lines = [f"{worst['name']} keeps only {pct(worst['usable'] / worst['harvested'], 0)} of its books."]   # from: corpus.by_language
 if cat_gain is not None and cat_gain <= 0:
     limit_lines.append(f"Against the librarians' own classes the groups score {gain(cat_gain)} "
@@ -844,7 +1066,7 @@ text(s, 8.55, BODY_Y, 4.05, 4.7, [(line, S(size="body", space=0 if i == 0 else 1
      [("A helper that shows its evidence, not a catalogue.", S(size="body", color="muted", space=10))])
 
 # ==============================================================================
-# 15. SUMMARY
+# 20. SUMMARY
 # ==============================================================================
 if CENTRING_HELPS and gain_t > 0:
     title15 = "Take away the language, and subject starts to show"
@@ -871,13 +1093,13 @@ One: {p1_head[:-1].lower()}; {p1_tail[0].lower() + p1_tail[1:]}
 
 Two: {p2_head[0].lower() + p2_head[1:-1]}: {p2_tail}
 
-Three: the model is useful to an archivist as a helper: it suggests a class for an uncatalogued book, links books across scripts, and places a new page, always with its evidence.
+Three: the model is useful to an archivist as a helper: it suggests a class for an uncatalogued book, links books across scripts, places a new page, and draws the whole archive as one map, always with its evidence.
 
 Thank you. We are happy to take your questions.
 """, dark=True)
 points = [(p1_head, p1_tail),                                                                 # from: centring_effect
           (p2_head, p2_tail),                                                                 # from: evaluation.test.t2_points, targets, met
-          ("Useful as an archivist's helper.", "Class suggestions, related books across scripts, page checks.")]
+          ("Useful as an archivist's helper.", "Class suggestions, related books across scripts, page checks, and a map of the whole archive.")]
 for i, (head_t, body_t) in enumerate(points):
     x = MARGIN + i * (col_w * 5 + GAP * 4 + GAP) / 3
     w = (SLIDE_W - 2 * MARGIN - 2 * GAP) / 3
