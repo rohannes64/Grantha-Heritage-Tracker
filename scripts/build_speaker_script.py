@@ -1,4 +1,4 @@
-"""docs/Grantha_Speaker_Script.md: what each presenter says, slide by slide, for the 10-slide deck.
+"""docs/Grantha_Speaker_Script.md: what each presenter says, slide by slide, for the 11-slide deck.
 
     python scripts/build_deck.py             # first: the script is read from the deck it writes
     python scripts/build_speaker_script.py
@@ -8,8 +8,8 @@ the result files (every number from reports/deliverable_facts.json or reports/fe
 by a branch on the facts). Reading them from the deck keeps one source: the script cannot drift from the slides.
 `python scripts/check_claims.py` checks both files. To change what is said, edit the notes in scripts/build_deck.py.
 
-Presenters: Rohan slides 1 to 4 (the problem, the app, the method), Rajith 5 to 7 (language, the map, the groups),
-Sai Pranav 8 to 10 (DBSCAN, results and limits, summary). Change SPLIT to rebalance.
+Presenters follow each member's own part of the project: Rajith (data and OCR) slides 1 to 3, Sai Pranav (clustering
+study) 4 to 7, Rohan (app and delivery) 8 to 11. Change SPLIT to rebalance.
 """
 from pathlib import Path
 
@@ -20,7 +20,7 @@ DECK = ROOT / "Grantha_Heritage_Tracker_SIH26096.pptx"
 OUT = ROOT / "docs" / "Grantha_Speaker_Script.md"
 
 ROHAN, RAJITH, SAI = "VEMURI ROHAN", "RAJITH SUNDAR", "ETIKALA SAI PRANAV"
-SPLIT = [(4, ROHAN), (7, RAJITH), (10 ** 6, SAI)]            # (last slide, presenter), in order
+SPLIT = [(3, RAJITH), (7, SAI), (10 ** 6, ROHAN)]            # (last slide, presenter), in order
 
 
 def presenter(i: int) -> str:
