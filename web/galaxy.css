@@ -1,0 +1,102 @@
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Darkroom (carried from app.css) · scope: app · screen: archive map (3-D point cloud, raw and language-removed views, legend, find, picked book with related books in other scripts; states loading, no WebGL, empty, loading related, error, recorded) · nav: slab, kept · footer: index columns, kept · hero: none, app screen · signature: the language islands dissolving when language is removed · posture: restrained · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: V, the map keeps the shared Darkroom shell; its eight language colours are the only new tokens, all checked for separation on paper */
+
+:root {
+  /* eight language colours for dots on --color-paper; spaced in hue and lightness (OKLab gap of at least 0.12 between any two) */
+  --lang-eng: oklch(86% 0.16 95);
+  --lang-hin: oklch(72% 0.17 50);
+  --lang-san: oklch(64% 0.21 25);
+  --lang-ben: oklch(74% 0.16 350);
+  --lang-guj: oklch(66% 0.17 300);
+  --lang-tel: oklch(70% 0.14 250);
+  --lang-kan: oklch(82% 0.12 200);
+  --lang-tam: oklch(76% 0.18 145);
+  --gx-field: var(--color-paper);
+  --gx-axis: var(--color-muted);
+  --gx-pick: var(--color-ink);
+  --gx-link: var(--color-ink-2);
+}
+
+/* the view switch and the sentence that says what it shows */
+.gx-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xl); align-items: end; margin-bottom: var(--space-lg); }
+.gx-view label { min-height: 48px; font-size: var(--text-md); padding: 0 var(--space-lg); }
+.gx-note { font-size: var(--text-lead); line-height: 1.4; color: var(--color-ink); max-width: 56ch; padding-left: var(--space-md); border-left: 2px solid var(--color-accent); }
+@media (max-width: 48rem) { .gx-bar { grid-template-columns: minmax(0, 1fr); gap: var(--space-md); } }
+
+.gx-stage { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: var(--space-xl); align-items: start; }
+@media (max-width: 64rem) { .gx-stage { grid-template-columns: minmax(0, 1fr); } }
+
+.gx-figure { margin: 0; min-width: 0; display: grid; gap: var(--space-sm); }
+.gx-canvas { position: relative; aspect-ratio: 4 / 3; background: var(--gx-field); border: var(--rule-hair) solid var(--color-rule); overflow: hidden; touch-action: none; }
+@media (max-width: 40rem) { .gx-canvas { aspect-ratio: 1 / 1; } }
+.gx-gl { position: absolute; inset: 0; cursor: grab; }
+.gx-gl:active { cursor: grabbing; }
+.gx-gl.is-over { cursor: pointer; }
+.gx-gl canvas { display: block; width: 100%; height: 100%; }
+.gx-gl:focus { outline: none; }
+.gx-gl:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+.gx-status { position: absolute; inset: auto var(--space-lg) var(--space-lg) var(--space-lg); color: var(--color-ink-2); max-width: 48ch; pointer-events: none; }
+.gx-status a { pointer-events: auto; }
+.gx-status.is-error { inset: var(--space-lg); display: grid; align-content: center; gap: var(--space-sm); color: var(--color-ink); font-size: var(--text-lead); }
+
+.gx-axis-labels { position: absolute; inset: 0; pointer-events: none; }
+.gx-axis-labels span { position: absolute; left: 0; top: 0; padding: var(--space-3xs) var(--space-2xs); font-size: var(--text-sm); color: var(--color-ink-2); background: color-mix(in oklab, var(--gx-field) 70%, transparent); white-space: nowrap; will-change: transform; }
+
+.gx-caption { display: grid; gap: var(--space-xs); }
+.gx-axes { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2xs) var(--space-lg); color: var(--color-ink-2); font-size: var(--text-sm); }
+.gx-axes strong { font-weight: 400; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+
+/* the key, the finder and the picked book */
+.gx-side { display: grid; gap: var(--space-xl); min-width: 0; }
+.gx-side section { display: grid; gap: var(--space-sm); min-width: 0; }
+.gx-h { font-size: var(--text-title); max-width: none; }
+.gx-h:focus { outline: none; }
+.gx-h:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.gx-h label { cursor: pointer; }
+
+.gx-langs { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-lg); border-top: var(--rule-hair) solid var(--color-rule); }
+@media (max-width: 64rem) { .gx-langs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 40rem) { .gx-langs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.gx-langs button { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: var(--space-xs); align-items: center; width: 100%; min-height: 44px; padding: var(--space-2xs) var(--space-xs) var(--space-2xs) 0; border-bottom: var(--rule-hair) solid var(--color-rule); cursor: pointer; color: var(--color-ink); transition: background-color var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out); }
+.gx-langs button:hover { background: var(--color-paper-2); }
+.gx-langs button:active { background: var(--color-paper-3); }
+.gx-langs button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+.gx-langs button[aria-pressed="true"] { background: var(--color-paper-3); box-shadow: inset 0 -2px 0 var(--color-accent); }
+.gx-langs.has-focus button[aria-pressed="false"] { opacity: 0.55; }
+.gx-langs .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--c, var(--color-muted)); }
+.gx-langs .count { color: var(--color-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+
+.gx-find { position: relative; }
+.gx-find-list { position: absolute; z-index: var(--z-dropdown); left: 0; right: 0; top: calc(100% - 1px); margin: 0; padding: 0; list-style: none; max-height: 22rem; overflow-y: auto; background: var(--color-paper-2); border: var(--rule-hair) solid var(--color-muted); }
+.gx-find-list li { display: grid; gap: var(--space-3xs); padding: var(--space-xs) var(--space-md); cursor: pointer; overflow-wrap: anywhere; border-bottom: var(--rule-hair) solid var(--color-rule); }
+.gx-find-list li:last-child { border-bottom: 0; }
+.gx-find-list li:hover, .gx-find-list li[aria-selected="true"] { background: var(--color-paper-3); box-shadow: inset 2px 0 0 var(--color-accent); }
+.gx-find-list li.is-empty { cursor: default; color: var(--color-muted); box-shadow: none; background: none; }
+
+.gx-book { padding: var(--space-lg); background: var(--color-paper-2); border-top: 2px solid var(--color-accent-deep); }
+@media (max-width: 40rem) { .gx-book { padding: var(--space-md); } }
+.gx-book .gx-h { overflow-wrap: anywhere; text-transform: none; font-family: var(--font-body); font-weight: 400; font-size: var(--text-lg); line-height: 1.35; }
+.gx-book .meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2xs) var(--space-md); color: var(--color-ink-2); font-size: var(--text-sm); }
+.gx-book .meta .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--color-muted)); margin-right: var(--space-2xs); }
+.gx-book h3 { font-size: var(--text-lg); margin-top: var(--space-sm); }
+#book-rel { display: grid; gap: var(--space-sm); min-width: 0; }
+.gx-rel { margin: 0; padding: 0; list-style: none; display: grid; border-top: var(--rule-hair) solid var(--color-rule); }
+.gx-rel li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: var(--space-xs) var(--space-sm); align-items: baseline; padding: var(--space-xs) 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+.gx-rel .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--color-muted)); align-self: center; }
+.gx-rel .t { min-width: 0; overflow-wrap: anywhere; display: grid; gap: 0; }
+.gx-rel .t button { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 0.16em; color: var(--color-ink); }
+.gx-rel .t button:hover { text-decoration-color: var(--color-accent); }
+.gx-rel .t button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.gx-rel .t button:disabled { cursor: default; text-decoration: none; color: var(--color-ink-2); }
+.gx-rel .num { color: var(--color-muted); font-size: var(--text-sm); }
+.gx-book a { text-decoration-color: var(--color-muted); }
+.gx-book a:hover { text-decoration-color: var(--color-accent); }
+.gx-book a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.gx-book .clear { justify-self: start; min-height: 44px; font-size: var(--text-md); }
+[lang]:not(html) { line-height: 1.7; }
+.recorded { display: grid; gap: var(--space-3xs); padding-left: var(--space-md); border-left: 2px solid var(--color-accent); font-size: var(--text-sm); color: var(--color-ink-2); overflow-wrap: anywhere; }
+.recorded strong { font-weight: 400; color: var(--color-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gx-langs button { transition: none; }
+}
