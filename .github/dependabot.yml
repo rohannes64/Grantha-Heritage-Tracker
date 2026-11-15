@@ -1,14 +1,39 @@
 # Weekly update PRs for the pinned Python packages, the GitHub Actions used by the workflows, and the Docker base images.
 # Each PR runs CI, so an update that breaks the tests or the image cannot merge unnoticed.
+#
+# Grouped so a week's updates arrive as one PR per ecosystem, not one per package.
+# Held back on purpose:
+#   - numpy, scipy, scikit-learn, joblib (minor/major): the trained model (data/model/bundle.joblib) is a pickle of
+#     their objects; a new version can fail to load it or change its answers. Upgrade them together with a re-export
+#     of the model (python -m pipeline.export), not through Dependabot. Patch releases still come through.
+#   - the Python base image (minor/major): the study and the pinned packages target Python 3.12.
 version: 2
 updates:
   - package-ecosystem: pip
     directory: /
     schedule: {interval: weekly}
     open-pull-requests-limit: 5
+    groups:
+      python-packages:
+        patterns: ["*"]
+    ignore:
+      - dependency-name: numpy
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: scipy
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: scikit-learn
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: joblib
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly}
+    groups:
+      github-actions:
+        patterns: ["*"]
   - package-ecosystem: docker
     directory: /docker
     schedule: {interval: weekly}
+    ignore:
+      - dependency-name: python
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]

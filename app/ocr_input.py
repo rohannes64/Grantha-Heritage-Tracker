@@ -21,7 +21,7 @@ class OCRInputError(ValueError):
 def images_from_upload(data: bytes, filename: str) -> list[Image.Image]:
     name = (filename or "").lower()
     if name.endswith(".pdf") or data[:5] == b"%PDF-":
-        import fitz  # PyMuPDF
+        import pymupdf as fitz  # the `fitz` module name is deprecated since PyMuPDF 1.24.3
         try:
             pdf = fitz.open(stream=data, filetype="pdf")
         except Exception as e:
