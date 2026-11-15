@@ -1,0 +1,94 @@
+# CI: every pull request and every push to main.
+#   test  - lint for real errors, the pytest suite (with Tesseract, so the OCR tests run), and the claims check
+#   image - build the app image, start it, wait for its HEALTHCHECK, then smoke-test the routes it serves
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-*.txt
+
+      - name: Install Tesseract (the study's 8 languages, as in the app image)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            tesseract-ocr tesseract-ocr-osd \
+            tesseract-ocr-eng tesseract-ocr-hin tesseract-ocr-san tesseract-ocr-ben \
+            tesseract-ocr-guj tesseract-ocr-tel tesseract-ocr-kan tesseract-ocr-tam
+
+      - name: Install Python dependencies
+        run: pip install -r requirements-pipeline.txt -r requirements-app.txt -r requirements-ci.txt
+
+      - name: Lint (syntax errors and undefined names only)
+        run: ruff check --no-cache --select E9,F63,F7,F82 --output-format=github app pipeline scripts tests
+
+      - name: Unit tests
+        run: pytest -q --junitxml=reports/ci/pytest.xml
+
+      - name: Claims check (every number in the deliverables has a source)
+        run: python scripts/check_claims.py
+
+      - name: Keep the test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report
+          path: reports/ci/pytest.xml
+          if-no-files-found: ignore
+
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/app.Dockerfile
+          tags: grantha:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Start the container and wait for its HEALTHCHECK
+        run: |
+          docker run -d --name grantha -p 8000:8000 grantha:ci
+          for i in $(seq 1 60); do
+            state=$(docker inspect -f '{{.State.Health.Status}}' grantha)
+            [ "$state" = healthy ] && { echo "healthy after ~$((i * 5)) s"; exit 0; }
+            [ "$state" = unhealthy ] && break
+            sleep 5
+          done
+          echo "container did not become healthy (last state: $state)"; exit 1
+
+      - name: Smoke test
+        run: bash scripts/ci_smoke.sh http://localhost:8000
+
+      - name: Container logs
+        if: failure()
+        run: docker logs grantha

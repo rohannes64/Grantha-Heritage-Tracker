@@ -153,6 +153,25 @@ documents contains a number that no result file or pipeline constant supports (`
 number comes from); `scripts/dataset_manifest.py` records the exact books, splits and file checksums behind a
 run, and `scripts/deploy_vm.sh` ships the committed code to the VM and smoke-tests the live app.
 
+## CI/CD (GitHub Actions)
+
+- **CI** (`.github/workflows/ci.yml`, every pull request and push to `main`): lint for syntax errors and
+  undefined names, the full pytest suite with Tesseract installed, and the claims check above; in parallel,
+  build the app image, wait for its health check and smoke-test it (`scripts/ci_smoke.sh`).
+- **Publish image** (`publish.yml`, after CI passes on `main`): build the image, fail on critical
+  vulnerabilities with a known fix (Trivy), then push it to `ghcr.io/rohannes64/grantha`, tagged with the
+  commit SHA and `latest`.
+- **Deploy** (`deploy.yml`, after the image is published, or by hand): signs in to Google Cloud through
+  Workload Identity Federation (no stored key), runs `scripts/deploy_vm.sh` for the same commit, and writes
+  DORA metrics (deployment frequency, lead time, change failure rate, time to restore) from the repository's
+  deployments to the run summary (`scripts/dora_metrics.py`). It runs in the `production` environment, so a
+  reviewer approves each deploy. One-time setup: `scripts/setup_github_deploy.sh`, then the repository
+  variables it prints; until they are set, the deploy workflow skips itself.
+- The live app currently runs on a home server whose poller pulls `main`; it deploys only commits whose CI
+  passed and records each deploy for the DORA metrics (see `docs/ops/home-server-cd.md`). `deploy.yml` is
+  for a GCE VM and stays inactive while its variables are unset.
+- Dependabot opens weekly update pull requests for pip packages, actions and Docker base images.
+
 ## Limits
 
 Printed books, not handwritten manuscripts. OCR quality differs by script. Groups are tendencies named
