@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grantha: real-world impact</title>
+<meta name="description" content="Real-world heritage archive problems solved by Grantha: cross-script discovery, unindexed scan routing, and archivist shelf-code suggestion.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="impact.css">
+</head>
+<body>
+<header class="slab"><div class="container"><a class="wordmark" href="./">Grantha</a>
+<nav aria-label="Main"><ul>
+  <li><a href="check.html">Check a page</a></li>
+  <li><a href="browse.html">Browse groups</a></li>
+  <li><a href="galaxy.html">Archive map</a></li>
+  <li><a href="triage.html">Scan quality</a></li>
+  <li><a href="editions.html">Editions</a></li>
+  <li><a href="impact.html" aria-current="page">Impact</a></li>
+  <li><a href="study.html">The study</a></li>
+  <li><a href="about.html">About</a></li>
+</ul></nav></div></header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>Real-world problems solved</h1>
+    <p>How Grantha turns unindexed multilingual scans from the Digital Library of India into searchable, cross-script research collections.</p>
+  </div>
+
+  <div class="figures-row" aria-label="Headline impact figures">
+    <div>
+      <span class="figure">13,358</span>
+      <span class="small ink-2">Usable heritage books indexed across eight languages and seven scripts</span>
+    </div>
+    <div>
+      <span class="figure">37.2%</span>
+      <span class="small ink-2">Nearest neighbours in another script after centring (up from 2.7% raw)</span>
+    </div>
+    <div>
+      <span class="figure">91.6%</span>
+      <span class="small ink-2">Held-out Top-3 catalogue class suggestion accuracy (1,168 test books)</span>
+    </div>
+  </div>
+
+  <section class="study-section" aria-labelledby="p1-title">
+    <div class="impact-grid">
+      <div class="impact-copy">
+        <h2 id="p1-title">Finding related books across scripts</h2>
+        <p><strong>The problem:</strong> Standard multilingual embeddings cluster by script first: a Sanskrit commentary and its Bengali or Tamil counterpart sit in separate islands, with only 2.7% of raw 10-nearest neighbours crossing scripts.</p>
+        <p><strong>How Grantha solves it:</strong> Subtracting each language’s mean vector removes script bias while preserving topic structure. Script NMI drops from 0.642 to 0.065 on training books, lifting cross-script neighbours from 2.7% to 37.2%.</p>
+        <dl class="sheet">
+          <div><dt>Raw script NMI</dt><dd class="num">0.642</dd></div>
+          <div><dt>Centred script NMI</dt><dd class="num">0.065</dd></div>
+          <div><dt>Test T2 subject gain</dt><dd class="num">+14.5 pp (p = 0.0005)</dd></div>
+        </dl>
+        <div class="impact-actions">
+          <a class="btn btn--primary" href="galaxy.html">Open 3-D Archive map</a>
+        </div>
+      </div>
+      <figure class="impact-video">
+        <video src="assets/impact-centring.mp4" poster="assets/impact-centring.jpg" autoplay loop muted playsinline controls preload="metadata" aria-label="Animation showing per-language centring merging eight isolated language clusters into cross-script topic groups"></video>
+        <figcaption>Rendered with raea · Per-language centring aligns books by subject instead of script.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="study-section" aria-labelledby="p2-title">
+    <div class="impact-grid">
+      <figure class="impact-video">
+        <video src="assets/impact-triage.mp4" poster="assets/impact-triage.jpg" autoplay loop muted playsinline controls preload="metadata" aria-label="Animation showing single-page OCR orientation detection, weak-OCR abstention, and topic matching"></video>
+        <figcaption>Rendered with raea · Single-page OCR routing with a 20-token weak-scan safety gate.</figcaption>
+      </figure>
+      <div class="impact-copy">
+        <h2 id="p2-title">Identifying loose pages without metadata</h2>
+        <p><strong>The problem:</strong> Digitised archives contain loose pages and damaged title leaves with missing catalogue records, rotated scans, or degraded ink that causes silent misfiling.</p>
+        <p><strong>How Grantha solves it:</strong> An incoming image is auto-rotated, read with Tesseract 5 across seven scripts, gated at 20 clean tokens so unreadable scans abstain (2.6% on test), and matched to its book’s group 75.2% of the time (vs 35.9% chance).</p>
+        <dl class="sheet">
+          <div><dt>Page-to-book agreement</dt><dd class="num">75.2% (95% CI 74.1% to 76.3%)</dd></div>
+          <div><dt>Weak-OCR abstain rate</dt><dd class="num">2.6% on held-out test</dd></div>
+          <div><dt>OCR pages processed</dt><dd class="num">77,634</dd></div>
+        </dl>
+        <div class="impact-actions">
+          <a class="btn btn--primary" href="check.html">Try Check a page</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="study-section" aria-labelledby="p3-title">
+    <div class="impact-grid">
+      <div class="impact-copy">
+        <h2 id="p3-title">Rapid shelf-code suggestion &amp; duplicate detection</h2>
+        <p><strong>The problem:</strong> Thousands of scanned volumes lack subject shelf codes or appear as unlinked duplicate editions under slightly different transliterated titles.</p>
+        <p><strong>How Grantha solves it:</strong> Distance-weighted voting over the 25 nearest coded books puts the true catalogue class in the top three suggestions 91.6% of the time, while tight embedding proximity flags duplicate editions at 100.0% precision.</p>
+        <dl class="sheet">
+          <div><dt>Top-3 class suggestion</dt><dd class="num">91.6% (1,168 test books)</dd></div>
+          <div><dt>Edition finder precision</dt><dd class="num">100.0% (36.4% recall)</dd></div>
+          <div><dt>Reproducibility dossier</dt><dd><a href="grantha-reproducibility.pdf">Download PDF guide</a></dd></div>
+        </dl>
+        <div class="impact-actions">
+          <a class="btn btn--primary" href="editions.html">Explore Editions</a>
+          <a class="btn" href="grantha-reproducibility.pdf">Download PDF</a>
+        </div>
+      </div>
+      <figure class="impact-video">
+        <video src="assets/impact-archivist.mp4" poster="assets/impact-archivist.jpg" autoplay loop muted playsinline controls preload="metadata" aria-label="Animation showing archivist workbench accuracy metrics for Top-3 class suggestion and edition detection"></video>
+        <figcaption>Rendered with raea · Held-out archivist workbench benchmarks (Vertex AI feature set V).</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li><li><a href="impact.html">Impact</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

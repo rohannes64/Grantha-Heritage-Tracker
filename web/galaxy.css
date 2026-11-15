@@ -59,10 +59,10 @@
 .gx-h label { cursor: pointer; }
 .gx-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .gx-legend-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-xs); }
-.seg-sm label { min-height: 36px; font-size: var(--text-sm); padding: 0 var(--space-sm); }
+.seg-sm label { min-height: 44px; font-size: var(--text-sm); padding: 0 var(--space-sm); }
 
 .gx-samples { display: flex; flex-wrap: wrap; gap: var(--space-2xs); align-items: center; }
-.gx-sample { all: unset; box-sizing: border-box; min-height: 34px; padding: var(--space-3xs) var(--space-sm); border: var(--rule-hair) solid var(--color-rule); color: var(--color-ink-2); font-size: var(--text-sm); cursor: pointer; transition: border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out); }
+.gx-sample { all: unset; box-sizing: border-box; min-height: 44px; padding: var(--space-2xs) var(--space-sm); border: var(--rule-hair) solid var(--color-rule); color: var(--color-ink-2); font-size: var(--text-sm); cursor: pointer; transition: border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out); }
 .gx-sample:hover { border-color: var(--color-accent); color: var(--color-ink); background: var(--color-paper-2); }
 .gx-sample:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
