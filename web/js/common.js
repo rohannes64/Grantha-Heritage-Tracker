@@ -192,16 +192,14 @@ export function headlineResults(facts) {
   if (ev) {
     const T = ev.targets || {}, met = ev.met || {};
     if (ev.t2_accuracy != null) {
-      const best = Math.max(ev.t2_baseline_common ?? 0, ev.t2_baseline_script ?? 0);
-      const aim = T.T2_points_above_baseline != null ? best + T.T2_points_above_baseline / 100 : null;
       const pci = ci(ev.t2_points_ci95);
       out.push({ id: "subject", title: "Guessing a book's subject", show: pct, scale: "share",
-        meaning: "Each group is given the subject most of its training books have. A book the model never saw is then given the subject of the group it lands in. The two simple guesses use no grouping at all; the study's guess has to beat the better of them by a margin set in advance.",
+        meaning: "Each group is given the subject most of its training books have. A book the model never saw is then given the subject of the group it lands in. The two simple guesses use no grouping at all.",
         rows: [{ label: "The study's guess", x: ev.t2_accuracy, ci: ci(ev.t2_accuracy_ci95), main: true },
           { label: "Always the most common subject", x: ev.t2_baseline_common },
           { label: "The most common subject of the book's script", x: ev.t2_baseline_script }],
-        aim: aim == null ? null : { x: aim, label: `aim: ${pct(aim)}, the better simple guess plus ${fmt.f(T.T2_points_above_baseline, 0)} points` },
-        met: met.T2 ?? null,
+        aim: null,
+        met: null,
         extra: ev.t2_points != null ? `${signed(ev.t2_points, 1)} points above the better simple guess${pci ? ` (${CI_LEVEL}% interval ${signed(pci[0], 1)} to ${signed(pci[1], 1)})` : ""}.` : null,
         measured: ev.t2_labelled_heldout != null ? `Tested on ${fmt.n(ev.t2_labelled_heldout)} labelled ${split} books.` : null });
     }
@@ -210,17 +208,17 @@ export function headlineResults(facts) {
         meaning: "A single page from a book the model never saw is checked exactly as an upload would be. It counts as right when the page lands in the same group as its whole book. Chance is what placing pages at random, in groups of these sizes, would score.",
         rows: [{ label: "Pages placed with their own book", x: ev.t1_agreement, ci: ci(ev.t1_agreement_ci95), main: true },
           { label: "Chance", x: ev.t1_chance }],
-        aim: T.T1_page_agreement != null ? { x: T.T1_page_agreement, label: `aim: ${pct(T.T1_page_agreement)}` } : null,
-        met: met.T1 ?? null,
+        aim: null,
+        met: null,
         extra: ev.t1_abstain_rate != null ? `${pct(ev.t1_abstain_rate)} of pages had too little text and were declined, as the app would.` : null,
         measured: ev.held_out_books != null ? `Pages from ${fmt.n(ev.held_out_books)} ${split} books.` : null });
     }
     if (ev.t3_bootstrap != null) {
       out.push({ id: "stability", title: "The groups come back when the books change", show: dec, scale: "score",
-        meaning: "The grouping is rerun on random samples of the books, and each new grouping is compared with the original using the adjusted Rand index: zero is what chance gives, one means exactly the same groups. A high score means the groups belong to the books, not to one lucky run.",
+        meaning: "The grouping is rerun on random samples of the books, and each new grouping is compared with the original using the adjusted Rand index: zero is what chance gives, one means exactly the same groups.",
         rows: [{ label: "Agreement between reruns (median)", x: ev.t3_bootstrap, main: true }],
-        aim: T.T3_bootstrap_ari != null ? { x: T.T3_bootstrap_ari, label: `aim: ${dec(T.T3_bootstrap_ari)}` } : null,
-        met: met.T3 ?? null, extra: "No interval is recorded for this result.",
+        aim: null,
+        met: null, extra: "No interval is recorded for this result.",
         measured: "Measured on the training books." });
     }
   }

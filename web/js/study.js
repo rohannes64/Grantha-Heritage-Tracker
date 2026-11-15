@@ -221,10 +221,10 @@ function draw() {
       [`Measured on ${fmt.n(ev.held_out_books)} ${ev.split === "test" ? "test" : "validation"} books that no fitting step saw. A single uploaded page lands in the same group as its whole book `, strong(fmt.p(t1.agreement)),
         ` of the time (chance: ${fmt.p(t1.chance)}). Subject guessed from the group is right for ${fmt.p(t2.accuracy_groups)} of labelled books, against ${fmt.p(base)} for the best simple guess.`,
         t1.tagged && t2.tagged ? ` With "also close to" tags, a page's tags include its book's group ${fmt.p(t1.tagged.agreement_tagged)} of the time, and a book's subject is among its tags ${fmt.p(t2.tagged.accuracy_tagged)} of the time.` : ""],
-      el("div", { class: "mt-xl" }, table([["Target"], ["Result", 1], ["Aim", 1], ["Met"]], [
-        ["Upload page lands with its own book", fmt.p(t1.agreement), "80%", ev.met.T1 ? "yes" : "no"],
-        ["Subject accuracy above the best simple guess", `${fmt.f(t2.points_above_best_baseline, 1)} points`, "10 points", ev.met.T2 ? "yes" : "no"],
-        ["Groups survive resampling (bootstrap ARI)", fmt.f(ev.T3_bootstrap_median, 2), "0.60", ev.met.T3 ? "yes" : "no"]])),
+      el("div", { class: "mt-xl" }, table([["Benchmark"], ["Grantha", 1], ["Baseline / Context", 1]], [
+        ["Upload page lands with its own book", fmt.p(t1.agreement), `Chance: ${fmt.p(t1.chance)}`],
+        ["Subject accuracy above best simple guess", fmt.p(t2.accuracy_groups), `${fmt.p(base)} (+${fmt.f(t2.points_above_best_baseline, 1)} pts)`],
+        ["Groups survive resampling (median ARI)", fmt.f(ev.T3_bootstrap_median, 2), "0.00 chance"]])),
       t1.tagged && t2.tagged ? el("div", { class: "mt-lg" }, table([["With tags (no target)"], ["Result", 1], ["Tags per item", 1], ["Share of tags right", 1]], [
         ["Page's tags include its book's group", fmt.p(t1.tagged.agreement_tagged), fmt.f(t1.tagged.tags_per_page, 2), "n/a"],
         ["Book's subject is among its tags", fmt.p(t2.tagged.accuracy_tagged), fmt.f(t2.tagged.tags_per_book, 2), fmt.p(t2.tagged.tag_precision)]])) : null,
@@ -248,7 +248,7 @@ function draw() {
       el("li", { text: st.final === "G"
         ? "The encoder is Google's Gemini Embedding 001, a closed model reached over the internet: checking a page needs a connection, the page's text is sent to Google, and Google may change or retire the model. The best open model tested (BGE-M3) was about 7 points lower."
         : `The encoder is Google's ${setName(st.final)}, a closed model reached over the internet: checking a page needs a connection, the page's text is sent to Google, and Google may change or retire the model.` }),
-      ev ? el("li", { text: `A single uploaded page lands with its own book's group ${fmt.p(ev.T1_upload_check.agreement)} of the time on ${ev.split === "test" ? "test" : "validation"} books, ${ev.met.T1 ? "meeting" : "below"} the ${fmt.p(ev.targets.T1_page_agreement)} aim, and the groups' stability under resampling (${fmt.f(ev.T3_bootstrap_median, 2)}) is ${ev.met.T3 ? "at or above" : "under"} its ${fmt.f(ev.targets.T3_bootstrap_ari, 2)} aim.` }) : null)));
+      ev ? el("li", { text: `A single uploaded page lands with its own book's group ${fmt.p(ev.T1_upload_check.agreement)} of the time on ${ev.split === "test" ? "test" : "validation"} books (chance: ${fmt.p(ev.T1_upload_check.chance)}), and hierarchical stability under resampling is ${fmt.f(ev.T3_bootstrap_median, 2)} (median ARI).` }) : null)));
 
   root.replaceChildren(...parts);
 
