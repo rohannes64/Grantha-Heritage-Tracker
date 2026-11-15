@@ -48,7 +48,7 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      - uses: actions/setup-python@v5     # deploy_vm.sh's smoke test calls `python`
+      - uses: actions/setup-python@v7     # deploy_vm.sh's smoke test calls `python`
         with:
           python-version: "3.12"
 
