@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grantha: editions and translations</title>
+<meta name="description" content="Pick a book from the study and see whether the archive holds other editions of it, or books on the same subject in other scripts.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="editions.css">
+</head>
+<body>
+<header class="slab"><div class="container"><a class="wordmark" href="./">Grantha</a>
+<nav aria-label="Main"><ul>
+  <li><a href="check.html">Check a page</a></li>
+  <li><a href="browse.html">Browse groups</a></li>
+  <li><a href="galaxy.html">Archive map</a></li>
+  <li><a href="triage.html">Scan quality</a></li>
+  <li><a href="editions.html" aria-current="page">Editions</a></li>
+  <li><a href="study.html">The study</a></li>
+  <li><a href="about.html">About</a></li>
+</ul></nav></div></header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>Editions and translations</h1>
+    <p>Choose a book from the study to see whether the archive holds another edition of it, or books on the same subject in other scripts.</p>
+  </div>
+
+  <div class="ed-layout">
+    <div class="ed-side">
+      <form class="finder" id="finder" role="search" autocomplete="off">
+        <div class="field">
+          <label for="q">Find a book by title, author or archive identifier</label>
+          <div class="combo">
+            <input class="input" id="q" name="q" type="text" role="combobox" aria-autocomplete="list"
+              aria-expanded="false" aria-controls="q-options" aria-describedby="q-hint" dir="auto" spellcheck="false">
+            <ul class="options" id="q-options" role="listbox" aria-label="Matching books" hidden></ul>
+          </div>
+          <p class="small ink-2" id="q-none" hidden>No book in the study matches that.</p>
+          <p class="small muted" id="q-hint">Type a few letters, then use the arrow keys and Enter to choose. Titles are searched as the archive spells them.</p>
+        </div>
+        <p class="visually-hidden" id="q-status" role="status"></p>
+      </form>
+      <div id="book"></div>
+    </div>
+
+    <div class="ed-main">
+      <p class="visually-hidden" id="result-status" role="status"></p>
+      <section class="result" id="result" aria-label="Editions and related books">
+        <div class="state" id="state-empty">
+          <h2>No book chosen yet</h2>
+          <p class="ink-2">Pick a book on the left. Its possible other editions appear here, nearest first, then the closest books written in a different script.</p>
+        </div>
+        <noscript><p class="note">This page needs JavaScript to look books up.</p></noscript>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li><li><a href="editions.html">Editions</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+<script type="module" src="js/editions.js"></script>
+</body>
+</html>

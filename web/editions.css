@@ -1,0 +1,53 @@
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Darkroom (deal 1/3, carried from app.css) · scope: app · screen: editions finder (empty, loading, not calibrated, candidates, none within threshold, unknown book, error, recorded) · nav: slab, kept · footer: index columns, kept · hero: none, app screen · posture: restrained · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: S, the screen stays inside the shared Darkroom shell; the book reads as one ruled slip beside two ruled lists, with the threshold set in the ink of the figures */
+
+.ed-layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-2xl); align-items: start; }
+@media (max-width: 64rem) { .ed-layout { grid-template-columns: minmax(0, 1fr); } }
+.ed-side { display: grid; gap: var(--space-xl); position: sticky; top: calc(72px + var(--space-lg)); min-width: 0; }
+@media (max-width: 64rem) { .ed-side { position: static; } }
+.ed-main { min-width: 0; }
+
+/* the picker: an input with a listbox under it */
+.finder { display: grid; gap: var(--space-xs); }
+.combo { position: relative; }
+.options { position: absolute; z-index: var(--z-dropdown); inset-inline: 0; top: 100%; margin: 0; padding: 0; list-style: none; max-height: min(26rem, 60vh); overflow-y: auto; background: var(--color-paper-3); border: var(--rule-hair) solid var(--color-muted); border-top: 0; }
+.options[hidden] { display: none; }
+.opt { display: grid; gap: var(--space-3xs); padding: var(--space-sm) var(--space-md); border-bottom: var(--rule-hair) solid var(--color-rule); cursor: pointer; overflow-wrap: anywhere; min-width: 0; }
+.opt:last-child { border-bottom: 0; }
+.opt:hover { background: var(--color-paper-2); }
+.opt[aria-selected="true"] { background: var(--color-paper); box-shadow: inset 3px 0 0 var(--color-accent); }
+.opt[aria-selected="true"] .opt-title { color: var(--color-accent); }
+.opt-title { color: var(--color-ink); }
+#book:empty { display: none; }
+
+/* the chosen book: one ruled slip, as on the catalogue card */
+.slip { min-width: 0; overflow-wrap: anywhere; display: grid; gap: var(--space-md); padding: var(--space-xl); background: var(--color-paper-2); color: var(--color-ink); border-top: 2px solid var(--color-accent-deep); }
+@media (max-width: 40rem) { .slip { padding: var(--space-lg) var(--space-md); } .slip .sheet > div { grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); } }
+.slip-title { font-size: var(--text-section); text-transform: none; overflow-wrap: break-word; min-width: 0; }
+.slip-title:focus { outline: none; }
+.slip-title:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.slip .sheet dd { overflow-wrap: anywhere; min-width: 0; }
+.archive-link { text-decoration-color: var(--color-muted); }
+.archive-link:hover { text-decoration-color: var(--color-accent); }
+.archive-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+.recorded { display: grid; gap: var(--space-3xs); padding-left: var(--space-md); border-left: 2px solid var(--color-accent); font-size: var(--text-sm); color: var(--color-ink-2); }
+.recorded strong { font-weight: 400; color: var(--color-ink); }
+
+/* the two lists */
+.result h2:focus { outline: none; }
+.result h2:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.thr { font-weight: 400; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+.hits { margin: var(--space-sm) 0 0; padding: 0; list-style: none; display: grid; border-top: var(--rule-hair) solid var(--color-rule); }
+.hits li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-md); align-items: baseline; padding: var(--space-sm) 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+.hit-text { display: grid; gap: var(--space-3xs); min-width: 0; }
+.book { overflow-wrap: anywhere; min-width: 0; }
+.book a { text-decoration-color: var(--color-muted); }
+.book a:hover { text-decoration-color: var(--color-accent); }
+.book a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.hits .num { color: var(--color-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dist-word { color: var(--color-muted); }
+.same { justify-self: start; padding: var(--space-3xs) var(--space-xs); border: var(--rule-hair) solid var(--color-accent); color: var(--color-accent); font-size: var(--text-sm); }
+.note--error { border-left-color: var(--color-error); }
+[lang]:not(html) { line-height: 1.7; }
+@media (max-width: 40rem) { .hits li { grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); } }
