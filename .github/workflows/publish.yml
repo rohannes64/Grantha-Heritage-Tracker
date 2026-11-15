@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
@@ -38,10 +38,10 @@ jobs:
         id: rev
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Build the app image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/app.Dockerfile
@@ -54,7 +54,8 @@ jobs:
             org.opencontainers.image.revision=${{ steps.rev.outputs.sha }}
 
       - name: Vulnerability gate (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        # Pinned by commit: this action's tags were renamed (0.28.0 -> v0.28.0) in 2026, which broke the old pin.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
           image-ref: grantha:scan
           severity: CRITICAL
@@ -62,14 +63,14 @@ jobs:
           exit-code: "1"
           format: table
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/app.Dockerfile
