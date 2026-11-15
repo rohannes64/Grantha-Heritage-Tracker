@@ -1,9 +1,9 @@
-/* Hallmark · shape: app screen · genre: atmospheric · theme: Darkroom · scope: app · screen: real-world impact showcase with raea-rendered animations */
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Vellum · scope: app · screen: real-world impact showcase with raea-rendered animations */
 
 .impact-grid {
   display: grid;
   grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
-  gap: var(--space-2xl);
+  gap: var(--space-2xl) var(--gap-columns);
   align-items: center;
 }
 @media (max-width: 64rem) {
@@ -13,6 +13,9 @@
 .impact-video {
   border: var(--rule-hair) solid var(--color-rule);
   background: var(--color-paper-2);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  margin: 0;
 }
 .impact-video video {
   display: block;
@@ -34,10 +37,12 @@
 }
 .impact-copy h2 {
   font-size: var(--text-section);
+  text-transform: none;
 }
 .impact-copy p {
   color: var(--color-ink-2);
   max-width: 58ch;
+  line-height: 1.55;
 }
 .impact-actions {
   display: flex;
@@ -51,8 +56,13 @@
   gap: var(--space-xs);
   padding: var(--space-xs) var(--space-md);
   border-top: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-3);
 }
 .explorer-box {
   display: grid;
   gap: var(--space-lg);
+  padding: var(--space-lg);
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-2);
+  border-radius: var(--radius-card);
 }

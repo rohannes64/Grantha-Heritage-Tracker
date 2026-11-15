@@ -317,13 +317,13 @@ export function resultFigure(r0, { headingLevel = "h3", variant = null } = {}) {
         id: "theme-toggle",
         class: "theme-toggle",
         "aria-pressed": String(saved === "dark"),
-        text: saved === "dark" ? "Semi-light" : "Darkroom",
+        text: saved === "dark" ? "Light" : "Dark",
         onclick: () => {
           const dark = document.documentElement.dataset.theme !== "dark";
           apply(dark ? "dark" : "light");
           try { localStorage.setItem(KEY, dark ? "dark" : "light"); } catch {}
           btn.setAttribute("aria-pressed", String(dark));
-          btn.textContent = dark ? "Semi-light" : "Darkroom";
+          btn.textContent = dark ? "Light" : "Dark";
         },
       });
       box.append(btn);

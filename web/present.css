@@ -51,7 +51,7 @@ html.deck-on { font-size: clamp(100%, min(1.3vw, 2.25vh), 170%); }
 .deck .rf-status { font-size: var(--text-md); }
 /* one result per slide: words on the left, bars on the right, so it fits one screen */
 @media (min-width: 64rem) {
-  .rf--slide, .rf--brief { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); column-gap: var(--space-2xl); grid-auto-flow: row dense; align-items: start; }
+  .rf--slide, .rf--brief { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); column-gap: var(--gap-columns); grid-auto-flow: row dense; align-items: start; }
   .rf--slide > *, .rf--brief > * { grid-column: 1; }
   .rf--slide > .rf-rows, .rf--brief > .rf-rows { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
   .rf--slide > .rf-legend, .rf--brief > .rf-legend { grid-column: 2; grid-row: 4; }
@@ -65,7 +65,7 @@ table.found .met { color: var(--color-success); }
 table.found .miss { color: var(--color-error); }
 
 /* the catalogue card, two columns on a wide screen */
-.present-card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: dense; gap: var(--space-2xl); align-items: start; }
+.present-card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: dense; gap: var(--space-2xl) var(--gap-columns); align-items: start; }
 .present-card-sheet { grid-column: 2; }
 .present-card-side { grid-column: 1; grid-row: 1; display: grid; gap: var(--space-xl); min-width: 0; }
 .deck .present-card { padding: var(--space-lg) var(--space-xl); }

@@ -22,12 +22,12 @@
 }
 
 /* the view switch and the sentence that says what it shows */
-.gx-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xl); align-items: end; margin-bottom: var(--space-lg); }
+.gx-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xl) var(--gap-columns); align-items: end; margin-bottom: var(--space-lg); }
 .gx-view label { min-height: 48px; font-size: var(--text-md); padding: 0 var(--space-lg); }
 .gx-note { font-size: var(--text-lead); line-height: 1.4; color: var(--color-ink); max-width: 56ch; padding-left: var(--space-md); border-left: 2px solid var(--color-accent); }
 @media (max-width: 48rem) { .gx-bar { grid-template-columns: minmax(0, 1fr); gap: var(--space-md); } }
 
-.gx-stage { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: var(--space-xl); align-items: start; }
+.gx-stage { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: var(--space-xl) var(--gap-columns); align-items: start; }
 @media (max-width: 64rem) { .gx-stage { grid-template-columns: minmax(0, 1fr); } }
 
 .gx-figure { margin: 0; min-width: 0; display: grid; gap: var(--space-sm); }

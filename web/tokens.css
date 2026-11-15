@@ -1,30 +1,119 @@
+/* Hallmark · genre: editorial · theme: Vellum (parchment, indigo) · scope: app
+ * posture: restrained · display: Newsreader · body: Hanken Grotesk · outlier: IBM Plex Mono
+ * axes: light/roman-serif/chromatic-indigo · contrast: pass · v3.0.0 */
+
 :root {
   color-scheme: light;
-  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
-  --text-xs: 0.8125rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.25rem; --text-xl: 1.5625rem; --text-2xl: 1.953rem; --text-3xl: 2.441rem;
-  --text-display-s: clamp(2.25rem, 4vw + 0.5rem, 3.75rem); --text-display: clamp(2.75rem, 5vw + 1rem, 5.25rem);
-  --text-section: clamp(2rem, 2.5vw + 1rem, 3.5rem); --text-title: clamp(1.25rem, 0.75vw + 0.875rem, 1.625rem); --text-lead: clamp(1.125rem, 0.35vw + 1rem, 1.375rem);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
-  --color-error: oklch(48% 0.18 25); --color-success: oklch(44% 0.14 150);
-  --container: 1440px; --gutter: 64px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
-  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
-  --color-paper: oklch(93.5% 0.011 76); --color-paper-2: oklch(89.5% 0.013 74); --color-paper-3: oklch(85% 0.015 72);
-  --color-ink: oklch(18% 0.015 50); --color-ink-2: oklch(34% 0.015 52); --color-muted: oklch(47% 0.014 55);
-  --color-rule: oklch(77% 0.014 70);
-  --color-accent: oklch(52% 0.16 42); --color-accent-deep: oklch(40% 0.14 38); --color-accent-ink: oklch(97% 0.008 76); --color-focus: oklch(52% 0.16 42);
-  --font-display: "Sofia Sans Extra Condensed", ui-sans-serif, sans-serif; --font-body: "Barlow", ui-sans-serif, sans-serif;
-  --font-outlier: var(--font-body);
-  --radius-card: 0; --radius-pill: 0; --rule-hair: 1px; --shadow-card: none;
-  --tracking-display: -0.005em; --display-weight: 200; --grain: 0.04;
+
+  /* Spacing Scale */
+  --space-3xs: 2px;
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+  --space-4xl: 144px;
+
+  /* Typographic Hierarchy */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+
+  --text-display-s: clamp(2.25rem, 3.5vw + 0.5rem, 3.5rem);
+  --text-display: clamp(2.75rem, 4.5vw + 1rem, 4.75rem);
+  --text-section: clamp(1.875rem, 2.2vw + 0.875rem, 3rem);
+  --text-title: clamp(1.25rem, 0.75vw + 0.875rem, 1.625rem);
+  --text-lead: clamp(1.125rem, 0.35vw + 1rem, 1.375rem);
+
+  /* Font Families */
+  --font-display: "Newsreader", ui-serif, Georgia, serif;
+  --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-outlier: "IBM Plex Mono", ui-monospace, monospace;
+  --tracking-display: -0.015em;
+  --display-weight: 600;
+
+  /* Motion & Durations */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  /* Layout & Geometry */
+  --container: 1440px;
+  --gutter: 64px;
+  --gap-columns: 32px;
+  --section-gap-s: 120px;
+  --section-gap: 144px;
+  --section-gap-l: 176px;
+
+  /* Corner Radii & Rules */
+  --radius-card: 2px;
+  --radius-pill: 2px;
+  --rule-hair: 1px;
+  --rule-bar: 2px;
+  --rule-heavy: 4px;
+  --shadow-card: none;
+  --grain: 0.035;
+
+  /* Z-Index Hierarchy */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+
+  /* Light Theme: Parchment & Royal Indigo */
+  --color-paper: oklch(96.2% 0.012 85);
+  --color-paper-2: oklch(93.2% 0.015 82);
+  --color-paper-3: oklch(89.0% 0.018 80);
+  --color-ink: oklch(18% 0.015 55);
+  --color-ink-2: oklch(32% 0.015 58);
+  --color-muted: oklch(48% 0.014 62);
+  --color-rule: oklch(80% 0.016 75);
+  --color-rule-2: oklch(66% 0.018 72);
+
+  --color-accent: oklch(44% 0.16 265);
+  --color-accent-deep: oklch(36% 0.14 265);
+  --color-accent-soft: oklch(92% 0.04 265);
+  --color-accent-ink: oklch(98% 0.005 85);
+  --color-focus: oklch(48% 0.17 265);
+
+  --color-error: oklch(48% 0.18 25);
+  --color-success: oklch(44% 0.14 150);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --color-error: oklch(72% 0.15 27); --color-success: oklch(76% 0.13 150);
-  --color-paper: oklch(12.5% 0.008 55); --color-paper-2: oklch(16% 0.009 55); --color-paper-3: oklch(20.5% 0.01 55);
-  --color-ink: oklch(92% 0.012 78); --color-ink-2: oklch(80% 0.012 75); --color-muted: oklch(64% 0.012 65);
-  --color-rule: oklch(29% 0.01 55);
-  --color-accent: oklch(73% 0.15 58); --color-accent-deep: oklch(50% 0.11 52); --color-accent-ink: oklch(12.5% 0.008 55); --color-focus: oklch(73% 0.15 58);
-  --grain: 0.07;
+
+  /* Dark Theme: Archival Library Night */
+  --color-paper: oklch(14% 0.008 55);
+  --color-paper-2: oklch(18% 0.010 55);
+  --color-paper-3: oklch(22.5% 0.012 55);
+  --color-ink: oklch(93% 0.010 82);
+  --color-ink-2: oklch(82% 0.010 80);
+  --color-muted: oklch(64% 0.012 75);
+  --color-rule: oklch(30% 0.010 55);
+  --color-rule-2: oklch(40% 0.010 55);
+
+  --color-accent: oklch(74% 0.14 260);
+  --color-accent-deep: oklch(56% 0.12 260);
+  --color-accent-soft: oklch(24% 0.035 260);
+  --color-accent-ink: oklch(14% 0.008 55);
+  --color-focus: oklch(74% 0.14 260);
+
+  --color-error: oklch(72% 0.15 27);
+  --color-success: oklch(76% 0.13 150);
+  --grain: 0.06;
 }
