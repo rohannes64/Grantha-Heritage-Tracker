@@ -10,21 +10,25 @@ const CAMERA_DIST = 2.7;
 const BCP47 = { eng: "en", hin: "hi", san: "sa", ben: "bn", guj: "gu", tel: "te", kan: "kn", tam: "ta" };
 const NON_LATIN = /(?!\p{Script=Latin})\p{L}/u;
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
-const VIEW_NAME = { uncentred: "Raw", centred: "Language removed" };
+const VIEW_NAME = { uncentred: "Raw", centred: "Language removed", umap: "Neighbourhoods" };
 const LANG_ORDER = Object.keys(LANG);
+const GRP_ORDER = [0, 1, 2];
 
 const $ = (id) => document.getElementById(id);
 const wrap = $("canvas-wrap"), gl = $("gl"), statusEl = $("gx-status"), axisLabels = $("axis-labels");
 const axesList = $("axes"), langsList = $("langs"), find = $("find"), findList = $("find-list"), bookPanel = $("book");
+const langsTitle = $("langs-title"), legendNote = $("legend-note"), sampleBooks = $("sample-books");
 const radios = [...document.querySelectorAll('#view input[name="view"]')];
+const colourRadios = [...document.querySelectorAll('#colour-by input[name="colour"]')];
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const fixtureParam = params().get("fixture");
 const fixtureMode = fixtureParam != null && LOCAL_HOSTS.has(location.hostname);
 
 const S = {
   view: "uncentred", t: 0, anim: null,
-  focusLang: null, picked: -1, related: [], hover: -1,
-  galaxy: null, A: null, B: null, langIdx: null, idIndex: new Map(),
+  colourBy: "lang", focusVal: null, picked: -1, related: [], hover: -1,
+  galaxy: null, views: {}, A: null, B: null, langIdx: null, groupIdx: null, idIndex: new Map(),
+  groupNames: new Map([[0, "Group 1"], [1, "Group 2"], [2, "Group 3"]]),
   docs: null, docsById: new Map(), titlesLower: null,
   dirty: true, autoRotate: false, relSeq: 0,
 };
@@ -133,9 +137,12 @@ async function main() {
     return;
   }
   S.galaxy = g;
-  S.A = normalise(g.views.uncentred);
-  S.B = normalise(g.views.centred);
-  alignSigns(S.A, S.B);
+  const unc = normalise(g.views.uncentred);
+  const cen = normalise(g.views.centred);
+  alignSigns(unc, cen);
+  S.views = { uncentred: unc, centred: cen };
+  S.A = new Float32Array(unc);
+  S.B = new Float32Array(cen);
   g.books.forEach((b, i) => S.idIndex.set(b.identifier, i));
 
   try { build(OrbitControls); } catch (err) {
@@ -144,10 +151,22 @@ async function main() {
   }
   buildLegend();
   shareSentences();
-  const initial = params().get("view") === "centred" ? "centred" : "uncentred";
+  const wantView = params().get("view");
+  const initial = wantView === "centred" ? "centred" : "uncentred";
   setView(initial, { instant: true });
   setStatus("");
   requestAnimationFrame(frame);
+
+  getJSON("data/galaxy_umap.json").then((u) => {
+    if (!u || !Array.isArray(u.coords) || u.coords.length !== S.galaxy.books.length) return;
+    const arr = normalise(u.coords);
+    alignSigns(S.views.centred, arr);
+    S.views.umap = arr;
+    const r = $("view-umap"), lbl = document.querySelector('label[for="view-umap"]');
+    if (r) r.hidden = false;
+    if (lbl) lbl.hidden = false;
+    if (params().get("view") === "umap") setView("umap", { instant: true });
+  }).catch(() => {});
 
   // titles for search, hover and the picked book (a larger file; the map does not wait for it)
   getJSON("data/corpus.json").then((c) => {
@@ -155,6 +174,7 @@ async function main() {
     for (const d of S.docs) S.docsById.set(d.identifier, d);
     S.titlesLower = S.docs.map((d) => `${d.title || ""} ${d.identifier}`.toLowerCase());
     find.disabled = false;
+    buildSampleChips();
     if (S.picked >= 0) renderBookHead();
   }).catch(() => { find.placeholder = "Titles did not load"; });
 
@@ -179,10 +199,13 @@ function build(OrbitControls) {
   const n = S.galaxy.books.length;
   const tint = new Float32Array(n * 3), lang = new Float32Array(n);
   const palette = LANG_ORDER.map((t) => tokenRGB(`--lang-${t}`)), other = tokenRGB("--color-muted");
+  const groupPalette = GRP_ORDER.map((g) => tokenRGB(`--grp-${g}`));
   S.langIdx = new Int8Array(n);
+  S.groupIdx = new Int8Array(n);
   S.galaxy.books.forEach((b, i) => {
     const li = LANG_ORDER.indexOf(b.lang_tag);
     S.langIdx[i] = li;
+    S.groupIdx[i] = b.group != null ? Number(b.group) : -1;
     lang[i] = li;
     const c = li >= 0 ? palette[li] : other;
     tint.set(c, i * 3);
@@ -199,6 +222,7 @@ function build(OrbitControls) {
     transparent: true, depthWrite: false,
   });
   dots = new THREE.Points(geo, dotsMat);
+  dots.userData = { langPalette: palette, groupPalette, other };
   scene.add(dots);
 
   // axes through the centre, faint, with labels placed in HTML each frame
@@ -332,24 +356,46 @@ function axisWords(view) {
 }
 
 function setView(view, { instant = false } = {}) {
-  if (view !== "centred") view = "uncentred";
+  if (!S.views[view]) view = "uncentred";
   S.view = view;
   for (const r of radios) r.checked = r.value === view;
   for (const s of document.querySelectorAll("#view-note [data-view]")) s.hidden = s.dataset.view !== view;
-  const target = view === "centred" ? 1 : 0;
-  if (instant || reduceMotion.matches) { S.anim = null; S.t = target; dots.material.uniforms.uT.value = target; updateMarks(); }
-  else S.anim = { from: S.t, to: target, start: performance.now() };
+  const targetArr = S.views[view];
+  if (instant || reduceMotion.matches) {
+    S.anim = null;
+    S.A.set(targetArr);
+    S.B.set(targetArr);
+    S.t = 0;
+    dots.material.uniforms.uT.value = 0;
+  } else {
+    for (let i = 0; i < S.A.length; i++) S.A[i] = S.A[i] + (S.B[i] - S.A[i]) * S.t;
+    S.B.set(targetArr);
+    S.t = 0;
+    dots.material.uniforms.uT.value = 0;
+    S.anim = { from: 0, to: 1, start: performance.now() };
+  }
+  dots.geometry.attributes.position.needsUpdate = true;
+  dots.geometry.attributes.posB.needsUpdate = true;
+  updateMarks();
   S.dirty = true;
 
-  const words = axisWords(view);
-  [...axisLabels.children].forEach((span, i) => { span.textContent = words[i] ? `Axis ${i + 1}, ${words[i]}` : `Axis ${i + 1}`; });
-  const ex = (S.galaxy.explained && S.galaxy.explained[view]) || [];
-  const total = ex.length ? ex.slice(0, 3).reduce((a, b) => a + (Number(b) || 0), 0) : null;
-  axesList.replaceChildren(
-    ...words.map((w, i) => el("li", {}, el("strong", { text: `Axis ${i + 1}` }), ` ${w ? `${w} of the variation` : "share not recorded"}`)),
-    total != null ? el("li", {}, el("strong", { text: "Together" }), ` ${fmt.p(total)}`) : null);
-  gl.setAttribute("aria-label", `Map of ${fmt.n(S.galaxy.books.length)} books, coloured by language. ${VIEW_NAME[view]} view.`);
-  setParam("view", view === "centred" ? "centred" : null);
+  if (view === "umap") {
+    [...axisLabels.children].forEach((span, i) => { span.textContent = `UMAP ${i + 1}`; });
+    axesList.replaceChildren(
+      el("li", {}, el("strong", { text: "3-D UMAP" }), " cosine neighbourhoods in the language-removed space (distances between far islands are compressed)")
+    );
+  } else {
+    const words = axisWords(view);
+    [...axisLabels.children].forEach((span, i) => { span.textContent = words[i] ? `Axis ${i + 1}, ${words[i]}` : `Axis ${i + 1}`; });
+    const ex = (S.galaxy.explained && S.galaxy.explained[view]) || [];
+    const total = ex.length ? ex.slice(0, 3).reduce((a, b) => a + (Number(b) || 0), 0) : null;
+    axesList.replaceChildren(
+      ...words.map((w, i) => el("li", {}, el("strong", { text: `Axis ${i + 1}` }), ` ${w ? `${w} of the variation` : "share not recorded"}`)),
+      total != null ? el("li", {}, el("strong", { text: "Together" }), ` ${fmt.p(total)}`) : null);
+  }
+  const byLabel = S.colourBy === "group" ? "topic group" : "language";
+  gl.setAttribute("aria-label", `Map of ${fmt.n(S.galaxy.books.length)} books, coloured by ${byLabel}. ${VIEW_NAME[view]} view.`);
+  setParam("view", view === "uncentred" ? null : view);
 }
 
 for (const r of radios) r.addEventListener("change", () => { if (r.checked && S.galaxy) setView(r.value); });
@@ -359,7 +405,8 @@ document.addEventListener("keydown", (e) => {
   const typing = e.target.closest && e.target.closest("input, textarea, select, [contenteditable]");
   if ((e.key === "v" || e.key === "V") && (!typing || e.target.type === "radio")) {
     e.preventDefault();
-    setView(S.view === "centred" ? "uncentred" : "centred");
+    const order = Object.keys(S.views);
+    setView(order[(order.indexOf(S.view) + 1) % order.length]);
   } else if (e.key === "Escape" && !typing && S.picked >= 0) {
     clearPick();
   }
@@ -385,25 +432,99 @@ gl.addEventListener("keydown", (e) => {
   S.dirty = true;
 });
 
-// ---------- legend: choose a language to light only its books
+// ---------- legend: choose a language or topic group to light only its books
+
+function setColourBy(mode) {
+  S.colourBy = mode === "group" ? "group" : "lang";
+  S.focusVal = null;
+  for (const r of colourRadios) r.checked = r.value === S.colourBy;
+  if (langsTitle) langsTitle.textContent = S.colourBy === "group" ? "Topic groups" : "Languages";
+  if (legendNote) legendNote.textContent = S.colourBy === "group"
+    ? "Choose a topic group to light up only its books."
+    : "Choose a language to light up only its books.";
+  const tintAttr = dots.geometry.attributes.tint;
+  const langAttr = dots.geometry.attributes.lang;
+  const { langPalette, groupPalette, other } = dots.userData;
+  const n = S.galaxy.books.length;
+  for (let i = 0; i < n; i++) {
+    if (S.colourBy === "group") {
+      const gi = S.groupIdx[i];
+      langAttr.array[i] = gi;
+      tintAttr.array.set(gi >= 0 && gi < groupPalette.length ? groupPalette[gi] : other, i * 3);
+    } else {
+      const li = S.langIdx[i];
+      langAttr.array[i] = li;
+      tintAttr.array.set(li >= 0 ? langPalette[li] : other, i * 3);
+    }
+  }
+  tintAttr.needsUpdate = true;
+  langAttr.needsUpdate = true;
+  dots.material.uniforms.uFocus.value = -1;
+  buildLegend();
+  S.dirty = true;
+}
+
+for (const r of colourRadios) r.addEventListener("change", () => { if (r.checked && S.galaxy) setColourBy(r.value); });
 
 function buildLegend() {
+  if (S.colourBy === "group") {
+    const counts = new Map();
+    for (const b of S.galaxy.books) {
+      const g = b.group != null ? Number(b.group) : -1;
+      counts.set(g, (counts.get(g) || 0) + 1);
+    }
+    const groups = GRP_ORDER.filter((g) => counts.has(g));
+    langsList.classList.remove("has-focus");
+    langsList.replaceChildren(...groups.map((g) => el("li", {},
+      el("button", { type: "button", "aria-pressed": "false", "data-focus": String(g), onclick: () => focusLegend(g) },
+        el("span", { class: "dot", style: `--c:var(--grp-${g})`, "aria-hidden": "true" }),
+        el("span", { text: S.groupNames.get(g) || `Group ${g + 1}` }),
+        el("span", { class: "count", text: fmt.n(counts.get(g)) })))));
+    return;
+  }
   const counts = new Map();
   for (const b of S.galaxy.books) counts.set(b.lang_tag, (counts.get(b.lang_tag) || 0) + 1);
   const tags = LANG_ORDER.filter((t) => counts.has(t)).concat([...counts.keys()].filter((t) => !LANG[t]));
+  langsList.classList.remove("has-focus");
   langsList.replaceChildren(...tags.map((t) => el("li", {},
-    el("button", { type: "button", "aria-pressed": "false", "data-lang": t, onclick: () => focusLang(t) },
+    el("button", { type: "button", "aria-pressed": "false", "data-focus": t, onclick: () => focusLegend(t) },
       el("span", { class: "dot", style: `--c:${langColorVar(t)}`, "aria-hidden": "true" }),
       el("span", { text: langName(t) }),
       el("span", { class: "count", text: fmt.n(counts.get(t)) })))));
 }
 
-function focusLang(tag) {
-  S.focusLang = S.focusLang === tag ? null : tag;
-  for (const b of langsList.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.lang === S.focusLang));
-  langsList.classList.toggle("has-focus", S.focusLang != null);
-  dots.material.uniforms.uFocus.value = S.focusLang == null ? -1 : LANG_ORDER.indexOf(S.focusLang);
+function focusLegend(val) {
+  S.focusVal = S.focusVal === val ? null : val;
+  for (const b of langsList.querySelectorAll("button")) {
+    b.setAttribute("aria-pressed", String(b.dataset.focus === (S.focusVal == null ? "" : String(S.focusVal))));
+  }
+  langsList.classList.toggle("has-focus", S.focusVal != null);
+  if (S.focusVal == null) {
+    dots.material.uniforms.uFocus.value = -1;
+  } else {
+    dots.material.uniforms.uFocus.value = S.colourBy === "group" ? Number(S.focusVal) : LANG_ORDER.indexOf(S.focusVal);
+  }
   S.dirty = true;
+}
+
+function buildSampleChips() {
+  if (!sampleBooks || !S.docs) return;
+  const wantLangs = ["san", "hin", "ben", "tam"];
+  const picks = [];
+  for (const tag of wantLangs) {
+    const match = S.docs.find((d) => d.lang_tag === tag && S.idIndex.has(d.identifier) && d.title && d.title.length <= 36)
+      || S.docs.find((d) => d.lang_tag === tag && S.idIndex.has(d.identifier) && d.title);
+    if (match) picks.push(match);
+  }
+  if (!picks.length) return;
+  sampleBooks.replaceChildren(...picks.map((d) => el("button", {
+    type: "button",
+    class: "gx-sample",
+    text: d.title,
+    ...titleAttrs(d.title, d.lang_tag),
+    onclick: () => { stopAutoRotate(); pick(S.idIndex.get(d.identifier)); },
+  })));
+  sampleBooks.hidden = false;
 }
 
 // ---------- picking with the pointer (screen-space nearest dot, within PICK_PX)
@@ -416,10 +537,11 @@ function nearestAt(clientX, clientY) {
   camera.updateMatrixWorld();
   const e = proj.m.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse).elements;
   const n = S.galaxy.books.length, t = S.t, A = S.A, B = S.B;
-  const focus = S.focusLang == null ? -1 : LANG_ORDER.indexOf(S.focusLang);
+  const focus = S.focusVal == null ? -1 : (S.colourBy === "group" ? Number(S.focusVal) : LANG_ORDER.indexOf(S.focusVal));
+  const idxArr = S.colourBy === "group" ? S.groupIdx : S.langIdx;
   let best = -1, bestD = PICK_PX * PICK_PX, bestW = Infinity;
   for (let i = 0; i < n; i++) {
-    if (focus >= 0 && S.langIdx[i] !== focus) continue;
+    if (focus >= 0 && idxArr[i] !== focus) continue;
     const k = i * 3;
     const x = A[k] + (B[k] - A[k]) * t, y = A[k + 1] + (B[k + 1] - A[k + 1]) * t, z = A[k + 2] + (B[k + 2] - A[k + 2]) * t;
     const cw = e[3] * x + e[7] * y + e[11] * z + e[15];
@@ -504,7 +626,7 @@ function updateMarks() {
   }
   lp.needsUpdate = true;
   links.geometry.setDrawRange(0, m);
-  dots.material.uniforms.uDim.value = S.picked >= 0 ? 0.55 : 1;
+  dots.material.uniforms.uDim.value = S.picked >= 0 ? 0.22 : 1;
 }
 
 // ---------- the picked book: the side panel

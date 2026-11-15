@@ -41,6 +41,30 @@ def build(E: np.ndarray, ids: list[str], lang: list[str], groups: list[int]) -> 
                       for i, l, g in zip(ids, lang, groups)]}
 
 
+def build_umap(Z: np.ndarray, n_neighbors: int = 15, min_dist: float = 0.1) -> dict | None:
+    """3-D UMAP layout of the centred space (optional; returns None if umap-learn is missing)."""
+    try:
+        import umap
+    except ImportError:
+        return None
+    reducer = umap.UMAP(
+        n_components=3,
+        n_neighbors=n_neighbors,
+        min_dist=min_dist,
+        metric="cosine",
+        random_state=2026,
+        compatibility_layout=True,
+    )
+    coords = reducer.fit_transform(np.asarray(Z, dtype=float))
+    return {
+        "n": int(coords.shape[0]),
+        "coords": [[round(float(v), 4) for v in row] for row in coords],
+        "metric": "cosine",
+        "n_neighbors": n_neighbors,
+        "min_dist": min_dist,
+    }
+
+
 def main() -> None:
     bundle = joblib.load(config.DATA / "model" / "bundle.joblib")
     fs, order = bundle["feature_set"], list(bundle["ids"])
@@ -58,6 +82,15 @@ def main() -> None:
     WEB_DATA.mkdir(parents=True, exist_ok=True)
     (WEB_DATA / "galaxy.json").write_text(json.dumps(g, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"wrote galaxy.json for {g['n']} books")
+    Z = bundle.get("Z")
+    if Z is not None:
+        u = build_umap(Z)
+        if u is not None:
+            (WEB_DATA / "galaxy_umap.json").write_text(
+                json.dumps(u, ensure_ascii=False, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            print(f"wrote galaxy_umap.json for {u['n']} books")
 
 
 if __name__ == "__main__":

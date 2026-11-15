@@ -41,10 +41,12 @@
       <legend>View</legend>
       <input type="radio" name="view" id="view-raw" value="uncentred" checked><label for="view-raw">Raw</label>
       <input type="radio" name="view" id="view-centred" value="centred"><label for="view-centred">Language removed</label>
+      <input type="radio" name="view" id="view-umap" value="umap" hidden><label for="view-umap" hidden>Neighbourhoods</label>
     </fieldset>
     <p class="gx-note" id="view-note" aria-live="polite">
       <span data-view="uncentred">As the model places the books. Books sit mostly with their own language: the model sees language first.<span class="gx-share" id="share-uncentred"></span></span>
       <span data-view="centred" hidden>Each language’s average position is taken away. Books in different languages mix, so a book’s nearest neighbours can now be in other scripts.<span class="gx-share" id="share-centred"></span></span>
+      <span data-view="umap" hidden>Books placed by their closest neighbours in the language-removed space (3-D UMAP). Subject pockets pull apart into visible islands instead of a uniform ball.<span class="gx-share" id="share-umap"></span></span>
     </p>
   </div>
 
@@ -63,8 +65,15 @@
 
     <aside class="gx-side" aria-label="Map key and book">
       <section aria-labelledby="langs-title">
-        <h2 id="langs-title" class="gx-h">Languages</h2>
-        <p class="small muted">Choose a language to light up only its books.</p>
+        <div class="gx-legend-head">
+          <h2 id="langs-title" class="gx-h">Languages</h2>
+          <fieldset class="seg seg-sm" id="colour-by">
+            <legend class="gx-sr-only">Colour dots by</legend>
+            <input type="radio" name="colour" id="col-lang" value="lang" checked><label for="col-lang">Language</label>
+            <input type="radio" name="colour" id="col-group" value="group"><label for="col-group">Group</label>
+          </fieldset>
+        </div>
+        <p class="small muted" id="legend-note">Choose a language to light up only its books.</p>
         <ul class="gx-langs" id="langs"></ul>
       </section>
 
@@ -74,6 +83,7 @@
           <input class="input" id="find" type="search" autocomplete="off" spellcheck="false" placeholder="Title in any script" role="combobox" aria-expanded="false" aria-controls="find-list" aria-autocomplete="list" disabled>
           <ul class="gx-find-list" id="find-list" role="listbox" aria-label="Matching books" hidden></ul>
         </div>
+        <div class="gx-samples" id="sample-books" hidden aria-label="Sample books"></div>
       </section>
 
       <section class="gx-book" id="book" aria-labelledby="book-title" aria-live="polite">
