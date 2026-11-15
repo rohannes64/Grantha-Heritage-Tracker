@@ -1,0 +1,184 @@
+<!doctype html>
+<!--
+  A palm-leaf manuscript (olai chuvadi), modelled in three.js for the deck's title slide.
+  Rendered headless by docs/build/manuscript/render.mjs to docs/assets/manuscript_model.png (transparent background).
+  The script on the top leaves is the opening of the Tirukkural (couplets 1 to 3), a public-domain classical Tamil text,
+  incised and inked in soot as on real leaves. No figure on the slide comes from this file.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Palm-leaf manuscript model</title>
+<style>html, body { margin: 0; background: transparent; overflow: clip; } canvas { display: block; }</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from "three";
+
+const W = 2600, H = 1500;                                 // render size in pixels
+const LEAF = { len: 42, wid: 4.1, thick: 0.055 };          // centimetres
+const BOARD = { len: 44, wid: 4.7, thick: 0.85 };
+const HOLES = [-0.30, 0.30];                               // cord holes, as a share of the leaf length from the centre
+const N_LEAVES = 34, N_FAN = 7;
+const TEXT = "அகர முதல எழுத்தெல்லாம் ஆதி பகவன் முதற்றே உலகு ॥ கற்றதனால் ஆய பயனென்கொல் வாலறிவன் நற்றாள் தொழாஅர் எனின் ॥ "
+           + "மலர்மிசை ஏகினான் மாணடி சேர்ந்தார் நிலமிசை நீடுவாழ் வார் ॥ ";
+
+// Seeded random, so every render is the same picture.
+let seed = 26096;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const jitter = (a) => (rnd() * 2 - 1) * a;
+
+// ---------- textures ----------
+function leafCanvas(withText, offset) {
+  const c = document.createElement("canvas"); c.width = 4096; c.height = 400;
+  const g = c.getContext("2d");
+  const base = g.createLinearGradient(0, 0, 0, c.height);
+  base.addColorStop(0, "#b8935a"); base.addColorStop(0.12, "#d6b77c"); base.addColorStop(0.5, "#dcc088");
+  base.addColorStop(0.88, "#d2b276"); base.addColorStop(1, "#a9834c");
+  g.fillStyle = base; g.fillRect(0, 0, c.width, c.height);
+  for (let i = 0; i < 900; i++) {                          // long fibres along the leaf
+    const y = rnd() * c.height, x = rnd() * c.width, len = 300 + rnd() * 2400;
+    g.strokeStyle = rnd() < 0.55 ? `rgba(110,80,40,${0.04 + rnd() * 0.1})` : `rgba(250,232,190,${0.05 + rnd() * 0.12})`;
+    g.lineWidth = 0.6 + rnd() * 1.8;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + len, y + jitter(3)); g.stroke();
+  }
+  for (let i = 0; i < 40; i++) {                           // age: faint brown blotches
+    const x = rnd() * c.width, y = rnd() * c.height, r = 10 + rnd() * 60;
+    const s = g.createRadialGradient(x, y, 0, x, y, r);
+    s.addColorStop(0, `rgba(120,80,35,${0.08 + rnd() * 0.12})`); s.addColorStop(1, "rgba(120,80,35,0)");
+    g.fillStyle = s; g.fillRect(x - r, y - r, 2 * r, 2 * r);
+  }
+  for (const h of HOLES) {                                 // the worn ring round each cord hole
+    const x = (0.5 + h) * c.width, y = c.height / 2, r = 46;
+    const s = g.createRadialGradient(x, y, 14, x, y, r);
+    s.addColorStop(0, "rgba(70,45,20,0.55)"); s.addColorStop(1, "rgba(70,45,20,0)");
+    g.fillStyle = s; g.fillRect(x - r, y - r, 2 * r, 2 * r);
+  }
+  if (withText) {
+    // Text runs the length of the leaf in lines, broken round the holes, as on real leaves.
+    const segs = [[0.035, 0.5 + HOLES[0] - 0.035], [0.5 + HOLES[0] + 0.035, 0.5 + HOLES[1] - 0.035], [0.5 + HOLES[1] + 0.035, 0.965]];
+    const lines = 8, top = 40, step = (c.height - 2 * top) / (lines - 1);
+    g.font = "42px 'Nirmala UI'"; g.textBaseline = "middle";
+    const long = TEXT.repeat(6);
+    for (let l = 0; l < lines; l++) {
+      const y = top + l * step;
+      for (const [a, b] of segs) {
+        g.save(); g.beginPath(); g.rect(a * c.width, y - 40, (b - a) * c.width, 80); g.clip();
+        g.fillStyle = "rgba(38,24,12,0.86)";               // soot rubbed into the incised line
+        g.fillText(long, a * c.width - ((offset + l * 911 + a * 3000) % 2600), y);
+        g.restore();
+      }
+    }
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; return t;
+}
+
+function woodCanvas() {
+  const c = document.createElement("canvas"); c.width = 4096; c.height = 460;
+  const g = c.getContext("2d");
+  g.fillStyle = "#5a2f1a"; g.fillRect(0, 0, c.width, c.height);
+  for (let i = 0; i < 260; i++) {                          // grain
+    const y0 = rnd() * c.height, amp = 4 + rnd() * 18, f = 0.0015 + rnd() * 0.003;
+    g.strokeStyle = rnd() < 0.6 ? `rgba(30,14,6,${0.12 + rnd() * 0.25})` : `rgba(150,85,45,${0.08 + rnd() * 0.18})`;
+    g.lineWidth = 1 + rnd() * 3.5;
+    g.beginPath();
+    for (let x = 0; x <= c.width; x += 24) { const y = y0 + Math.sin(x * f + i) * amp; x ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.stroke();
+  }
+  g.strokeStyle = "rgba(215,170,95,0.55)"; g.lineWidth = 7;  // an inlaid border line, as on carved covers
+  g.strokeRect(70, 60, c.width - 140, c.height - 120);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; return t;
+}
+
+// ---------- geometry: a long strip with rounded ends and cord holes, lying flat ----------
+function strip(len, wid, thick, holeR, bevel) {
+  const r = wid * 0.42, x0 = -len / 2, x1 = len / 2, y0 = -wid / 2, y1 = wid / 2;
+  const s = new THREE.Shape();
+  s.moveTo(x0 + r, y0); s.lineTo(x1 - r, y0); s.quadraticCurveTo(x1, y0, x1, y0 + r); s.lineTo(x1, y1 - r);
+  s.quadraticCurveTo(x1, y1, x1 - r, y1); s.lineTo(x0 + r, y1); s.quadraticCurveTo(x0, y1, x0, y1 - r);
+  s.lineTo(x0, y0 + r); s.quadraticCurveTo(x0, y0, x0 + r, y0);
+  for (const h of HOLES) { const p = new THREE.Path(); p.absarc(h * LEAF.len, 0, holeR, 0, Math.PI * 2, true); s.holes.push(p); }
+  const geo = new THREE.ExtrudeGeometry(s, { depth: thick, bevelEnabled: bevel > 0, bevelSize: bevel, bevelThickness: bevel,
+                                            bevelSegments: 3, curveSegments: 24 });
+  const pos = geo.attributes.position, uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) - x0) / len, (pos.getY(i) - y0) / wid);
+  geo.rotateX(-Math.PI / 2);                               // shape plane becomes the floor plane, thickness goes up
+  return geo;
+}
+
+// ---------- scene ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.setClearColor(0x000000, 0);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(25, W / H, 1, 400);
+camera.position.set(4, 40, 58); camera.lookAt(0, 0, 0.5);
+
+scene.add(new THREE.HemisphereLight(0xfff4e2, 0x8a6a45, 0.9));
+const key = new THREE.DirectionalLight(0xffeccf, 2.6);
+key.position.set(-26, 52, 30); key.castShadow = true;
+key.shadow.mapSize.set(4096, 4096); key.shadow.radius = 6; key.shadow.bias = -0.0004;
+Object.assign(key.shadow.camera, { left: -36, right: 36, top: 26, bottom: -26, near: 1, far: 140 });
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xdfe6ff, 0.5); rim.position.set(30, 20, -40); scene.add(rim);
+
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.ShadowMaterial({ color: 0x3a2814, opacity: 0.3 }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+const wood = new THREE.MeshStandardMaterial({ map: woodCanvas(), roughness: 0.55, metalness: 0 });
+const woodEdge = new THREE.MeshStandardMaterial({ color: 0x3e1f10, roughness: 0.6 });
+const plain = leafCanvas(false, 0), inked = [leafCanvas(true, 0), leafCanvas(true, 700), leafCanvas(true, 1500)];
+const leafEdge = new THREE.MeshStandardMaterial({ color: 0xb08a52, roughness: 0.9 });
+const leafMat = (t) => new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: 0.02, roughness: 0.82, metalness: 0 });
+
+const bundle = new THREE.Group(); scene.add(bundle);
+const add = (geo, mats, x, y, z, yaw) => {
+  const m = new THREE.Mesh(geo, mats); m.position.set(x, y, z); m.rotation.y = yaw; m.castShadow = m.receiveShadow = true;
+  bundle.add(m); return m;
+};
+
+const boardGeo = strip(BOARD.len, BOARD.wid, BOARD.thick, 0.32, 0.12);
+add(boardGeo, [wood, woodEdge], 0, 0.12, 0, 0);                              // bottom board
+const leafGeo = strip(LEAF.len, LEAF.wid, LEAF.thick, 0.3, 0);
+let y = 0.12 + BOARD.thick + 0.12;
+const stackLeaf = leafMat(plain);
+for (let i = 0; i < N_LEAVES; i++) {                                          // the closed stack
+  add(leafGeo, [stackLeaf, leafEdge], jitter(0.12), y, jitter(0.07), jitter(0.006));
+  y += LEAF.thick + 0.004;
+}
+// The top leaves fan out round the left cord, the way a reader turns them.
+const pivot = HOLES[0] * LEAF.len;
+for (let i = 0; i < N_FAN; i++) {
+  const g = new THREE.Group(); g.position.set(pivot, y, 0); g.rotation.y = -(i + 1) * 0.032; bundle.add(g);
+  const m = new THREE.Mesh(leafGeo, [leafMat(inked[i % 3]), leafEdge]);
+  m.position.set(-pivot, 0, 0); m.castShadow = m.receiveShadow = true; g.add(m);
+  y += LEAF.thick + 0.012;
+}
+// The top board, set aside behind the bundle.
+add(boardGeo, [wood, woodEdge], 2.5, 0.12, -6.4, 0.035);
+
+// The cord: up through the left hole, a loose loop over the leaves, trailing to the floor.
+const cordPts = [
+  [pivot, -0.2, 0], [pivot, y + 0.3, 0], [pivot - 2.2, y + 0.55, 0.25], [pivot - 6.6, y + 0.3, 0.55], [pivot - 8.9, y - 0.5, 1.0],
+  [pivot - 9.7, 0.6, 2.3], [pivot - 8.8, 0.14, 4.4], [pivot - 5.8, 0.14, 6.0], [pivot - 2.4, 0.14, 6.3],
+].map(([a, b, c]) => new THREE.Vector3(a, b, c));
+const cord = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(cordPts), 200, 0.13, 12, false),
+  new THREE.MeshStandardMaterial({ color: 0x4a2a17, roughness: 0.95 }));
+cord.castShadow = true; bundle.add(cord);
+const knot = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 14), cord.material);
+knot.position.copy(cordPts[cordPts.length - 1]); knot.castShadow = true; bundle.add(knot);
+
+bundle.rotation.y = -0.1;
+bundle.position.set(0, 0, 0);
+
+renderer.render(scene, camera);
+window.__done = true;
+</script>
+</body>
+</html>

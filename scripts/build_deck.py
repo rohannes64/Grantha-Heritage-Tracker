@@ -1,6 +1,7 @@
 """Builds Grantha_Heritage_Tracker_SIH26096.pptx from the result files, with no hand-typed result.
 
     python scripts/build_deck.py
+    powershell -File scripts/embed_fonts.ps1        # optional: embeds the fonts so any PC shows the deck as designed
 
 Reads only:
   reports/deliverable_facts.json           every number written on a slide or in the notes
@@ -9,6 +10,8 @@ Reads only:
   web/data/galaxy.json, galaxy_umap.json   the archive map: each book's position, language and group. galaxy_umap.json is
                                            written by pipeline/galaxy.py when umap-learn is installed (the live app has it);
                                            without it the map slide falls back to the flat view in galaxy.json
+  docs/assets/manuscript_model.png         the title slide's palm-leaf manuscript, rendered from docs/build/manuscript/
+  docs/assets/fibre_wash.png               the parchment fibre texture laid on the deck's bands
 
 Every number in slide text comes from deliverable_facts.json or reports/features/*.json, so
 `python scripts/check_claims.py` can trace it. Every sentence that states an outcome (met or not met, better or worse,
@@ -16,9 +19,11 @@ which subject a group leans to, whether centring helped) is chosen by a branch o
 Chart values carry a `# from:` comment naming their file and key path. Titles that state a result are built from
 the data, so they stay true when the results change.
 
-Fonts: Georgia (headings) and Segoe UI (body) ship with every Windows install and with Office, so the deck renders
-the same on any Windows PowerPoint without embedding. Book titles in Indian scripts use Nirmala UI, the Windows
-font that covers Bengali, Devanagari, Gujarati, Kannada, Tamil and Telugu.
+Design: Hallmark's Vellum theme, parchment colourway: a parchment ground, umber ink, Grenze Gotisch for the heads,
+its roman sibling Grenze for one statement, Hanken Grotesk for everything read, hairline and double rules, and
+ultramarine as the one pigment (the series that argues, the figures, the summary field). No shadows, 2 px corners.
+Fonts: Grenze Gotisch SemiBold, Grenze, Hanken Grotesk (Regular, Medium, SemiBold), SIL Open Font License, from Google
+Fonts. They must be installed to build a faithful copy; scripts/embed_fonts.ps1 embeds them in the saved deck.
 """
 import json
 import sys
@@ -35,29 +40,35 @@ from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
 # ==============================================================================
-# DESIGN TOKENS: the only place a colour, font or size is written
+# DESIGN TOKENS: the only place a colour, font or size is written (Hallmark Vellum, parchment; oklch -> sRGB)
 # ==============================================================================
 COLOR = {
-    "paper": "FFFFFF",       # content slide ground
-    "ink": "1C1A17",         # text and the dark ground
-    "muted": "6A645B",       # secondary text, axis labels
-    "rule": "E3DFD8",        # hairlines and gridlines
-    "tint": "F4F2EE",        # one panel surface
-    "accent": "A63A1F",      # laterite red: the one series that argues
-    "accent_soft": "E7B9AA",  # light end of the accent ramp (table shading)
-    "neutral": "B9B3AA",     # reference and baseline series
-    "on_dark": "F4F2EE",     # text on the dark ground
-    "on_dark_muted": "B5AEA3",
+    "paper": "F3EADA",        # oklch(94% 0.024 82): the ground
+    "paper_2": "E9DCC7",      # oklch(90% 0.032 80): the fibre band
+    "paper_3": "DECFB7",      # oklch(86% 0.036 78): baseline bars, the empty share
+    "ink": "261A12",          # oklch(23% 0.025 55): umber ink
+    "ink_2": "3A2D24",        # oklch(31% 0.024 58)
+    "muted": "62554A",        # oklch(46% 0.024 64): secondary text, axis labels
+    "rule": "BCAB96",         # oklch(75% 0.035 72): hairlines; also the reference series
+    "accent": "2942AB",       # oklch(43% 0.17 268): ultramarine, the one pigment
+    "accent_deep": "1B2E87",  # oklch(35% 0.15 268)
+    "accent_soft": "D1DBF3",  # oklch(89% 0.035 268): table shading, the key column
+    "accent_ink": "F5EEE0",   # oklch(95% 0.02 82): text on the pigment field
 }
-FONT = {"head": "Georgia", "body": "Segoe UI", "indic": "Nirmala UI"}
-SIZE = {"display": 54, "title": 32, "stat": 88, "lead": 22, "body": 16, "small": 14, "caption": 11, "chart": 13,
-        "table": 13, "step": 40}
+FONT = {"display": "Grenze Gotisch SemiBold",   # heads, figures (never below 30 px, never running text)
+        "outlier": "Grenze",                     # one statement set large
+        "body": "Hanken Grotesk", "body_med": "Hanken Grotesk Medium", "body_semi": "Hanken Grotesk SemiBold",
+        "indic": "Nirmala UI"}
+SIZE = {"display": 66, "title": 40, "figure": 60, "stat": 104, "section": 28, "statement": 26, "lead": 20, "body": 15,
+        "title_s": 32, "small": 13, "caption": 10.5, "chart": 12, "table": 12.5, "mast": 11.5}
 SLIDE_W, SLIDE_H = 13.333, 7.5
 MARGIN = 0.75                       # left and right
-TITLE_Y, TITLE_H = 0.55, 1.25
-BODY_Y = 2.05                       # content starts here
-FOOT_Y = 6.92                       # source line and slide number
+MAST_Y = 0.36                       # running head
+TITLE_Y, TITLE_H = 0.88, 1.12       # the head sits on its baseline at TITLE_Y + TITLE_H
+BODY_Y = 2.25                       # content starts here
+FOOT_Y = 6.92                       # the hairline above the source line
 GAP = 0.4
+ASSETS = Path(__file__).resolve().parents[1] / "docs" / "assets"
 
 
 def rgb(name: str) -> RGBColor:
@@ -65,7 +76,7 @@ def rgb(name: str) -> RGBColor:
 
 
 def mix(a: str, b: str, t: float) -> RGBColor:
-    """A colour t of the way from token a to token b (for table shading)."""
+    """A colour t of the way from token a to token b (for table shading, and quiet text on the pigment field)."""
     ca, cb = RGBColor.from_string(COLOR[a]), RGBColor.from_string(COLOR[b])
     return RGBColor(*(round(x + (y - x) * t) for x, y in zip(ca, cb)))
 
@@ -83,7 +94,6 @@ def load(rel: str):
 
 F = load("reports/deliverable_facts.json")
 STUDY = load("web/data/study.json")
-ENCODERS = load("reports/study/encoder_comparison.json")
 NAMES = load("reports/cluster_names.json")
 FEATURES = {p.stem: json.loads(p.read_text(encoding="utf-8"))
             for p in sorted((ROOT / "reports" / "features").glob("*.json"))} if (ROOT / "reports" / "features").exists() else {}
@@ -91,7 +101,6 @@ FEATURES = {p.stem: json.loads(p.read_text(encoding="utf-8"))
 C = F["corpus"]
 TEST, VAL = F["evaluation"]["test"], F["evaluation"]["val"]
 H, DB = F["hierarchical"], F["dbscan"]
-CMP = F.get("comparison_study")
 CE = F.get("centring_effect")                     # from: deliverable_facts.json:centring_effect (train books, same model)
 MET = TEST["met"]                                 # from: deliverable_facts.json:evaluation.test.met
 CAT = TEST.get("catalogue") or {}                 # from: deliverable_facts.json:evaluation.test.catalogue
@@ -134,14 +143,27 @@ BLANK = prs.slide_layouts[6]
 SLIDES = []
 
 
-def ground(slide, dark=False):
+def ground(slide, color="paper"):
     fill = slide.background.fill
     fill.solid()
-    fill.fore_color.rgb = rgb("ink" if dark else "paper")
+    fill.fore_color.rgb = rgb(color)
+
+
+def font_for(st: dict) -> str:
+    face = st.get("font", "body")
+    if face == "body" and st.get("bold"):
+        return FONT["body_semi"]          # a real SemiBold, never a synthetic bold
+    if face == "body" and st.get("medium"):
+        return FONT["body_med"]
+    return FONT[face]
+
+
+def color_of(c):
+    return c if isinstance(c, RGBColor) else rgb(c)
 
 
 def text(slide, x, y, w, h, paras, anchor=MSO_ANCHOR.TOP, name=None):
-    """paras: list of (text, style) or (list of (text, style) runs). style: dict(font, size, color, bold, italic, align, space)."""
+    """paras: list of (text, style) or (list of (text, style) runs). style: dict(font, size, color, bold, medium, align, space, line)."""
     box = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
     if name:
         box.name = name
@@ -156,15 +178,15 @@ def text(slide, x, y, w, h, paras, anchor=MSO_ANCHOR.TOP, name=None):
         p.alignment = first_style.get("align", PP_ALIGN.LEFT)
         if first_style.get("space"):
             p.space_before = Pt(first_style["space"])
-        p.line_spacing = first_style.get("line", 1.1)
+        p.line_spacing = first_style.get("line", 1.15)
         for t, st in runs:
             r = p.add_run()
             r.text = t
-            r.font.name = FONT[st.get("font", "body")]
+            r.font.name = font_for(st)
             r.font.size = Pt(SIZE[st.get("size", "body")])
-            r.font.color.rgb = rgb(st.get("color", "ink"))
-            r.font.bold = st.get("bold", False)
-            r.font.italic = st.get("italic", False)
+            r.font.color.rgb = color_of(st.get("color", "ink"))
+            r.font.bold = False
+            r.font.italic = False
     return box
 
 
@@ -172,27 +194,24 @@ def S(**kw):
     return kw
 
 
-def new_slide(title, notes, source=None, dark=False):
-    slide = prs.slides.add_slide(BLANK)
-    ground(slide, dark)
-    SLIDES.append(slide)
-    if title:
-        text(slide, MARGIN, TITLE_Y, SLIDE_W - 2 * MARGIN, TITLE_H,
-             [(title, S(font="head", size="title", color="on_dark" if dark else "ink", line=1.0))],
-             anchor=MSO_ANCHOR.BOTTOM, name="Title")
-    if source:
-        text(slide, MARGIN, FOOT_Y, 10.5, 0.3, [(f"Source: {source}", S(size="caption", color="muted"))], name="Source")
-    if not dark:
-        text(slide, SLIDE_W - MARGIN - 0.8, FOOT_Y, 0.8, 0.3,
-             [(str(len(SLIDES)), S(size="caption", color="muted", align=PP_ALIGN.RIGHT))], name="Slide number")
-    slide.notes_slide.notes_text_frame.text = notes.strip()
-    return slide
+def hline(slide, x, y, w, color="rule", weight=0.75):
+    ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x), Inches(y), Inches(x + w), Inches(y))
+    ln.line.color.rgb = color_of(color)
+    ln.line.width = Pt(weight)
+    ln._element.spPr.append(etree.Element(qn("a:effectLst")))   # printed flat: no theme shadow under a rule
+    return ln
+
+
+def double_rule(slide, x, y, w, color="ink"):
+    """The printer's double rule: two ink hairlines 3 pt apart (Vellum's --rule-double)."""
+    hline(slide, x, y, w, color, 0.9)
+    hline(slide, x, y + 0.045, w, color, 0.9)
 
 
 def rect(slide, x, y, w, h, color, name=None):
     shp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
     shp.fill.solid()
-    shp.fill.fore_color.rgb = rgb(color) if isinstance(color, str) else color
+    shp.fill.fore_color.rgb = color_of(color)
     shp.line.fill.background()
     shp.shadow.inherit = False
     if name:
@@ -200,19 +219,40 @@ def rect(slide, x, y, w, h, color, name=None):
     return shp
 
 
-def hline(slide, x, y, w, color="rule", weight=1.0):
-    ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x), Inches(y), Inches(x + w), Inches(y))
-    ln.line.color.rgb = rgb(color)
-    ln.line.width = Pt(weight)
-    return ln
+def fibre_band(slide, x, y, w, h):
+    """A paper_2 band carrying the long tan fibre wash (Vellum's one texture, on bands only)."""
+    rect(slide, x, y, w, h, "paper_2", name="Fibre band")
+    pic = slide.shapes.add_picture(str(ASSETS / "fibre_wash.png"), Inches(x), Inches(y), Inches(w), Inches(h))
+    pic.name = "Fibre wash"
 
 
-def swatch_key(slide, x, y, items):
-    """A direct key: a small swatch beside each series name, text in ink (never in the data colour)."""
-    for i, (label, color) in enumerate(items):
+def new_slide(title, notes, source=None, ground_color="paper"):
+    slide = prs.slides.add_slide(BLANK)
+    ground(slide, ground_color)
+    SLIDES.append(slide)
+    if title:
+        text(slide, MARGIN, MAST_Y, 6.0, 0.3, [("Grantha Heritage Tracker", S(size="mast", bold=True, color="ink_2"))],
+             name="Running head")
+        text(slide, SLIDE_W - MARGIN - 2.0, MAST_Y, 2.0, 0.3,
+             [(f"{len(SLIDES)} of 10", S(size="mast", medium=True, color="muted", align=PP_ALIGN.RIGHT))], name="Slide number")
+        double_rule(slide, MARGIN, MAST_Y + 0.36, SLIDE_W - 2 * MARGIN)
+        text(slide, MARGIN, TITLE_Y, SLIDE_W - 2 * MARGIN, TITLE_H,
+             [(title, S(font="display", size="title" if len(title) <= 52 else "title_s", line=0.92))],
+             anchor=MSO_ANCHOR.BOTTOM, name="Title")
+    if source:
+        hline(slide, MARGIN, FOOT_Y, SLIDE_W - 2 * MARGIN, "rule")
+        text(slide, MARGIN, FOOT_Y + 0.08, SLIDE_W - 2 * MARGIN, 0.3,
+             [(f"Source: {source}", S(size="caption", color="muted"))], name="Source")
+    slide.notes_slide.notes_text_frame.text = notes.strip()
+    return slide
+
+
+def swatch_key(slide, x, y, items, color="ink"):
+    """A direct key: a small square swatch beside each series name, the name in ink (never in the data colour)."""
+    for i, (label, c) in enumerate(items):
         yy = y + i * 0.34
-        rect(slide, x, yy + 0.06, 0.18, 0.18, color)
-        text(slide, x + 0.3, yy, SLIDE_W - MARGIN - x - 0.3, 0.3, [(label, S(size="small"))])
+        rect(slide, x, yy + 0.07, 0.16, 0.16, c)
+        text(slide, x + 0.28, yy, SLIDE_W - MARGIN - x - 0.28, 0.3, [(label, S(size="small", color=color))])
 
 
 def style_chart(chart, number_format="0%", labels=True, value_axis=False, max_scale=None):
@@ -225,7 +265,7 @@ def style_chart(chart, number_format="0%", labels=True, value_axis=False, max_sc
     va.has_major_gridlines = value_axis
     if value_axis:
         va.major_gridlines.format.line.color.rgb = rgb("rule")
-        va.major_gridlines.format.line.width = Pt(0.75)
+        va.major_gridlines.format.line.width = Pt(0.5)
         va.tick_labels.font.color.rgb = rgb("muted")
         va.tick_labels.number_format = number_format
         va.tick_labels.number_format_is_linked = False
@@ -235,7 +275,8 @@ def style_chart(chart, number_format="0%", labels=True, value_axis=False, max_sc
     va.minimum_scale = 0
     if max_scale is not None:
         va.maximum_scale = max_scale
-    ca.format.line.color.rgb = rgb("rule")
+    ca.format.line.color.rgb = rgb("ink")
+    ca.format.line.width = Pt(0.75)
     ca.tick_labels.font.color.rgb = rgb("ink")
     ca.has_major_gridlines = False
     plot = chart.plots[0]
@@ -252,7 +293,7 @@ def style_chart(chart, number_format="0%", labels=True, value_axis=False, max_sc
 
 def color_series(series, color):
     series.format.fill.solid()
-    series.format.fill.fore_color.rgb = rgb(color)
+    series.format.fill.fore_color.rgb = color_of(color)
     series.format.line.fill.background()
 
 
@@ -282,7 +323,39 @@ def bar_chart(slide, x, y, w, h, categories, series, number_format="0%", max_sca
     return chart
 
 
-def plain_table(slide, x, y, w, rows, col_w, row_h=0.42, header=True):
+def scatter(slide, x, y, w, h, series, size=3, value_axis=False, max_scale=None, fmt="0.0"):
+    """series: list of (name, [(x, y), ...], colour or None for a line). Dots, no lines, no frame."""
+    cd = XyChartData()
+    for name, points, _ in series:
+        ser = cd.add_series(name)
+        for px, py in points:
+            ser.add_data_point(px, py)
+    gf = slide.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER, Inches(x), Inches(y), Inches(w), Inches(h), cd)
+    ch = gf.chart
+    style_chart(ch, number_format=fmt, labels=False, value_axis=value_axis, max_scale=max_scale)
+    if not value_axis:
+        ch.value_axis.minimum_scale = None
+    ch.category_axis.tick_label_position = XL_TICK_LABEL_POSITION.NONE
+    ch.category_axis.format.line.fill.background()
+    for ser, (_, _, color) in zip(ch.series, series):
+        if color is None:                                  # a reference line
+            ser.marker.style = XL_MARKER_STYLE.NONE
+            ser.format.line.color.rgb = rgb("ink")
+            ser.format.line.width = Pt(1.0)
+            ser.format.line.dash_style = 4                 # a printer's dash
+        else:
+            ser.format.line.fill.background()
+            ser.marker.style = XL_MARKER_STYLE.CIRCLE
+            ser.marker.size = size
+            ser.marker.format.fill.solid()
+            ser.marker.format.fill.fore_color.rgb = rgb(color)
+            ser.marker.format.line.fill.background()
+    return ch
+
+
+def ledger(slide, x, y, w, rows, col_w, row_h=0.42):
+    """A table set like a day book: a double ink rule over the head, an ink rule under it, hairlines between rows."""
+    double_rule(slide, x, y - 0.08, w)
     gf = slide.shapes.add_table(len(rows), len(rows[0]), Inches(x), Inches(y), Inches(w), Inches(row_h * len(rows)))
     tbl = gf.table
     tbl.first_row = False
@@ -308,16 +381,15 @@ def plain_table(slide, x, y, w, rows, col_w, row_h=0.42, header=True):
             p.alignment = st.get("align", PP_ALIGN.LEFT)
             r = p.add_run()
             r.text = t
-            r.font.name = FONT[st.get("font", "body")]
+            r.font.name = font_for(st)
             r.font.size = Pt(SIZE[st.get("size", "table")])
-            r.font.bold = st.get("bold", False)
-            r.font.color.rgb = rgb(st.get("color", "ink"))
-            if header and i == 0:
-                tcPr = cell._tc.get_or_add_tcPr()
-                ln = etree.Element(qn("a:lnB"), w=str(Emu(Pt(1))), cmpd="sng")
-                tcPr.insert(0, ln)                     # borders precede the cell fill in the schema
-                sf = etree.SubElement(ln, qn("a:solidFill"))
-                etree.SubElement(sf, qn("a:srgbClr"), val=COLOR["ink"])
+            r.font.bold = False
+            r.font.color.rgb = color_of(st.get("color", "ink"))
+            tcPr = cell._tc.get_or_add_tcPr()
+            ln = etree.Element(qn("a:lnB"), w=str(Emu(Pt(0.9 if i == 0 else 0.5))), cmpd="sng")
+            tcPr.insert(0, ln)                         # borders precede the cell fill in the schema
+            sf = etree.SubElement(ln, qn("a:solidFill"))
+            etree.SubElement(sf, qn("a:srgbClr"), val=COLOR["ink" if i == 0 else "rule"])
     return tbl
 
 
@@ -335,33 +407,47 @@ t3_target = TEST["targets"]["T3_bootstrap_ari"]
 gain_t, gain_v = TEST["t2_points"], VAL["t2_points"]                          # from: evaluation.test/val.t2_points
 hb, dbb = H["bootstrap"], DB["bootstrap"]                                     # from: hierarchical.bootstrap, dbscan.bootstrap
 n_met = sum(MET.values())
-col_w = (SLIDE_W - 2 * MARGIN - 4 * GAP) / 5
+CONTENT_W = SLIDE_W - 2 * MARGIN
 
 # ==============================================================================
-# 1. TITLE
+# 1. TITLE: the manuscript the project is named for
 # ==============================================================================
 s = new_slide(None, f"""
 Good morning. We are Rohan, Rajith and Sai Pranav, and this is the Grantha Heritage Tracker, for Smart India Hackathon problem SIH26096.
 
-The idea in one line: old printed Indian books sit in a digital library in many scripts, and we asked whether a computer can group them by subject without being told the subjects.
+A grantha is a palm-leaf manuscript, like the one on this slide: leaves cut from the palm, the text scratched in and darkened with soot, bound between two boards on a cord. The model on the slide is drawn by us; the lines on its leaves are the opening couplets of the Tirukkural.
 
-Grantha is a working web app built on that idea. Every number you will see comes from our result files. {"We set three targets before the results; where we missed one, we say so." if not all(MET.values()) else "We set three targets before the results, and we show each one beside its result."}
-""", dark=True)
-text(s, MARGIN, 1.7, 11.5, 1.2, [("Grantha Heritage Tracker", S(font="head", size="display", color="on_dark", line=1.0))])
-text(s, MARGIN, 2.95, 10.5, 0.9,
-     [(f"Grouping old Indian books by subject across {C['languages']} languages",  # from: deliverable_facts.json:corpus.languages
-       S(size="lead", color="on_dark"))])
-text(s, MARGIN, 3.55, 10.5, 0.5, [("Smart India Hackathon problem SIH26096", S(size="body", color="on_dark_muted"))])
+Our books are the printed descendants of these: old Indian books, scanned into a digital library, in many scripts. We asked whether a computer can group them by subject without being told the subjects. Grantha is a working web app built on that idea.
+
+Every number you will see comes from our result files. {"We set three targets before the results; where we missed one, we say so." if not all(MET.values()) else "We set three targets before the results, and we show each one beside its result."}
+""")
+fibre_band(s, 0, 0, SLIDE_W, SLIDE_H)
+double_rule(s, MARGIN, 0.62, CONTENT_W)
+text(s, MARGIN, 0.3, 6.0, 0.3, [("Smart India Hackathon, problem SIH26096", S(size="mast", bold=True, color="ink_2"))])
+text(s, MARGIN, 0.95, 8.6, 1.35, [("Grantha Heritage Tracker", S(font="display", size="display", line=0.92))],
+     anchor=MSO_ANCHOR.BOTTOM, name="Title")
+text(s, MARGIN, 2.45, 7.2, 1.0,
+     [(f"Grouping old Indian books by subject, across {C['languages']} languages and the scripts they are written in.",  # from: corpus.languages
+       S(font="outlier", size="statement", line=1.02))])
+img_w = 9.3
+img_h = img_w * 688 / 2335                              # the render's own aspect (docs/assets/manuscript_model.png)
+s.shapes.add_picture(str(ASSETS / "manuscript_model.png"), Inches(SLIDE_W - MARGIN - img_w + 0.35), Inches(3.55),
+                     Inches(img_w), Inches(img_h)).name = "Palm-leaf manuscript model"
 team = [("Vemuri Rohan", "12403675"), ("Rajith Kolappa Pillai Sundar", "12413353"), ("Etikala Sai Pranav", "12401062")]
 for i, (who, roll) in enumerate(team):
-    text(s, MARGIN + i * 3.9, 5.55, 3.6, 0.8,
-         [(who, S(size="body", color="on_dark", bold=True)), (roll, S(size="small", color="on_dark_muted", space=2))])
+    y = 4.05 + i * 0.78
+    hline(s, MARGIN, y, 2.75, "ink" if i == 0 else "rule", 0.75)
+    text(s, MARGIN, y + 0.1, 2.75, 0.6, [(who, S(size="small", bold=True)), (roll, S(size="small", color="muted", space=1))])
+double_rule(s, MARGIN, 6.92, CONTENT_W)
+text(s, MARGIN, 7.02, CONTENT_W, 0.3,
+     [("The palm-leaf manuscript is a 3-D model drawn for this deck. Its leaves carry the opening couplets of the Tirukkural.",
+       S(size="caption", color="muted"))])
 
 # ==============================================================================
 # 2. THE REAL-LIFE PROBLEM
 # ==============================================================================
 how_many = "About half" if 0.4 <= no_class <= 0.6 else "Most" if no_class > 0.6 else "Many"
-s = new_slide(f"The problem: {how_many.lower()} of the books cannot be found by subject", f"""
+s = new_slide(f"{how_many} of the books cannot be found by subject", f"""
 Start with the problem a real archive has.
 
 The Digital Library of India holds scans of old printed books. Of the {n(usable)} books we could use, {n(classified)} carry a library class, the subject code a librarian gives a book. The rest have none, so a subject search cannot find them. They are scanned, but in practice they are lost.
@@ -370,17 +456,18 @@ Three things make this hard to fix by hand. One: books in different scripts neve
 
 So our question: can a computer read the books and group them by subject on its own, across scripts?
 """, source="reports/deliverable_facts.json: hierarchical.effects.classified_books, corpus.usable")
-text(s, MARGIN, BODY_Y - 0.1, 7.0, 1.3,
-     [[(n(classified), S(font="head", size="stat", color="accent")),             # from: hierarchical.effects.classified_books
-       (f"  of {n(usable)}", S(font="head", size="title", color="ink"))]], anchor=MSO_ANCHOR.BOTTOM)  # from: corpus.usable
-text(s, MARGIN, BODY_Y + 1.3, 7.0, 0.5, [("usable books have a library class from a librarian.", S(size="lead"))])
-swatch_key(s, 8.55, BODY_Y + 0.55, [("with a library class", "accent"), ("no class: a subject search misses them", "rule")])
+text(s, MARGIN, BODY_Y - 0.1, 7.4, 1.45,
+     [[(n(classified), S(font="display", size="stat", color="accent", line=0.9)),     # from: hierarchical.effects.classified_books
+       (f"  of {n(usable)}", S(font="outlier", size="statement"))]], anchor=MSO_ANCHOR.BOTTOM)  # from: corpus.usable
+text(s, MARGIN, BODY_Y + 1.45, 7.4, 0.4, [("usable books have a library class from a librarian. The rest cannot be searched by subject.",
+                                           S(size="body", color="muted"))])
+swatch_key(s, 8.9, BODY_Y + 0.75, [("with a library class", "accent"), ("no class", "paper_3")])
 cd = CategoryChartData()
 cd.categories = ["books"]
 cd.add_series("with a class", [classified])            # from: hierarchical.effects.classified_books
 cd.add_series("without a class", [usable - classified])  # from: corpus.usable minus hierarchical.effects.classified_books
-gf = s.shapes.add_chart(XL_CHART_TYPE.BAR_STACKED_100, Inches(MARGIN - 0.1), Inches(BODY_Y + 1.9),
-                        Inches(SLIDE_W - 2 * MARGIN + 0.2), Inches(0.8), cd)
+gf = s.shapes.add_chart(XL_CHART_TYPE.BAR_STACKED_100, Inches(MARGIN - 0.08), Inches(BODY_Y + 1.95),
+                        Inches(CONTENT_W + 0.16), Inches(0.55), cd)
 ch = gf.chart
 plot = style_chart(ch, labels=False)
 ch.category_axis.visible = False
@@ -388,33 +475,32 @@ ch.value_axis.visible = False
 plot.gap_width = 10
 plot.overlap = 100
 color_series(ch.series[0], "accent")
-color_series(ch.series[1], "rule")
-w3 = (SLIDE_W - 2 * MARGIN - 2 * GAP) / 3
+color_series(ch.series[1], "paper_3")
+w3 = (CONTENT_W - 2 * GAP) / 3
 for i, (head_t, body_t) in enumerate((
         ("Scripts never meet", "A Tamil book and a Telugu book on one subject sit in separate piles."),
         ("Loose pages get lost", "A page with no cover or title has nowhere to go."),
         ("Too few readers", "Cataloguing by hand needs a person for every language."))):
     x = MARGIN + i * (w3 + GAP)
-    hline(s, x, BODY_Y + 3.05, w3, "ink")
-    text(s, x, BODY_Y + 3.2, w3, 0.4, [(head_t, S(font="head", size="lead"))])
-    text(s, x, BODY_Y + 3.75, w3, 1.0, [(body_t, S(size="body", color="muted"))])
+    hline(s, x, BODY_Y + 2.85, w3, "ink", 0.75)
+    text(s, x, BODY_Y + 2.95, w3, 0.55, [(head_t, S(font="display", size="section", line=0.92))])
+    text(s, x, BODY_Y + 3.55, w3, 0.9, [(body_t, S(size="body", color="muted"))])
 
 # ==============================================================================
 # 3. WHAT THE APP IS AND DOES
 # ==============================================================================
 rs = REL["knn_other_script_share"] if REL else None     # from: reports/features/related.json:knn_other_script_share
 tools = [("Places a page", pct(t1),                                                         # from: evaluation.test.t1_agreement
-          f"Upload one scanned page. It lands in its own book's group this often; chance is {pct(TEST['t1_chance'])}.")]
+          f"One scanned page lands in its own book's group; chance is {pct(TEST['t1_chance'])}.")]
 if SUG:
     tools.append(("Suggests a class", pct(SUG["top3"]),                                     # from: reports/features/suggest.json:top3
-                  f"For a book with no class, the right one is in its first three suggestions this often "
-                  f"({n(SUG['heldout_books'])} test books)."))
+                  f"The right class is in its first three suggestions, on {n(SUG['heldout_books'])} test books."))
 if REL:
     tools.append(("Links scripts", pct(rs["centred"]),                                      # from: related.knn_other_script_share.centred
-                  f"This share of a book's closest books are in another script; it was {pct(rs['uncentred'])} before our fix."))
+                  f"of a book's closest books are in another script; {pct(rs['uncentred'])} before our fix."))
 tools.append(("Maps the archive", n(usable),                                                # from: corpus.usable
-              "Every usable book is one dot on a 3-D map you can turn, colour and click."))
-s = new_slide("Grantha is a web app that tells an archivist where a book belongs", f"""
+              "books, each one dot on a 3D map you can turn, colour and open."))
+s = new_slide("Grantha tells an archivist where a book belongs", f"""
 This is what we built: Grantha, a web app for the archivist. It is running live on a cloud server, and it does four things.
 
 One, it places a page. The archivist uploads one scanned page, the app reads it, and shows the group it belongs to and the closest books in the archive. In our test a single page landed in its own book's group {pct(t1)} of the time; a random guess manages {pct(TEST['t1_chance'])}.
@@ -428,16 +514,18 @@ Four, it draws the whole archive as a map, which you will see in a moment.
 The site also lists scans that should be redone and looks for other editions of a book; both are early, and we say so on the limits slide. When a page has too few readable words, the app refuses to guess.
 """, source="reports/deliverable_facts.json: evaluation.test.t1_agreement, t1_chance, corpus.usable"
             + ("; reports/features/suggest.json, related.json" if SUG and REL else ""))
-w4 = (SLIDE_W - 2 * MARGIN - (len(tools) - 1) * GAP) / len(tools)
+fibre_band(s, 0, BODY_Y - 0.05, SLIDE_W, 3.85)
+w4 = (CONTENT_W - (len(tools) - 1) * GAP) / len(tools)
 for i, (head_t, stat, body_t) in enumerate(tools):
     x = MARGIN + i * (w4 + GAP)
-    text(s, x, BODY_Y, w4, 1.0, [(stat, S(font="head", size="display", color="accent", line=1.0))], anchor=MSO_ANCHOR.BOTTOM)
-    hline(s, x, BODY_Y + 1.2, w4, "ink")
-    text(s, x, BODY_Y + 1.4, w4, 0.5, [(head_t, S(font="head", size="lead"))])
-    text(s, x, BODY_Y + 2.0, w4, 2.0, [(body_t, S(size="body", color="muted"))])
-text(s, MARGIN, BODY_Y + 4.15, 11.8, 0.6,
-     [("Also on the site: browse the groups, a list of scans to redo, an edition finder, and an API for other software.",
-       S(size="body"))])
+    text(s, x, BODY_Y + 0.15, w4, 1.0, [(stat, S(font="display", size="figure", color="accent", line=0.9))],
+         anchor=MSO_ANCHOR.BOTTOM)
+    hline(s, x, BODY_Y + 1.35, w4, "ink", 0.75)
+    text(s, x, BODY_Y + 1.5, w4, 0.4, [(head_t, S(size="lead", bold=True))])
+    text(s, x, BODY_Y + 2.0, w4, 1.6, [(body_t, S(size="body", color="ink_2"))])
+text(s, MARGIN, BODY_Y + 4.0, CONTENT_W, 0.5,
+     [("Also on the site: the groups to browse, a list of scans to redo, an edition finder, and an API for other software.",
+       S(size="body", color="muted"))])
 
 # ==============================================================================
 # 4. HOW IT WORKS
@@ -460,18 +548,22 @@ steps = [("Read", "OCR turns each page image into text."),
          ("Centre", "Subtract each language's average, so language stops leading."),
          ("Group", "Hierarchical clustering builds a tree of books; DBSCAN finds crowded regions."),
          ("Check", "Test on books kept aside, against simple guesses.")]
+col_w = (CONTENT_W - 4 * GAP) / 5
 for i, (head, body) in enumerate(steps):
     x = MARGIN + i * (col_w + GAP)
-    key = head == "Centre"
-    text(s, x, BODY_Y + 0.3, col_w, 0.8, [(str(i + 1), S(font="head", size="step", color="accent" if key else "neutral"))])
-    hline(s, x, BODY_Y + 1.25, col_w, "accent" if key else "ink", 2.0 if key else 1.0)
-    text(s, x, BODY_Y + 1.45, col_w, 0.5, [(head, S(font="head", size="lead", bold=False))])
-    text(s, x, BODY_Y + 2.05, col_w, 2.0, [(body, S(size="body", color="muted"))])
-text(s, MARGIN, BODY_Y + 3.75, 11.8, 0.9, [
-    (f"{n(usable)} of {n(C['harvested'])} downloaded books, in {C['languages']} languages, were clear enough to use.",  # from: corpus
-     S(size="body")),
-    (f"Embedding model: {F['encoder']['name']}." +                                                # from: encoder.name
-     (" Centring is the step that changes the result." if CENTRING_HELPS else ""), S(size="body", color="muted", space=6))])
+    key = head == "Centre" and CENTRING_HELPS
+    if key:
+        rect(s, x - 0.18, BODY_Y + 0.05, col_w + 0.36, 3.45, "accent_soft", name="The key step")
+    text(s, x, BODY_Y + 0.2, col_w, 0.95, [(str(i + 1), S(font="display", size="figure", color="accent", line=0.9))],
+         anchor=MSO_ANCHOR.BOTTOM)
+    hline(s, x, BODY_Y + 1.3, col_w, "ink", 0.75)
+    text(s, x, BODY_Y + 1.42, col_w, 0.55, [(head, S(font="display", size="section", line=0.92))])
+    text(s, x, BODY_Y + 2.0, col_w, 1.5, [(body, S(size="body", color="ink_2"))])
+hline(s, MARGIN, BODY_Y + 3.8, CONTENT_W, "rule")
+text(s, MARGIN, BODY_Y + 3.92, CONTENT_W, 0.7, [
+    [(f"{n(usable)} of {n(C['harvested'])}", S(size="body", bold=True)),                         # from: corpus.usable, harvested
+     (f" downloaded books, in {C['languages']} languages, were clear enough to use. Embedding model: "  # from: corpus.languages
+      f"{F['encoder']['name']}.", S(size="body", color="muted"))]])                             # from: encoder.name
 
 # ==============================================================================
 # 5. LANGUAGE FIRST, AND THE FIX
@@ -503,15 +595,18 @@ When we grouped books by counting their words, in an earlier study, the groups f
 """
     source5 = "reports/cluster_names.json: A_hier; reports/deliverable_facts.json: hierarchical.nmi_script"
 s = new_slide(title5, notes5, source=source5)
-text(s, MARGIN, BODY_Y, 3.6, 0.5, [("Groups from counting words, earlier study", S(size="body", bold=True))])
-text(s, MARGIN, BODY_Y + 0.75, 3.6, 3.6, [(g, S(size="body", color="muted", space=4)) for g in word_groups])
+text(s, MARGIN, BODY_Y, 3.4, 0.6, [("Groups from counting words, in an earlier study", S(size="body", bold=True))])
+for i, g in enumerate(word_groups):
+    y = BODY_Y + 0.7 + i * 0.5
+    hline(s, MARGIN, y, 3.4, "ink" if i == 0 else "rule", 0.75 if i == 0 else 0.5)
+    text(s, MARGIN, y + 0.1, 3.4, 0.35, [(g, S(size="body", color="ink_2"))])
 if CE:
     for j, (label, key, fmt) in enumerate((("How much the groups follow language (NMI: 0 none, 1 fully)", "nmi_script", "0.00"),
                                            ("Share of a book's 10 closest books in the same script", "knn10_same_script", "0%"))):
-        y = BODY_Y + j * 2.35
+        y = BODY_Y + j * 2.3
         text(s, 4.75, y, 7.8, 0.4, [(label, S(size="body", bold=True))])
-        bar_chart(s, 4.65, y + 0.4, 7.95, 1.75, ["as the model gives them", "after centring"],
-                  [(key, [un[key], ce[key]], ["neutral", "accent"])],    # from: centring_effect.uncentred/centred.<key>
+        bar_chart(s, 4.65, y + 0.4, 7.95, 1.7, ["as the model gives them", "after centring"],
+                  [(key, [un[key], ce[key]], ["rule", "accent"])],    # from: centring_effect.uncentred/centred.<key>
                   number_format=fmt, gap=40, max_scale=1.15)      # headroom so a label near 1 is not clipped
 else:
     text(s, 4.75, BODY_Y, 7.8, 0.5, [("How much the final groups follow language (NMI: 0 none, 1 fully)", S(size="body", bold=True))])
@@ -545,7 +640,6 @@ def apartness(pts_, labels) -> dict:
 
 raw_apart = apartness(GALAXY["views"]["uncentred"], tags)
 star = max(raw_apart, key=raw_apart.get)                        # the language that sits furthest apart before centring
-star_name = LANG.get(star, star)
 lang_apart, group_apart = apartness(coords, tags), apartness(coords, grp)
 apart_langs = sorted(l for l, a in lang_apart.items() if a > 1)   # middle more than one overall spread from everyone's middle
 if apart_langs:
@@ -558,17 +652,15 @@ groups_regional = max(group_apart.values()) > 1
 cross = (f" This matches the measurement: after centring, {pct(REL['knn_other_script_share']['centred'])} of a book's closest books "
          f"are in another script, up from {pct(REL['knn_other_script_share']['uncentred'])}, which is a real change and still a minority."
          if REL else "")
-layout = "UMAP" if UMAP else "a flat view"
-s = new_slide((f"On the {'UMAP ' if UMAP else ''}map, languages mix and the groups take their own regions"
-               if lang_mixed and groups_regional else
-               f"On the {'UMAP ' if UMAP else ''}map, languages mix after centring" if lang_mixed else
-               f"On the {'UMAP ' if UMAP else ''}map, {n_lang - len(apart_langs)} of {n_lang} languages mix; {apart_names} "
-               f"books still stand apart"), f"""
+map_word = "UMAP map" if UMAP else "map"
+s = new_slide(("On the map, languages mix and the groups take their own regions" if lang_mixed and groups_regional else
+               "On the map, languages mix after centring" if lang_mixed else
+               f"On the map, {n_lang - len(apart_langs)} of {n_lang} languages mix; {apart_names} stands apart"), f"""
 This is the archive map from the app. Each dot is one book.
 
 {"The layout is made by UMAP, a method that draws many-dimensional points on a flat page while keeping each book next to its closest neighbours. So nearby dots are books the model reads as similar. Distances between far-apart clumps mean little." if UMAP else "The layout keeps the two directions that spread the books most."} It is drawn after centring, the step from the last slide.
 
-Both panels show the same dots. On the left, the red dots are {star_name} books. {"They are spread through the whole map, among books of every other language: no language keeps a corner to itself." if lang_mixed else f"The grey dots, every other language, share one large body, so those languages have mixed. The {star_name} books have not: they keep their own islands. Centring removes the average difference between languages, but a book's closest neighbours are still often in its own language, and a neighbour map shows exactly that." + cross + " We have not tested why " + apart_names + " stands apart, so we only report it."}
+Both panels show the same dots. On the left, the blue dots are {star_name} books. {"They are spread through the whole map, among books of every other language: no language keeps a corner to itself." if lang_mixed else f"The tan dots, every other language, share one large body, so those languages have mixed. The {star_name} books have not: they keep their own islands. Centring removes the average difference between languages, but a book's closest neighbours are still often in its own language, and a neighbour map shows exactly that." + cross + " We have not tested why " + apart_names + " stands apart, so we only report it."}
 
 On the right, the same map coloured by the {H['k']} groups that hierarchical clustering found. {"Each group holds its own region of the map, so the groups follow what the books say, not which language they are in." if groups_regional else "The groups overlap on the map: they are broad, and the borders between them are soft."}
 
@@ -576,40 +668,24 @@ The slide shows a sample of the {n(usable)} books in two dimensions. In the app 
 """, source=("web/data/galaxy_umap.json: coords (from the live app); " if UMAP else "web/data/galaxy.json: views.centred; ")
             + "web/data/galaxy.json: books[].lang_tag, books[].group")
 group_ids = sorted(set(grp))
-group_colors = dict(zip(group_ids, ("accent", "ink", "neutral", "muted", "accent_soft")))
-panels = [(f"Coloured by language: {star_name} in red", [("other languages", lambda i: tags[i] != star, "neutral"),
-                                                        (star_name, lambda i: tags[i] == star, "accent")]),
-          ("Coloured by hierarchical group", [(f"Group {g + 1}", (lambda i, g=g: grp[i] == g), group_colors.get(g, "neutral"))
-                                              for g in reversed(group_ids)])]
+group_colors = dict(zip(group_ids, ("accent", "ink", "rule", "muted", "accent_soft")))
+panels = [(f"{'UMAP map' if UMAP else 'Map'} by language: {star_name} in blue", [("other languages", lambda i: tags[i] != star, "rule"),
+                                                (star_name, lambda i: tags[i] == star, "accent")]),
+          (f"{'UMAP map' if UMAP else 'Map'} by hierarchical group", [(f"Group {g + 1}", (lambda i, g=g: grp[i] == g), group_colors.get(g, "rule"))
+                                     for g in reversed(group_ids)])]
 for j, (label, series) in enumerate(panels):
-    x = MARGIN + j * 4.25
-    text(s, x, BODY_Y, 4.1, 0.4, [(label, S(size="body", bold=True))])
-    cd = XyChartData()
-    for name, keep, _ in series:
-        ser = cd.add_series(name)
-        for i in range(0, len(coords), step):                   # from: galaxy_umap.json:coords[][0..1]
-            if keep(i):
-                ser.add_data_point(coords[i][0], coords[i][1])
-    gf = s.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER, Inches(x - 0.1), Inches(BODY_Y + 0.4), Inches(4.1), Inches(4.3), cd)
-    ch = gf.chart
-    style_chart(ch, labels=False)
-    ch.value_axis.minimum_scale = None
-    ch.value_axis.format.line.fill.background()
-    ch.category_axis.tick_label_position = XL_TICK_LABEL_POSITION.NONE
-    ch.category_axis.format.line.fill.background()
-    for ser, (_, _, color) in zip(ch.series, series):
-        ser.format.line.fill.background()
-        ser.marker.style = XL_MARKER_STYLE.CIRCLE
-        ser.marker.size = 3
-        ser.marker.format.fill.solid()
-        ser.marker.format.fill.fore_color.rgb = rgb(color)
-        ser.marker.format.line.fill.background()
-swatch_key(s, 9.25, BODY_Y, [(f"Group {g + 1}", group_colors.get(g, "neutral")) for g in group_ids])
-text(s, 9.25, BODY_Y + 0.35 * len(group_ids) + 0.35, 3.35, 3.4, [
+    x = MARGIN + j * 4.3
+    text(s, x, BODY_Y, 4.0, 0.4, [(label, S(size="body", bold=True))])
+    hline(s, x, BODY_Y + 0.42, 4.0, "ink", 0.75)
+    scatter(s, x - 0.1, BODY_Y + 0.5, 4.1, 4.1,
+            [(name, [(coords[i][0], coords[i][1]) for i in range(0, len(coords), step) if keep(i)], color)  # from: coords[][0..1]
+             for name, keep, color in series])
+swatch_key(s, 9.45, BODY_Y, [(f"Group {g + 1}", group_colors.get(g, "rule")) for g in group_ids])
+text(s, 9.45, BODY_Y + 0.34 * len(group_ids) + 0.4, 3.15, 3.0, [
     ("Each dot is one book; nearby dots are similar books.", S(size="lead")),
     ((f"UMAP layout, drawn after centring. A sample of the {n(usable)} books." if UMAP else           # from: corpus.usable
-      f"A flat view after centring. A sample of the {n(usable)} books."), S(size="body", color="muted", space=14)),
-    ("In the app the map is 3-D and shows every book.", S(size="body", color="muted", space=10)),
+      f"A flat view after centring. A sample of the {n(usable)} books."), S(size="body", color="muted", space=12)),
+    ("In the app the map is 3D and shows every book.", S(size="body", color="muted", space=8)),
 ])
 
 # ==============================================================================
@@ -630,7 +706,7 @@ significant = TEST["t2_p"] is not None and TEST["t2_p"] < 0.05
 best_name = "guessing from the script alone" if TEST["t2_baseline_script"] >= TEST["t2_baseline_common"] else \
     "always guessing the most common subject"
 best_base = max(TEST["t2_baseline_script"], TEST["t2_baseline_common"])
-s = new_slide(f"Hierarchical clustering finds {len(groups)} broad groups, each mixing "
+s = new_slide(f"The tree cuts into {len(groups)} broad groups, each mixing "
               f"{'all ' + str(len(lang_codes)) if all_mixed else 'many'} languages", f"""
 Hierarchical clustering starts with every book alone, joins the two closest, then the next closest, and so on, until all the books hang on one tree. We cut the tree into {H['k']} groups, using {H['linkage']} linkage; the number of groups was chosen on the training books by a rule we fixed beforehand.
 
@@ -643,24 +719,27 @@ How good are they? On {n(TEST['t2_labelled_heldout'])} labelled books kept aside
 One honest number: the silhouette, a score of how cleanly groups separate, from 0 for overlapping to 1 for clean, is {f2(H['silhouette'])}. The groups overlap a great deal.
 """, source="reports/deliverable_facts.json: groups[], hierarchical.linkage, k, silhouette; evaluation.test.t2_accuracy, t2_points, targets, met")
 max_cell = max(max(g["languages"].values()) for g in groups)
-head = [("Group", S(bold=True)), ("Books", S(bold=True, align=PP_ALIGN.RIGHT)), ("Most common subject", S(bold=True))] + \
-       [(LANG[l], S(bold=True, align=PP_ALIGN.RIGHT)) for l in lang_codes]
+head = [("Group", S(medium=True)), ("Books", S(medium=True, align=PP_ALIGN.RIGHT)), ("Most common subject", S(medium=True))] + \
+       [(LANG[l], S(medium=True, align=PP_ALIGN.RIGHT)) for l in lang_codes]
 rows = [head]
 for g in groups:
-    rows.append([(f"Group {g['group'] + 1}", S()),                                      # from: groups[].group
+    rows.append([(f"{g['group'] + 1}", S(font="display", size="section", color="accent")),     # from: groups[].group
                  (n(g["books"]), S(align=PP_ALIGN.RIGHT)),                              # from: groups[].books
-                 (g["majority_subject"] or "no labelled books", S())] +                 # from: groups[].majority_subject
+                 (g["majority_subject"] or "no labelled books", S(bold=True))] +        # from: groups[].majority_subject
                 [(pct(g["languages"].get(l, 0), 0), S(align=PP_ALIGN.RIGHT),            # from: groups[].languages
                   mix("paper", "accent_soft", g["languages"].get(l, 0) / max_cell)) for l in lang_codes])
-plain_table(s, MARGIN, BODY_Y + 0.1, SLIDE_W - 2 * MARGIN, rows,
-            [1.0, 0.85, 2.45] + [(SLIDE_W - 2 * MARGIN - 4.3) / len(lang_codes)] * len(lang_codes), row_h=0.62)
-text(s, MARGIN, BODY_Y + 2.85, 11.8, 1.9, [
+ledger(s, MARGIN, BODY_Y + 0.35, CONTENT_W, rows,
+       [0.85, 0.95, 2.5] + [(CONTENT_W - 4.3) / len(lang_codes)] * len(lang_codes), row_h=0.58)
+text(s, MARGIN, BODY_Y - 0.12, CONTENT_W, 0.3, [("Hierarchical clustering: every book joins a tree, and the tree is cut into groups",
+                                                S(size="small", bold=True, color="ink_2"))])
+text(s, MARGIN, BODY_Y + 2.85, 8.2, 1.7, [
     (f"On test books the groups guess the subject {pts(abs(gain_t))} points {'better' if gain_t > 0 else 'worse'} than the best "  # from: t2_points
-     f"simple guess (target {gain(t2_target)}: {met_word(MET['T2'])}).", S(size="lead")),                 # from: targets, met.T2
-    (f"A tree of books joined closest first ({H['linkage']} linkage), cut into {H['k']} groups. "          # from: hierarchical.linkage, k
-     f"No language holds more than {pct(top_share, 0)} of any group; darker cells are bigger shares.",    # from: groups[].top_language_share
-     S(size="body", color="muted", space=10)),
-    (f"Silhouette {f2(H['silhouette'])}: the groups are broad and overlap.", S(size="body", color="muted", space=6)),  # from: hierarchical.silhouette
+     f"simple guess. Target {gain(t2_target)}: {met_word(MET['T2'])}.", S(font="outlier", size="statement", line=1.02)),   # from: targets, met.T2
+])
+text(s, 9.3, BODY_Y + 2.85, 3.3, 1.7, [
+    (f"A tree of books joined closest first ({H['linkage']} linkage), cut into {H['k']} groups.",        # from: hierarchical.linkage, k
+     S(size="body", color="ink_2")),
+    (f"Silhouette {f2(H['silhouette'])}: the groups are broad and overlap.", S(size="body", color="muted", space=8)),  # from: hierarchical.silhouette
 ])
 
 # ==============================================================================
@@ -669,51 +748,31 @@ text(s, MARGIN, BODY_Y + 2.85, 11.8, 1.9, [
 stable = hb["median"] >= t3_target
 db_steadier = dbb["median"] > hb["median"]
 agree = F["hier_vs_dbscan"]["ari_non_noise"]                # from: deliverable_facts.json:hier_vs_dbscan.ari_non_noise
-s = new_slide(f"DBSCAN finds {DB['n_clusters']} crowded regions and calls {pct(DB['noise_share'], 0)} of the books noise", f"""
+s = new_slide(f"A density search finds {DB['n_clusters']} crowded regions; {pct(DB['noise_share'], 0)} of books are noise", f"""
 Our second method, DBSCAN, asks a different question. It does not cut the books into shelves. It looks for crowded regions, places where many books sit close together, and calls every book outside them noise.
 
 It finds {DB['n_clusters']} crowded regions and marks {pct(DB['noise_share'])} of the books as noise. Noise here is not an error: it means the book has no close crowd, so any group we give it deserves less trust. The app shows this verdict beside every answer.
 
 The chart shows how steady each method is. We re-ran each one {len(hb['values'])} times on a random part of the books and compared the result with the full run, using ARI, a score of how much two groupings agree: 1 is identical, 0 is chance.
 
-The grey dots are DBSCAN: around {f2(dbb['median'])}, {"very steady" if dbb['median'] >= 0.8 else "fairly steady"}. The red dots are the hierarchical groups: the middle value is {f2(hb['median'])}, against our target of {t3_target}. {'We met it.' if stable else 'We did not meet it: the hierarchical groups shift when the books change.'}
+The blue dots are DBSCAN: around {f2(dbb['median'])}, {"very steady" if dbb['median'] >= 0.8 else "fairly steady"}. The brown dots are the hierarchical groups: the middle value is {f2(hb['median'])}, against our target of {t3_target}. {'We met it.' if stable else 'We did not meet it: the hierarchical groups shift when the books change.'}
 
 The two methods also {"barely agree with each other" if agree < 0.2 else "partly agree with each other"}: their ARI is {f2(agree)}. So we use them for different jobs. Hierarchical clustering gives every book a shelf; DBSCAN says how sure we can be.
 """, source="reports/deliverable_facts.json: dbscan.n_clusters, noise_share, bootstrap.values; hierarchical.bootstrap.values; hier_vs_dbscan")
-cd = XyChartData()
-for name, vals in (("DBSCAN", dbb["values"]), ("Hierarchical groups", hb["values"])):   # from: dbscan.bootstrap.values, hierarchical.bootstrap.values
-    ser = cd.add_series(name)
-    for i, v in enumerate(vals, 1):
-        ser.add_data_point(i, v)
-tser = cd.add_series("target")
-tser.add_data_point(1, t3_target)                           # from: evaluation.test.targets.T3_bootstrap_ari
-tser.add_data_point(len(hb["values"]), t3_target)
-gf = s.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER, Inches(MARGIN - 0.1), Inches(BODY_Y - 0.1), Inches(8.6), Inches(4.7), cd)
-ch = gf.chart
-style_chart(ch, number_format="0.0", labels=False, value_axis=True, max_scale=1)
-ch.category_axis.tick_labels.font.color.rgb = rgb("muted")
-ch.category_axis.minimum_scale = 0
-ch.category_axis.maximum_scale = len(hb["values"]) + 1
-ch.category_axis.tick_label_position = XL_TICK_LABEL_POSITION.NONE
-for ser, color in zip(ch.series, ("neutral", "accent", "muted")):
-    if color == "muted":
-        ser.marker.style = XL_MARKER_STYLE.NONE
-        ser.format.line.color.rgb = rgb("muted")
-        ser.format.line.width = Pt(1.25)
-    else:
-        ser.format.line.fill.background()
-        ser.marker.style = XL_MARKER_STYLE.CIRCLE
-        ser.marker.size = 9
-        ser.marker.format.fill.solid()
-        ser.marker.format.fill.fore_color.rgb = rgb(color)
-        ser.marker.format.line.fill.background()
-swatch_key(s, 9.25, BODY_Y, [("DBSCAN, one dot per re-run", "neutral"), ("hierarchical groups", "accent"),
-                             (f"target {t3_target}", "muted")])                                     # from: evaluation.test.targets
-text(s, 9.25, BODY_Y + 1.35, 3.35, 3.5, [
+text(s, MARGIN, BODY_Y - 0.12, CONTENT_W, 0.3, [("DBSCAN: a density search for crowded regions of books; each dot is one re-run",
+                                                S(size="small", bold=True, color="ink_2"))])
+scatter(s, MARGIN - 0.1, BODY_Y + 0.25, 8.5, 4.3,
+        [("DBSCAN", list(enumerate(dbb["values"], 1)), "accent"),                     # from: dbscan.bootstrap.values
+         ("Hierarchical groups", list(enumerate(hb["values"], 1)), "muted"),           # from: hierarchical.bootstrap.values
+         ("target", [(1, t3_target), (len(hb["values"]), t3_target)], None)],          # from: evaluation.test.targets.T3_bootstrap_ari
+        size=9, value_axis=True, max_scale=1, fmt="0.0")
+swatch_key(s, 9.25, BODY_Y, [("DBSCAN, one dot per re-run", "accent"), ("hierarchical groups", "muted"),
+                             (f"target {t3_target}", "ink")])                                     # from: evaluation.test.targets
+text(s, 9.25, BODY_Y + 1.3, 3.35, 3.3, [
     ("DBSCAN looks for crowded regions; a book outside them is noise.", S(size="lead")),
     (f"Steadiness on re-runs (ARI, 1 is identical): DBSCAN {f2(dbb['median'])}, hierarchical {f2(hb['median'])}.",  # from: bootstrap.median
-     S(size="body", space=14)),
-    ("The app shows the DBSCAN verdict beside every answer, as a measure of trust.", S(size="body", color="muted", space=10)),
+     S(size="body", space=12)),
+    ("The app shows the DBSCAN verdict beside every answer, as a measure of trust.", S(size="body", color="muted", space=8)),
 ])
 
 # ==============================================================================
@@ -750,20 +809,31 @@ The groups are broad: {H['k']} groups for a whole library. Hard-to-read language
 So we offer this as a helper that shows its evidence, not as a catalogue.
 """, source="reports/deliverable_facts.json: evaluation.test.targets, met, t1_agreement, t2_points, t3_bootstrap, catalogue"
             + ("; reports/features/triage.json" if TRI else ""))
-rows = [[("Target set before the results", S(bold=True)), ("Needed", S(bold=True, align=PP_ALIGN.RIGHT)),
-         ("Got", S(bold=True, align=PP_ALIGN.RIGHT)), ("", S(bold=True))],
+
+
+def verdict_cell(ok: bool):
+    return (met_word(ok), S(bold=ok, color="accent" if ok else "muted"))
+
+
+rows = [[("Target set before the results", S(medium=True)), ("Needed", S(medium=True, align=PP_ALIGN.RIGHT)),
+         ("Got", S(medium=True, align=PP_ALIGN.RIGHT)), ("", S())],
         [("A page lands with its book", S()), (pct(t1_target, 0), S(align=PP_ALIGN.RIGHT)),                 # from: targets.T1_page_agreement
-         (pct(t1), S(align=PP_ALIGN.RIGHT)), (met_word(MET["T1"]), S(color="muted"))],                         # from: t1_agreement, met.T1
+         (pct(t1), S(align=PP_ALIGN.RIGHT)), verdict_cell(MET["T1"])],                                         # from: t1_agreement, met.T1
         [("Subject gain over the best simple guess", S()), (f"{gain(t2_target)} points", S(align=PP_ALIGN.RIGHT)),  # from: targets.T2
-         (f"{gain(gain_t)} points", S(align=PP_ALIGN.RIGHT)), (met_word(MET["T2"]), S(color="muted"))],     # from: t2_points, met.T2
+         (f"{gain(gain_t)} points", S(align=PP_ALIGN.RIGHT)), verdict_cell(MET["T2"])],                     # from: t2_points, met.T2
         [("Groups hold on re-runs (ARI, train books)", S()), (str(t3_target), S(align=PP_ALIGN.RIGHT)),     # from: targets.T3
-         (f2(TEST["t3_bootstrap"]), S(align=PP_ALIGN.RIGHT)), (met_word(MET["T3"]), S(color="muted"))]]    # from: t3_bootstrap, met.T3
-plain_table(s, MARGIN, BODY_Y, 7.2, rows, [3.9, 1.2, 1.2, 0.9], row_h=0.55)
-text(s, 8.55, BODY_Y, 4.05, 4.7, [(line, S(size="body", space=0 if i == 0 else 10)) for i, line in enumerate(limit_lines)] +
-     [("A helper that shows its evidence, not a catalogue.", S(size="body", color="muted", space=10))])
+         (f2(TEST["t3_bootstrap"]), S(align=PP_ALIGN.RIGHT)), verdict_cell(MET["T3"])]]                    # from: t3_bootstrap, met.T3
+ledger(s, MARGIN, BODY_Y + 0.1, 7.3, rows, [3.9, 1.25, 1.25, 0.9], row_h=0.58)
+text(s, 8.55, BODY_Y, 4.05, 0.4, [("What it does not do yet", S(size="body", bold=True))])
+for i, line in enumerate(limit_lines):
+    y = BODY_Y + 0.45 + i * 0.76
+    hline(s, 8.55, y, 4.05, "ink" if i == 0 else "rule", 0.75 if i == 0 else 0.5)
+    text(s, 8.55, y + 0.08, 4.05, 0.66, [(line, S(size="small", color="ink_2"))])
+text(s, MARGIN, BODY_Y + 2.75, 7.3, 1.2,
+     [("A helper that shows its evidence, not a catalogue.", S(font="outlier", size="statement", line=1.02))])
 
 # ==============================================================================
-# 10. SUMMARY
+# 10. SUMMARY: the one ultramarine field
 # ==============================================================================
 if CENTRING_HELPS and gain_t > 0:
     title10 = "Take away the language, and subject starts to show"
@@ -783,7 +853,7 @@ p2_tail += "; not yet stable." if not MET["T3"] else "; stable on re-runs."
 p1_head = "Books group by language first." if CE and CE["uncentred"]["knn10_same_script"] > 0.5 else "Language shapes the groups."
 p1_tail = ("Subtracting each language's average lets subject come through." if CENTRING_HELPS else
            "Subtracting each language's average did not remove it.")
-s = new_slide(title10, f"""
+s = new_slide(None, f"""
 To sum up in three sentences.
 
 One: {p1_head[:-1].lower()}; {p1_tail[0].lower() + p1_tail[1:]}
@@ -793,16 +863,27 @@ Two: {p2_head[0].lower() + p2_head[1:-1]}: {p2_tail}
 Three: Grantha is a working app that helps an archivist today: it places a new page, suggests a class for an uncatalogued book, links books across scripts, and draws the whole archive as one map, always with its evidence.
 
 Thank you. We are happy to take your questions.
-""", dark=True)
+""", ground_color="accent")
+quiet = mix("accent", "accent_ink", 0.72)
+faint = mix("accent", "accent_ink", 0.35)
+text(s, MARGIN, MAST_Y, 6.0, 0.3, [("Grantha Heritage Tracker", S(size="mast", bold=True, color="accent_ink"))])
+text(s, SLIDE_W - MARGIN - 2.0, MAST_Y, 2.0, 0.3, [("10 of 10", S(size="mast", medium=True, color=quiet, align=PP_ALIGN.RIGHT))])
+double_rule(s, MARGIN, MAST_Y + 0.36, CONTENT_W, "accent_ink")
+text(s, MARGIN, TITLE_Y, CONTENT_W, TITLE_H, [(title10, S(font="display", size="title", color="accent_ink", line=0.92))],
+     anchor=MSO_ANCHOR.BOTTOM, name="Title")
 points = [(p1_head, p1_tail),                                                                 # from: centring_effect
           (p2_head, p2_tail),                                                                 # from: evaluation.test.t2_points, targets, met
           ("A working app for the archivist.", "It places pages, suggests classes, links scripts and maps the archive.")]
+w3 = (CONTENT_W - 2 * GAP) / 3
 for i, (head_t, body_t) in enumerate(points):
-    x = MARGIN + i * (col_w * 5 + GAP * 4 + GAP) / 3
-    w = (SLIDE_W - 2 * MARGIN - 2 * GAP) / 3
-    text(s, x, BODY_Y + 0.6, w, 2.6, [(head_t, S(font="head", size="lead", color="on_dark")),
-                                      (body_t, S(size="body", color="on_dark_muted", space=10))])
-text(s, MARGIN, 5.9, 8.0, 0.6, [("Thank you. Questions are welcome.", S(size="lead", color="on_dark"))])
+    x = MARGIN + i * (w3 + GAP)
+    text(s, x, BODY_Y + 0.55, w3, 0.6, [(str(i + 1), S(font="display", size="figure", color="accent_ink", line=0.9))],
+         anchor=MSO_ANCHOR.BOTTOM)
+    hline(s, x, BODY_Y + 1.3, w3, faint, 0.75)
+    text(s, x, BODY_Y + 1.45, w3, 2.4, [(head_t, S(size="lead", bold=True, color="accent_ink")),
+                                        (body_t, S(size="body", color=quiet, space=8))])
+double_rule(s, MARGIN, 6.3, CONTENT_W, "accent_ink")
+text(s, MARGIN, 6.48, CONTENT_W, 0.5, [("Thank you. Questions are welcome.", S(font="outlier", size="statement", color="accent_ink"))])
 
 prs.save(OUT)
 print(f"saved {OUT.relative_to(ROOT)} ({len(prs.slides)} slides)")
