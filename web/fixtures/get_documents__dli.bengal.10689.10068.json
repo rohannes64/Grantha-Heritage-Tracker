@@ -11,8 +11,10 @@
   "mean_conf": 62.31373725254949,
   "classification": null,
   "total_pages": 567,
+  "text_source": "hocr",
+  "n_tokens": 4000,
   "url": "https://archive.org/details/dli.bengal.10689.10068",
-  "hier": 0,
+  "hier": 2,
   "dbscan": -1
  }
 }

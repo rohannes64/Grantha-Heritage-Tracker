@@ -1,0 +1,20 @@
+{
+  "top1": 0.586472602739726,
+  "top3": 0.916095890410959,
+  "top1_ci95": [
+    0.5582191780821918,
+    0.6147260273972602
+  ],
+  "top3_ci95": [
+    0.9006849315068494,
+    0.9306506849315068
+  ],
+  "baseline_most_common": 0.4777397260273973,
+  "k": 25,
+  "metric": "euclidean",
+  "heldout_books": 1168,
+  "train_coded_books": 3559,
+  "method": "distance-weighted vote of the k nearest coded train books; top-1 / top-3 = the held-out book's own catalogue class is the first / among the first three suggestions; CI by resampling held-out books",
+  "split": "test",
+  "feature_set": "V"
+}

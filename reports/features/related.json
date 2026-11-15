@@ -1,0 +1,9 @@
+{
+  "knn_other_script_share": {
+    "centred": 0.3723582236437446,
+    "uncentred": 0.02733423545331529
+  },
+  "k": 10,
+  "books": 8129,
+  "split": "train"
+}

@@ -1,0 +1,18 @@
+{
+  "books": 341,
+  "signal": "agreement of our OCR with the archive's OCR",
+  "rule_thresholds": {
+    "min_conf": 50.0,
+    "min_tokens": 100,
+    "weights": {
+      "low_conf": 0.5,
+      "few_tokens": 0.3,
+      "dbscan_noise": 0.2
+    }
+  },
+  "auc": 0.49867561059511517,
+  "auc_ci95": [
+    0.4515130228642174,
+    0.5464765358817654
+  ]
+}

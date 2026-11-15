@@ -1,8 +1,8 @@
 {
  "generated_by": "scripts/make_fixtures.py",
- "generated_at": "2026-11-14T18:42:09+00:00",
+ "generated_at": "2026-11-15T05:23:04+00:00",
  "bundle": "data/model/bundle.joblib",
- "bundle_sha256": "cb7d7fa4120b3c3cdc5b9b632511b21f707ef3d8489712bc74f8d7281a6b2acc",
+ "bundle_sha256": "b5d7a9d28d9f436ad654760ddac4f5eda238d12f4231aea5cc6e1a753d29f1b3",
  "feature_set": "V",
  "fixtures": {
   "get_api_health": {
@@ -25,6 +25,11 @@
    "path": "/api/clusters/0",
    "status": 200
   },
+  "get_api_triage__limit-50": {
+   "method": "GET",
+   "path": "/api/triage?limit=50",
+   "status": 200
+  },
   "get_documents__dli.bengal.10689.10068": {
    "method": "GET",
    "path": "/api/documents/dli.bengal.10689.10068",
@@ -38,6 +43,16 @@
   "get_suggest__dli.bengal.10689.10068": {
    "method": "GET",
    "path": "/api/suggest/dli.bengal.10689.10068",
+   "status": 200
+  },
+  "get_triage__dli.bengal.10689.10068": {
+   "method": "GET",
+   "path": "/api/triage/dli.bengal.10689.10068",
+   "status": 200
+  },
+  "get_editions__dli.bengal.10689.10068": {
+   "method": "GET",
+   "path": "/api/editions/dli.bengal.10689.10068",
    "status": 200
   },
   "get_documents__atthefeetofbhagavanduncangreenless_202004_777_j": {
@@ -55,6 +70,16 @@
    "path": "/api/suggest/atthefeetofbhagavanduncangreenless_202004_777_j",
    "status": 200
   },
+  "get_triage__atthefeetofbhagavanduncangreenless_202004_777_j": {
+   "method": "GET",
+   "path": "/api/triage/atthefeetofbhagavanduncangreenless_202004_777_j",
+   "status": 200
+  },
+  "get_editions__atthefeetofbhagavanduncangreenless_202004_777_j": {
+   "method": "GET",
+   "path": "/api/editions/atthefeetofbhagavanduncangreenless_202004_777_j",
+   "status": 200
+  },
   "get_documents__dli.ernet.248230": {
    "method": "GET",
    "path": "/api/documents/dli.ernet.248230",
@@ -68,6 +93,16 @@
   "get_suggest__dli.ernet.248230": {
    "method": "GET",
    "path": "/api/suggest/dli.ernet.248230",
+   "status": 200
+  },
+  "get_triage__dli.ernet.248230": {
+   "method": "GET",
+   "path": "/api/triage/dli.ernet.248230",
+   "status": 200
+  },
+  "get_editions__dli.ernet.248230": {
+   "method": "GET",
+   "path": "/api/editions/dli.ernet.248230",
    "status": 200
   },
   "get_documents__bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh": {
@@ -85,6 +120,16 @@
    "path": "/api/suggest/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
    "status": 200
   },
+  "get_triage__bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh": {
+   "method": "GET",
+   "path": "/api/triage/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+   "status": 200
+  },
+  "get_editions__bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh": {
+   "method": "GET",
+   "path": "/api/editions/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
+   "status": 200
+  },
   "get_documents__dli.21A19144": {
    "method": "GET",
    "path": "/api/documents/dli.21A19144",
@@ -98,6 +143,16 @@
   "get_suggest__dli.21A19144": {
    "method": "GET",
    "path": "/api/suggest/dli.21A19144",
+   "status": 200
+  },
+  "get_triage__dli.21A19144": {
+   "method": "GET",
+   "path": "/api/triage/dli.21A19144",
+   "status": 200
+  },
+  "get_editions__dli.21A19144": {
+   "method": "GET",
+   "path": "/api/editions/dli.21A19144",
    "status": 200
   },
   "get_documents__BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi": {
@@ -115,6 +170,16 @@
    "path": "/api/suggest/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
    "status": 200
   },
+  "get_triage__BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi": {
+   "method": "GET",
+   "path": "/api/triage/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+   "status": 200
+  },
+  "get_editions__BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi": {
+   "method": "GET",
+   "path": "/api/editions/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+   "status": 200
+  },
   "get_documents__dli.56E228": {
    "method": "GET",
    "path": "/api/documents/dli.56E228",
@@ -130,6 +195,16 @@
    "path": "/api/suggest/dli.56E228",
    "status": 200
   },
+  "get_triage__dli.56E228": {
+   "method": "GET",
+   "path": "/api/triage/dli.56E228",
+   "status": 200
+  },
+  "get_editions__dli.56E228": {
+   "method": "GET",
+   "path": "/api/editions/dli.56E228",
+   "status": 200
+  },
   "get_documents__dli.CiXIV43": {
    "method": "GET",
    "path": "/api/documents/dli.CiXIV43",
@@ -143,6 +218,16 @@
   "get_suggest__dli.CiXIV43": {
    "method": "GET",
    "path": "/api/suggest/dli.CiXIV43",
+   "status": 200
+  },
+  "get_triage__dli.CiXIV43": {
+   "method": "GET",
+   "path": "/api/triage/dli.CiXIV43",
+   "status": 200
+  },
+  "get_editions__dli.CiXIV43": {
+   "method": "GET",
+   "path": "/api/editions/dli.CiXIV43",
    "status": 200
   },
   "post_check__in.ernet.dli.2015.294941": {

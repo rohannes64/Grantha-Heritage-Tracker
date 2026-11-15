@@ -9,54 +9,52 @@
   "feature_name": "Vertex AI Multilingual embeddings",
   "status": "ok",
   "hierarchical": {
-   "cluster": 0,
-   "name": "mixed",
-   "distance": 1.003563869531146,
+   "cluster": 2,
+   "name": "ll, te, ne",
+   "distance": 0.9957603565256435,
    "level": "good",
    "spread": {
-    "p50": 0.9749128389293239,
-    "p90": 1.0414494101173384,
-    "max": 1.1390007624156933
+    "p50": 0.9702373492332336,
+    "p90": 1.0432040162225873,
+    "max": 1.155089421709242
    },
-   "runner_up": 1,
-   "runner_up_name": "mixed",
-   "runner_up_distance": 1.0124196962001164,
-   "also_close_to": [
-    {
-     "cluster": 1,
-     "name": "mixed",
-     "distance": 1.0124196962001164
-    }
-   ]
+   "runner_up": 0,
+   "runner_up_name": "cent, methods",
+   "runner_up_distance": 1.034269733668742,
+   "also_close_to": []
   },
   "dbscan": {
    "cluster": -1,
    "name": null,
-   "nearest_core_distance": 0.9975077315828774,
-   "eps": 0.86583,
+   "nearest_core_distance": 0.9299720069175466,
+   "eps": 0.866087,
    "in_dense_group": false
   },
   "matches": [
    {
-    "identifier": "in.ernet.dli.2015.294886",
-    "title": "Ain-kur’un-uur’um Palaiya Uraiyum",
-    "creator": "Chuppiramand-iyateichikar",
-    "year": 1920.0,
-    "era": "1920-1939",
+    "identifier": "in.ernet.dli.2015.293903",
+    "title": "Tirukkoovaiyaar Muunr’aam Paakam",
+    "creator": "Maand-ikkavaachakachuvaamikal’",
+    "year": 1880.0,
+    "era": "pre-1900",
     "lang_tag": "tam",
     "script": "Tamil",
-    "mean_conf": 61.13958560523446,
-    "classification": "Religion",
-    "total_pages": 230,
-    "url": "https://archive.org/details/in.ernet.dli.2015.294886",
-    "distance": 0.8853168275521871,
-    "hier": 1,
+    "mean_conf": 65.64993564993566,
+    "classification": "Literature",
+    "total_pages": 430,
+    "text_source": "hocr",
+    "n_tokens": 4000,
+    "url": "https://archive.org/details/in.ernet.dli.2015.293903",
+    "distance": 0.9039225096900014,
+    "hier": 0,
     "dbscan": 0,
     "shared_terms": [
      "தோழி",
-     "இதுவுமது",
-     "செவி",
-     "கி"
+     "சுடர்",
+     "தொல்",
+     "பிரிந்து",
+     "புலி",
+     "சண்"
     ]
    },
    {
@@ -70,141 +68,153 @@
     "mean_conf": 60.60095389507154,
     "classification": null,
     "total_pages": 51,
+    "text_source": "hocr",
+    "n_tokens": 4000,
     "url": "https://archive.org/details/in.ernet.dli.2015.328001",
-    "distance": 0.9372239795519042,
-    "hier": 1,
+    "distance": 0.9182511693833019,
+    "hier": 0,
     "dbscan": 0,
     "shared_terms": [
      "தோழி",
      "இதுவுமது",
-     "கள",
+     "சோலை",
+     "தொல்",
+     "குறிஞ்சி",
      "இதனை",
-     "கி",
-     "நின்று",
-     "பா"
+     "அஞ்சி",
+     "சள"
     ]
    },
    {
-    "identifier": "in.ernet.dli.2015.293707",
-    "title": "Thanj-chaivaand-an Koovaimuulam",
-    "creator": "Poyyaamozhippulavar",
-    "year": 1893.0,
-    "era": "pre-1900",
-    "lang_tag": "tam",
-    "script": "Tamil",
-    "mean_conf": 70.25963718820861,
-    "classification": "Literature",
-    "total_pages": 288,
-    "url": "https://archive.org/details/in.ernet.dli.2015.293707",
-    "distance": 0.9406605097473513,
-    "hier": 1,
-    "dbscan": 0,
-    "shared_terms": [
-     "என்புழி",
-     "புலி"
-    ]
-   },
-   {
-    "identifier": "in.ernet.dli.2015.292853",
-    "title": "Mand-imeikalai",
-    "creator": null,
-    "year": 1908.0,
-    "era": "1900-1919",
-    "lang_tag": "tam",
-    "script": "Tamil",
-    "mean_conf": 69.12417218543047,
-    "classification": "Literature",
-    "total_pages": 288,
-    "url": "https://archive.org/details/in.ernet.dli.2015.292853",
-    "distance": 0.9502773036991679,
-    "hier": 1,
-    "dbscan": -1,
-    "shared_terms": [
-     "என்றார்",
-     "தன்னை",
-     "இத",
-     "சொல்"
-    ]
-   },
-   {
-    "identifier": "in.ernet.dli.2015.328118",
-    "title": "Kalittokai I",
-    "creator": "N-achchinaarkkiniyarur",
-    "year": 1925.0,
+    "identifier": "in.ernet.dli.2015.328180",
+    "title": "Kalithtoogai",
+    "creator": "N’achchinaarkkiniyarurai",
+    "year": 1938.0,
     "era": "1920-1939",
     "lang_tag": "tam",
     "script": "Tamil",
-    "mean_conf": 66.94323557237465,
+    "mean_conf": 65.52182163187855,
     "classification": null,
-    "total_pages": 412,
-    "url": "https://archive.org/details/in.ernet.dli.2015.328118",
-    "distance": 0.9537246218989235,
-    "hier": 1,
+    "total_pages": 622,
+    "text_source": "hocr",
+    "n_tokens": 4000,
+    "url": "https://archive.org/details/in.ernet.dli.2015.328180",
+    "distance": 0.9299720069175466,
+    "hier": 0,
     "dbscan": 0,
     "shared_terms": [
      "தோழி",
      "தொல்",
-     "கள",
+     "என்றார்",
+     "சண்"
+    ]
+   },
+   {
+    "identifier": "in.ernet.dli.2015.293902",
+    "title": "Tirukkoovaiyaar 2",
+    "creator": "Maand-ikkavaachakachuvaamikal’",
+    "year": 1870.0,
+    "era": "pre-1900",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "mean_conf": 69.95255474452554,
+    "classification": "Literature",
+    "total_pages": 856,
+    "text_source": "hocr",
+    "n_tokens": 4000,
+    "url": "https://archive.org/details/in.ernet.dli.2015.293902",
+    "distance": 0.9521074086230855,
+    "hier": 0,
+    "dbscan": 0,
+    "shared_terms": [
+     "தோழி",
      "இதனை",
-     "நின்று",
-     "சொல்"
+     "சோலை",
+     "செவி"
+    ]
+   },
+   {
+    "identifier": "in.ernet.dli.2015.294198",
+    "title": "Tivand-aimaavalai N-uur’r’aimbadu Muulamum Uraiyum",
+    "creator": "Raa Iraakavaiyang-kaar",
+    "year": 1908.0,
+    "era": "1900-1919",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "mean_conf": 69.37402597402597,
+    "classification": "Literature",
+    "total_pages": 54,
+    "text_source": "hocr",
+    "n_tokens": 4000,
+    "url": "https://archive.org/details/in.ernet.dli.2015.294198",
+    "distance": 0.9625981474064716,
+    "hier": 2,
+    "dbscan": 0,
+    "shared_terms": [
+     "தோழி",
+     "இதுவுமது",
+     "தொல்",
+     "அஞ்சி",
+     "என்றார்",
+     "சள",
+     "சண்"
     ]
    }
   ],
   "pca": {
-   "x": -0.059828507709190654,
-   "y": 0.3118611170858166
+   "x": -0.048643616022826595,
+   "y": -0.31734673548821096
   },
   "related_other_scripts": [
    {
-    "identifier": "in.ernet.dli.2015.301657",
-    "title": "Adure Jaler Shabda Ed.1st",
+    "identifier": "in.ernet.dli.2015.299694",
+    "title": "Abichchinna",
     "lang_tag": "ben",
     "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.301657",
-    "distance": 1.0458590247900115
+    "url": "https://archive.org/details/in.ernet.dli.2015.299694",
+    "distance": 1.0313542011166101
    },
    {
-    "identifier": "in.ernet.dli.2015.302034",
-    "title": "Chaitrarath",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.302034",
-    "distance": 1.0485746091266432
-   },
-   {
-    "identifier": "in.ernet.dli.2015.484324",
-    "title": "Aadi Mani Panth",
-    "lang_tag": "hin",
-    "script": "Devanagari",
-    "url": "https://archive.org/details/in.ernet.dli.2015.484324",
-    "distance": 1.0535267450105952
-   },
-   {
-    "identifier": "dli.ministry.25482",
-    "title": "ছবি ও গান",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/dli.ministry.25482",
-    "distance": 1.0580254699779
-   },
-   {
-    "identifier": "in.ernet.dli.2015.333911",
-    "title": "క్షేత్రయ్య పదములు",
+    "identifier": "in.ernet.dli.2015.330519",
+    "title": "సుగుణమణి",
     "lang_tag": "tel",
     "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.333911",
-    "distance": 1.0658901426245468
+    "url": "https://archive.org/details/in.ernet.dli.2015.330519",
+    "distance": 1.037840977545894
+   },
+   {
+    "identifier": "in.ernet.dli.2015.388831",
+    "title": "కిన్నెరసాని పాటలు కోకిలమ్మ పెళ్లి",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.388831",
+    "distance": 1.0602624129566223
+   },
+   {
+    "identifier": "in.ernet.dli.2015.537762",
+    "title": "Hamiraji Gohel",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.537762",
+    "distance": 1.0794796107379954
+   },
+   {
+    "identifier": "in.ernet.dli.2015.331300",
+    "title": "సాత్రాజతీయము",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.331300",
+    "distance": 1.0833082481683645
    }
   ],
   "suggested_classes": [
    {
     "class": "language and literature",
-    "score": 0.7568392285804038
+    "score": 0.7632128797288341
    },
    {
     "class": "religion",
-    "score": 0.2431607714195959
+    "score": 0.236787120271166
    }
   ],
   "input": "text"

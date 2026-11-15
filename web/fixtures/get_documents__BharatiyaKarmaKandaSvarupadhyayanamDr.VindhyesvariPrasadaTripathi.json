@@ -11,8 +11,10 @@
   "mean_conf": 67.48443579766537,
   "classification": null,
   "total_pages": 277,
+  "text_source": "hocr",
+  "n_tokens": 4000,
   "url": "https://archive.org/details/BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
-  "hier": 0,
-  "dbscan": -1
+  "hier": 1,
+  "dbscan": 0
  }
 }

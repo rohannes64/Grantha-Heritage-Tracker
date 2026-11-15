@@ -7,28 +7,12 @@
   "other_scripts": true,
   "neighbours": [
    {
-    "identifier": "in.ernet.dli.2015.390111",
-    "title": "హిందూ జీవన పథము",
-    "lang_tag": "tel",
-    "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.390111",
-    "distance": 0.9091876158134483
-   },
-   {
-    "identifier": "in.ernet.dli.2015.428621",
-    "title": "Mandir Praveshika (1933)",
-    "lang_tag": "hin",
-    "script": "Devanagari",
-    "url": "https://archive.org/details/in.ernet.dli.2015.428621",
-    "distance": 0.9296192369026554
-   },
-   {
-    "identifier": "in.ernet.dli.2015.492099",
-    "title": "మనస్స్వాతంత్ర్యము",
-    "lang_tag": "tel",
-    "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.492099",
-    "distance": 0.9322163391523564
+    "identifier": "in.ernet.dli.2015.259080",
+    "title": "Hindu Jivan Darshan",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.259080",
+    "distance": 0.7827814908080383
    },
    {
     "identifier": "in.ernet.dli.2015.333682",
@@ -36,15 +20,39 @@
     "lang_tag": "tel",
     "script": "Telugu",
     "url": "https://archive.org/details/in.ernet.dli.2015.333682",
-    "distance": 0.9375659941549501
+    "distance": 0.7868832917968128
    },
    {
-    "identifier": "in.ernet.dli.2015.395881",
-    "title": "సందిగ్ధతత్వరాద్ధాంతము",
+    "identifier": "in.ernet.dli.2015.390111",
+    "title": "హిందూ జీవన పథము",
     "lang_tag": "tel",
     "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.395881",
-    "distance": 0.9419438648330286
+    "url": "https://archive.org/details/in.ernet.dli.2015.390111",
+    "distance": 0.81879854183547
+   },
+   {
+    "identifier": "in.ernet.dli.2015.387989",
+    "title": "భారతదేశం-విశ్వవైభవం",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.387989",
+    "distance": 0.8684326078298877
+   },
+   {
+    "identifier": "in.ernet.dli.2015.447745",
+    "title": "ಹಿಂದೂ ಧರ್ಮ ಎಂದರೇನು?",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/in.ernet.dli.2015.447745",
+    "distance": 0.8749249716590715
+   },
+   {
+    "identifier": "in.ernet.dli.2015.343402",
+    "title": "जागृति का सन्देश",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.343402",
+    "distance": 0.8786403458336516
    },
    {
     "identifier": "in.ernet.dli.2015.390224",
@@ -52,39 +60,31 @@
     "lang_tag": "tel",
     "script": "Telugu",
     "url": "https://archive.org/details/in.ernet.dli.2015.390224",
-    "distance": 0.9489736987993498
+    "distance": 0.886872848355332
    },
    {
-    "identifier": "in.ernet.dli.2015.324849",
-    "title": "Huniyanu Sathi Prachin Dharama",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.324849",
-    "distance": 0.9633868939284074
-   },
-   {
-    "identifier": "in.ernet.dli.2015.388628",
-    "title": "దివ్య జ్ఞాన సారము",
+    "identifier": "in.ernet.dli.2015.332836",
+    "title": "ఉపన్యాస పయోనిధి",
     "lang_tag": "tel",
     "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.388628",
-    "distance": 0.983982900791234
+    "url": "https://archive.org/details/in.ernet.dli.2015.332836",
+    "distance": 0.8977222506914011
    },
    {
-    "identifier": "in.ernet.dli.2015.388718",
-    "title": "గాంధీహృదయము",
-    "lang_tag": "tel",
-    "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.388718",
-    "distance": 0.9907863896051259
+    "identifier": "dli.ernet.554368",
+    "title": "Shamba Kruti Samputa-6 Samskruti Sahitya",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.ernet.554368",
+    "distance": 0.9073594134681672
    },
    {
-    "identifier": "in.ernet.dli.2015.330410",
-    "title": "సర్వమత సారసంగ్రహము",
-    "lang_tag": "tel",
-    "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.330410",
-    "distance": 0.9916537300170049
+    "identifier": "in.ernet.dli.2015.540392",
+    "title": "Prem Yog",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.540392",
+    "distance": 0.9076927872205288
    }
   ]
  }

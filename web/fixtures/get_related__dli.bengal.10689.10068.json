@@ -7,84 +7,84 @@
   "other_scripts": true,
   "neighbours": [
    {
-    "identifier": "in.ernet.dli.2015.305612",
-    "title": "Puranoma Gujrat (bhogolik Khand )",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.305612",
-    "distance": 0.9070012531292687
-   },
-   {
-    "identifier": "dli.ernet.554581",
-    "title": "Bharatada Charitreyalli Bhavgolika Amshagalu",
+    "identifier": "in.ernet.dli.2015.364707",
+    "title": "ರಾಜಸ್ಥಾನ ಕಥಾವಳಿ ಭಾಗ ೧",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/dli.ernet.554581",
-    "distance": 0.920732303213552
+    "url": "https://archive.org/details/in.ernet.dli.2015.364707",
+    "distance": 1.0268996492391997
    },
    {
-    "identifier": "in.ernet.dli.2015.308145",
-    "title": "Aryo Ka Adi Desh",
+    "identifier": "dli.osmania.4735",
+    "title": "ಶೈವಸುಧಾರ್ಣವ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.osmania.4735",
+    "distance": 1.0494981159045187
+   },
+   {
+    "identifier": "in.ernet.dli.2015.494759",
+    "title": "ಶ್ರೀಮದ್ ವಾಲ್ಮೀಕಿ ರಾಮಾಯಣಂ (ಕನ್ನಡ)",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/in.ernet.dli.2015.494759",
+    "distance": 1.0536168716031777
+   },
+   {
+    "identifier": "in.ernet.dli.2015.324982",
+    "title": "The Anand Kavya Mahodadhi Part-iii",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.324982",
+    "distance": 1.0715863770974845
+   },
+   {
+    "identifier": "in.ernet.dli.2015.306032",
+    "title": "Vikrmana Samyanu Singh",
+    "lang_tag": "guj",
+    "script": "Gujarati",
+    "url": "https://archive.org/details/in.ernet.dli.2015.306032",
+    "distance": 1.0835656686281234
+   },
+   {
+    "identifier": "in.ernet.dli.2015.308530",
+    "title": "Yogeshwar Krishna",
     "lang_tag": "hin",
     "script": "Devanagari",
-    "url": "https://archive.org/details/in.ernet.dli.2015.308145",
-    "distance": 0.9231771295310539
+    "url": "https://archive.org/details/in.ernet.dli.2015.308530",
+    "distance": 1.0885044756185709
    },
    {
-    "identifier": "in.ernet.dli.2015.304882",
-    "title": "Gujarati Gyankosh Bhag-ii",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.304882",
-    "distance": 0.9311167918463269
-   },
-   {
-    "identifier": "in.ernet.dli.2015.325262",
-    "title": "ನೂತನ ಇತಿಹಾಸ ಕೈಪಿಡಿ ಭಾಗ ೧",
+    "identifier": "dli.osmania.4047",
+    "title": "ರಾಮರಾಜ್ಯ ",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/in.ernet.dli.2015.325262",
-    "distance": 0.9337755533956953
+    "url": "https://archive.org/details/dli.osmania.4047",
+    "distance": 1.0892757339525339
    },
    {
-    "identifier": "dli.ernet.422263",
-    "title": "Bhugol Vidhya,",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/dli.ernet.422263",
-    "distance": 0.9482561832945102
+    "identifier": "in.ernet.dli.2015.545588",
+    "title": "Bhasa Bharatsar (adhi Purav )",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.545588",
+    "distance": 1.089612796259128
    },
    {
-    "identifier": "in.ernet.dli.2015.373601",
-    "title": "భూగోళ విజ్ఞానము",
-    "lang_tag": "tel",
-    "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.373601",
-    "distance": 0.9584188444456329
-   },
-   {
-    "identifier": "dli.ernet.554582",
-    "title": "Bharatada Moolabhuta Akate",
+    "identifier": "dli.osmania.4839",
+    "title": "ಭೈರವೇಶ್ವರ ಕಾವ್ಯ",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/dli.ernet.554582",
-    "distance": 0.9602950112160468
+    "url": "https://archive.org/details/dli.osmania.4839",
+    "distance": 1.0935717265614449
    },
    {
-    "identifier": "in.ernet.dli.2015.484372",
-    "title": "Khagool’a Shaasttra",
+    "identifier": "in.ernet.dli.2015.362597",
+    "title": "ವಿಜಯವಿಲಾಸ ಗ್ರಂಥ ೬",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/in.ernet.dli.2015.484372",
-    "distance": 0.974996465332426
-   },
-   {
-    "identifier": "in.ernet.dli.2015.400078",
-    "title": "Samalochak Vol 24 Ank-1",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.400078",
-    "distance": 0.9755010345988552
+    "url": "https://archive.org/details/in.ernet.dli.2015.362597",
+    "distance": 1.095390141467499
    }
   ]
  }

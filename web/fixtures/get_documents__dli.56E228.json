@@ -11,8 +11,10 @@
   "mean_conf": 67.26884422110552,
   "classification": null,
   "total_pages": 55,
+  "text_source": "hocr",
+  "n_tokens": 4000,
   "url": "https://archive.org/details/dli.56E228",
-  "hier": 2,
+  "hier": 0,
   "dbscan": 0
  }
 }

@@ -1,44 +1,44 @@
 {
   "corpus": {
     "harvested": 15288,
-    "usable": 13342,
-    "excluded": 1946,
-    "usable_share": 0.8727106227106227,
-    "ocr_pages": 76439,
+    "usable": 13358,
+    "excluded": 1930,
+    "usable_share": 0.8737571951857667,
+    "ocr_pages": 77634,
     "by_language": [
       {
         "lang": "ben",
         "name": "Bengali",
         "harvested": 2000,
-        "usable": 1927,
+        "usable": 1930,
         "median_conf": 73.38808139534883
       },
       {
         "lang": "eng",
         "name": "English",
         "harvested": 2000,
-        "usable": 1970,
+        "usable": 1976,
         "median_conf": 91.86714013803508
       },
       {
         "lang": "guj",
         "name": "Gujarati",
         "harvested": 2000,
-        "usable": 1883,
+        "usable": 1886,
         "median_conf": 71.50042411244695
       },
       {
         "lang": "hin",
         "name": "Hindi",
         "harvested": 2000,
-        "usable": 1804,
+        "usable": 1806,
         "median_conf": 77.06009389671361
       },
       {
         "lang": "kan",
         "name": "Kannada",
         "harvested": 1608,
-        "usable": 1459,
+        "usable": 1460,
         "median_conf": 77.10147601476015
       },
       {
@@ -59,17 +59,19 @@
         "lang": "tel",
         "name": "Telugu",
         "harvested": 1914,
-        "usable": 1321,
+        "usable": 1322,
         "median_conf": 55.403534609720175
       }
     ],
     "splits": {
-      "train": 8005,
-      "test": 2669,
-      "val": 2668
+      "train": 8129,
+      "val": 2638,
+      "test": 2591
     },
     "text_source": {
-      "tesseract_pages": 13342
+      "hocr": 10581,
+      "djvu": 1682,
+      "tesseract_pages": 1095
     },
     "languages": 8
   },
@@ -77,7 +79,7 @@
     "feature_set": "V",
     "name": "Vertex AI Multilingual embeddings",
     "dims": 100,
-    "pca_explained": 0.77950519323349
+    "pca_explained": 0.7860354781150818
   },
   "selection": {
     "rule_met": false,
@@ -89,55 +91,55 @@
     "metric": "euclidean",
     "k": 3,
     "k_actual": 3,
-    "silhouette": 0.03972232355355754,
-    "largest_share": 0.5086193973916954,
-    "smallest": 2329,
+    "silhouette": 0.03505982047172203,
+    "largest_share": 0.4605479862254829,
+    "smallest": 1714,
     "valid": true,
-    "nmi_script": 0.018174086799621073,
-    "boot_median": 0.23569220189089413,
+    "nmi_script": 0.019299247199408814,
+    "boot_median": 0.2595734183748013,
     "bootstrap": {
-      "median": 0.23569220189089413,
-      "p10": 0.14402192722108792,
-      "p90": 0.41738116616852705,
+      "median": 0.2595734183748013,
+      "p10": 0.21368650260941158,
+      "p90": 0.3977653721259586,
       "values": [
-        0.0849,
-        0.4724,
-        0.1654,
-        0.3082,
-        0.1448,
-        0.2313,
-        0.3284,
-        0.4903,
-        0.4006,
-        0.22,
-        0.357,
-        0.3413,
-        0.219,
-        0.1989,
-        0.186,
-        0.4113,
-        0.1371,
-        0.1701,
-        0.252,
-        0.2401
+        0.2575,
+        0.2616,
+        0.295,
+        0.2368,
+        0.3654,
+        0.2184,
+        0.2295,
+        0.4534,
+        0.3751,
+        0.1816,
+        0.2844,
+        0.2357,
+        0.329,
+        0.2034,
+        0.2148,
+        0.2521,
+        0.3916,
+        0.4553,
+        0.2949,
+        0.2333
       ]
     },
     "neighbours": [
       {
         "k": 2,
-        "ari": 0.7787765932280052
+        "ari": 0.7892323432120867
       },
       {
         "k": 4,
-        "ari": 0.7140099396453436
+        "ari": 0.8145053677871947
       }
     ],
     "effects": {
-      "nmi_script": 0.018174086799621073,
-      "ari_script": 0.015630847980299734,
-      "nmi_era": 0.006042841007056189,
-      "nmi_classification": 0.0980653038048006,
-      "classified_books": 6816
+      "nmi_script": 0.019299247199408814,
+      "ari_script": 0.009436437545795397,
+      "nmi_era": 0.016633098380156565,
+      "nmi_classification": 0.08835885550650598,
+      "classified_books": 6825
     }
   },
   "distance": {
@@ -148,40 +150,40 @@
     }
   },
   "dbscan": {
-    "min_pts": 20,
-    "eps": 0.86583,
+    "min_pts": 15,
+    "eps": 0.866087,
     "eps_is_knee": false,
     "n_clusters": 2,
-    "noise_share": 0.42399940038974665,
-    "silhouette": 0.013388407466711869,
-    "largest_share": 0.5748013791035826,
+    "noise_share": 0.30700703698158405,
+    "silhouette": 0.006201213247436124,
+    "largest_share": 0.6919449019314269,
     "valid": true,
     "grid_settings": 24,
     "bootstrap": {
-      "median": 0.8055825060393418,
-      "p10": 0.7806697820485831,
-      "p90": 0.8166617088766385,
+      "median": 0.8551046515086571,
+      "p10": 0.8481791282838121,
+      "p90": 0.8681911852073579,
       "values": [
-        0.8025,
-        0.8145,
-        0.782,
-        0.82,
-        0.7875,
-        0.8145,
-        0.809,
-        0.8086,
-        0.7669,
-        0.8092,
-        0.8134,
-        0.7895,
-        0.8163,
-        0.7847,
-        0.7904,
-        0.7684,
-        0.7904,
-        0.799,
-        0.8122,
-        0.8237
+        0.8611,
+        0.8593,
+        0.8672,
+        0.8541,
+        0.8599,
+        0.8514,
+        0.8426,
+        0.8539,
+        0.8488,
+        0.843,
+        0.8616,
+        0.8773,
+        0.8596,
+        0.856,
+        0.8542,
+        0.877,
+        0.8645,
+        0.8495,
+        0.8515,
+        0.8535
       ]
     },
     "min_pts_tried": [
@@ -191,52 +193,52 @@
       20
     ],
     "eps_range": [
-      0.709571,
-      1.072828
+      0.680584,
+      1.060916
     ]
   },
   "hier_vs_dbscan": {
-    "ari_non_noise": -0.0006898194067346774,
-    "nmi_non_noise": 0.003431973655259057,
-    "ari_all_noise_as_group": 0.022371568910685726
+    "ari_non_noise": 0.0004042178030626395,
+    "nmi_non_noise": 0.003120985505452889,
+    "ari_all_noise_as_group": 0.007319349515005668
   },
   "pca": [
-    0.1104,
-    0.0845
+    0.1163,
+    0.0872
   ],
   "extras": {
     "within_script_silhouette": {
       "by_script": {
-        "Bengali": 0.06056126423509714,
-        "Devanagari": 0.04895293875496278,
-        "Gujarati": 0.07391167877249685,
-        "Kannada": 0.05123864694928563,
-        "Latin": 0.05590025657769948,
-        "Tamil": 0.07162456237173653,
-        "Telugu": 0.05555819039326438
+        "Bengali": 0.046501465849948014,
+        "Devanagari": 0.05313585566305425,
+        "Gujarati": 0.060245259626958446,
+        "Kannada": 0.044424279578117426,
+        "Latin": 0.029903237533052834,
+        "Tamil": 0.05967744788301882,
+        "Telugu": 0.07068273380137644
       },
       "books": {
-        "Bengali": 2004,
-        "Devanagari": 2685,
-        "Gujarati": 1764,
-        "Kannada": 1440,
-        "Latin": 2726,
+        "Bengali": 2007,
+        "Devanagari": 2687,
+        "Gujarati": 1767,
+        "Kannada": 1441,
+        "Latin": 2732,
         "Tamil": 1400,
-        "Telugu": 1323
+        "Telugu": 1324
       },
-      "weighted_mean": 0.05869654022540805
+      "weighted_mean": 0.04981294043194523
     },
     "high_conf_refit": {
-      "books": 8091,
-      "share": 0.6064308199670214,
-      "ari_vs_full": 0.4790136430067029
+      "books": 8099,
+      "share": 0.6063033388231771,
+      "ari_vs_full": 0.3532607422603123
     },
     "hdbscan": {
       "min_cluster_size": 134,
       "n_clusters": 2,
-      "noise_share": 0.9287962824164293,
-      "silhouette": 0.2678028862937349,
-      "ari_vs_hierarchical_non_noise": 0.6445960744646783
+      "noise_share": 0.9413834406348256,
+      "silhouette": 0.28212043753997934,
+      "ari_vs_hierarchical_non_noise": 0.6644934822485945
     }
   },
   "evaluation": {
@@ -246,29 +248,29 @@
         "linkage": "ward",
         "metric": "euclidean",
         "k": 3,
-        "silhouette": 0.040314336278359064,
-        "nmi_script": 0.01794020041412493
+        "silhouette": 0.03836288071761263,
+        "nmi_script": 0.017158644063467024
       },
-      "held_out_books": 2668,
-      "t1_agreement": 0.7880952380952381,
-      "t1_chance": 0.3479029073412503,
-      "t1_abstain_rate": 0.02398800599700146,
-      "t1_tagged": 0.9029953917050692,
-      "t1_books": null,
-      "t1_left_out_own_pages": null,
-      "t2_accuracy": 0.4636363636363636,
-      "t2_baseline_script": 0.38181818181818183,
-      "t2_baseline_common": 0.23636363636363636,
-      "t2_points": 8.18181818181818,
-      "t2_p": 0.0004997501249375312,
-      "t2_labelled_train": 360,
-      "t2_labelled_heldout": 110,
+      "held_out_books": 2638,
+      "t1_agreement": 0.757663734950047,
+      "t1_chance": 0.35892903944439647,
+      "t1_abstain_rate": 0.030947455523376077,
+      "t1_tagged": 0.8568012979250278,
+      "t1_books": 2417,
+      "t1_left_out_own_pages": 221,
+      "t2_accuracy": 0.4583333333333333,
+      "t2_baseline_script": 0.4166666666666667,
+      "t2_baseline_common": 0.3,
+      "t2_points": 4.1666666666666625,
+      "t2_p": 0.0024987506246876563,
+      "t2_labelled_train": 351,
+      "t2_labelled_heldout": 120,
       "group_to_subject": {
         "0": "literature",
         "1": "religion and philosophy",
-        "2": "literature"
+        "2": "religion and philosophy"
       },
-      "t3_bootstrap": 0.2275788054737073,
+      "t3_bootstrap": 0.3573638085687529,
       "targets": {
         "T1_page_agreement": 0.8,
         "T2_points_above_baseline": 10.0,
@@ -278,6 +280,42 @@
         "T1": false,
         "T2": false,
         "T3": false
+      },
+      "t1_agreement_ci95": [
+        0.7463783042085622,
+        0.7678802388540787
+      ],
+      "t2_accuracy_ci95": [
+        0.36666666666666664,
+        0.5416666666666666
+      ],
+      "t2_points_ci95": [
+        -6.666666666666665,
+        14.187499999999892
+      ],
+      "catalogue": {
+        "labelled_train": 3559,
+        "labelled_heldout": 1133,
+        "accuracy_groups": 0.4836716681376876,
+        "baseline_most_common": 0.4836716681376876,
+        "baseline_script_only": 0.5057369814651368,
+        "points_above_best_baseline": -2.206531332744921,
+        "accuracy_groups_ci95": [
+          0.45366284201235657,
+          0.5136804942630185
+        ],
+        "points_above_best_baseline_ci95": [
+          -3.089143865842897,
+          -1.3239187996469504
+        ],
+        "permutation_p": 1.0,
+        "group_to_subject": {
+          "0": "language and literature",
+          "1": "language and literature",
+          "2": "language and literature"
+        },
+        "books_with_a_code": 7799,
+        "books_mapped": 6689
       }
     },
     "test": {
@@ -286,29 +324,29 @@
         "linkage": "ward",
         "metric": "euclidean",
         "k": 3,
-        "silhouette": 0.040314336278359064,
-        "nmi_script": 0.01794020041412493
+        "silhouette": 0.03836288071761263,
+        "nmi_script": 0.017158644063467024
       },
-      "held_out_books": 2669,
-      "t1_agreement": 0.7906671808715773,
-      "t1_chance": 0.3479029073412503,
-      "t1_abstain_rate": 0.028402278177457996,
-      "t1_tagged": 0.9009641342074817,
-      "t1_books": null,
-      "t1_left_out_own_pages": null,
-      "t2_accuracy": 0.4745762711864407,
-      "t2_baseline_script": 0.423728813559322,
-      "t2_baseline_common": 0.3644067796610169,
-      "t2_points": 5.084745762711868,
+      "held_out_books": 2591,
+      "t1_agreement": 0.7517385257301809,
+      "t1_chance": 0.35892903944439647,
+      "t1_abstain_rate": 0.02591024555461474,
+      "t1_tagged": 0.8565716272600834,
+      "t1_books": 2362,
+      "t1_left_out_own_pages": 229,
+      "t2_accuracy": 0.5299145299145299,
+      "t2_baseline_script": 0.38461538461538464,
+      "t2_baseline_common": 0.3076923076923077,
+      "t2_points": 14.529914529914528,
       "t2_p": 0.0004997501249375312,
-      "t2_labelled_train": 360,
-      "t2_labelled_heldout": 118,
+      "t2_labelled_train": 351,
+      "t2_labelled_heldout": 117,
       "group_to_subject": {
         "0": "literature",
         "1": "religion and philosophy",
-        "2": "literature"
+        "2": "religion and philosophy"
       },
-      "t3_bootstrap": 0.2275788054737073,
+      "t3_bootstrap": 0.3573638085687529,
       "targets": {
         "T1_page_agreement": 0.8,
         "T2_points_above_baseline": 10.0,
@@ -316,235 +354,115 @@
       },
       "met": {
         "T1": false,
-        "T2": false,
+        "T2": true,
         "T3": false
+      },
+      "t1_agreement_ci95": [
+        0.7409208594073156,
+        0.7627139677275171
+      ],
+      "t2_accuracy_ci95": [
+        0.4358974358974359,
+        0.6153846153846154
+      ],
+      "t2_points_ci95": [
+        5.128205128205127,
+        24.78632478632478
+      ],
+      "catalogue": {
+        "labelled_train": 3559,
+        "labelled_heldout": 1168,
+        "accuracy_groups": 0.4777397260273973,
+        "baseline_most_common": 0.4777397260273973,
+        "baseline_script_only": 0.5179794520547946,
+        "points_above_best_baseline": -4.023972602739728,
+        "accuracy_groups_ci95": [
+          0.449486301369863,
+          0.5059931506849316
+        ],
+        "points_above_best_baseline_ci95": [
+          -5.222602739726029,
+          -2.910958904109584
+        ],
+        "permutation_p": 1.0,
+        "group_to_subject": {
+          "0": "language and literature",
+          "1": "language and literature",
+          "2": "language and literature"
+        },
+        "books_with_a_code": 7799,
+        "books_mapped": 6689
       }
     }
   },
   "groups": [
     {
       "group": 0,
-      "books": 6786,
-      "share": 0.5086193973916954,
+      "books": 6152,
+      "share": 0.4605479862254829,
       "majority_subject": "literature",
       "languages": {
-        "eng": 0.18,
-        "ben": 0.174,
-        "kan": 0.13,
-        "guj": 0.13,
-        "hin": 0.125,
-        "tel": 0.098,
-        "san": 0.093,
-        "tam": 0.07
+        "eng": 0.188,
+        "ben": 0.16,
+        "hin": 0.133,
+        "guj": 0.129,
+        "kan": 0.12,
+        "san": 0.11,
+        "tel": 0.081,
+        "tam": 0.078
       },
-      "top_language_share": 0.18037135278514588
+      "top_language_share": 0.18774382314694407
     },
     {
       "group": 1,
-      "books": 2329,
-      "share": 0.17456153500224852,
+      "books": 1714,
+      "share": 0.12831262164994758,
       "majority_subject": "religion and philosophy",
       "languages": {
-        "tam": 0.195,
-        "guj": 0.157,
-        "san": 0.146,
-        "tel": 0.135,
-        "hin": 0.108,
-        "kan": 0.107,
-        "ben": 0.107,
-        "eng": 0.044
+        "hin": 0.221,
+        "san": 0.186,
+        "guj": 0.18,
+        "ben": 0.131,
+        "tel": 0.1,
+        "tam": 0.097,
+        "kan": 0.068,
+        "eng": 0.019
       },
-      "top_language_share": 0.19536281665951052
+      "top_language_share": 0.220536756126021
     },
     {
       "group": 2,
-      "books": 4227,
-      "share": 0.31681906760605605,
-      "majority_subject": "literature",
+      "books": 5492,
+      "share": 0.41113939212456957,
+      "majority_subject": "religion and philosophy",
       "languages": {
-        "hin": 0.167,
-        "eng": 0.152,
-        "guj": 0.15,
-        "san": 0.14,
-        "ben": 0.118,
-        "tam": 0.115,
-        "tel": 0.08,
-        "kan": 0.077
+        "eng": 0.144,
+        "guj": 0.143,
+        "tam": 0.141,
+        "ben": 0.131,
+        "tel": 0.119,
+        "hin": 0.111,
+        "kan": 0.11,
+        "san": 0.103
       },
-      "top_language_share": 0.16749467707594037
+      "top_language_share": 0.14366351056081572
     }
   ],
-  "comparison_study": {
-    "feature_set": "G",
-    "selection": {
-      "chosen": "G",
-      "rule_met": true,
-      "passes": {
-        "A": false,
-        "G": true
-      },
-      "silhouette": {
-        "A": 0.23101526370010422,
-        "G": 0.06392428606881888
-      },
-      "nmi_script": {
-        "A": 0.5726209934183256,
-        "G": 0.05265876931040313
-      },
-      "boot_median": {
-        "A": 1.0,
-        "G": 0.5132369529130749
-      },
-      "rule": "highest silhouette among feature sets and valid settings whose groups follow script with NMI <= 0.5 and whose median bootstrap ARI >= 0.5",
-      "chosen_on": "train books (docs/evaluation_plan.md)",
-      "train_selection": {
-        "chosen": "G",
-        "rule_met": true,
-        "passes": {
-          "A": false,
-          "G": true
-        },
-        "silhouette": {
-          "A": 0.2283635534849247,
-          "G": 0.07160089727811299
-        },
-        "nmi_script": {
-          "A": 0.6462136215508058,
-          "G": 0.05589367965450248
-        },
-        "boot_median": {
-          "A": 1.0,
-          "G": 0.5841697999294675
-        },
-        "rule": "highest silhouette among feature sets and valid settings whose groups follow script with NMI <= 0.5 and whose median bootstrap ARI >= 0.5",
-        "setting": {
-          "linkage": "average",
-          "metric": "euclidean",
-          "k": 6,
-          "k_actual": 6,
-          "silhouette": 0.07160089727811299,
-          "largest_share": 0.22545219638242894,
-          "smallest": 157,
-          "valid": true,
-          "nmi_script": 0.05589367965450248,
-          "boot_median": 0.5841697999294675
-        }
-      }
-    },
-    "test": {
-      "feature_set": "G",
-      "setting": {
-        "linkage": "average",
-        "metric": "euclidean",
-        "k": 6,
-        "silhouette": 0.07160089727811299,
-        "nmi_script": 0.05589367965450248
-      },
-      "held_out_books": 515,
-      "t1_agreement": 0.7245388933440257,
-      "t1_chance": 0.18007648445272384,
-      "t1_abstain_rate": 0.03145631067961163,
-      "t1_tagged": 0.8247794707297514,
-      "t1_books": null,
-      "t1_left_out_own_pages": null,
-      "t2_accuracy": 0.5866666666666667,
-      "t2_baseline_script": 0.48,
-      "t2_baseline_common": 0.36,
-      "t2_points": 10.666666666666668,
-      "t2_p": 0.0004997501249375312,
-      "t2_labelled_train": 336,
-      "t2_labelled_heldout": 75,
-      "group_to_subject": {
-        "0": "society, law and economics",
-        "1": "literature",
-        "2": "literature",
-        "3": "science, medicine and technology",
-        "4": "language and grammar",
-        "5": "religion and philosophy"
-      },
-      "t3_bootstrap": 0.5841697999294675,
-      "targets": {
-        "T1_page_agreement": 0.8,
-        "T2_points_above_baseline": 10.0,
-        "T3_bootstrap_ari": 0.6
-      },
-      "met": {
-        "T1": false,
-        "T2": true,
-        "T3": false
-      }
-    },
-    "val": {
-      "feature_set": "G",
-      "setting": {
-        "linkage": "average",
-        "metric": "euclidean",
-        "k": 6,
-        "silhouette": 0.07160089727811299,
-        "nmi_script": 0.05589367965450248
-      },
-      "held_out_books": 515,
-      "t1_agreement": 0.7043547742708749,
-      "t1_chance": 0.18007648445272384,
-      "t1_abstain_rate": 0.027961165048543735,
-      "t1_tagged": 0.818218138234119,
-      "t1_books": null,
-      "t1_left_out_own_pages": null,
-      "t2_accuracy": 0.590443686006826,
-      "t2_baseline_script": 0.4641638225255973,
-      "t2_baseline_common": 0.3174061433447099,
-      "t2_points": 12.627986348122866,
-      "t2_p": 0.0004997501249375312,
-      "t2_labelled_train": 336,
-      "t2_labelled_heldout": 293,
-      "group_to_subject": {
-        "0": "society, law and economics",
-        "1": "literature",
-        "2": "literature",
-        "3": "science, medicine and technology",
-        "4": "language and grammar",
-        "5": "religion and philosophy"
-      },
-      "t3_bootstrap": 0.5841697999294675,
-      "targets": {
-        "T1_page_agreement": 0.8,
-        "T2_points_above_baseline": 10.0,
-        "T3_bootstrap_ari": 0.6
-      },
-      "met": {
-        "T1": false,
-        "T2": true,
-        "T3": false
-      }
-    }
-  },
-  "figures": {
+  "centring_effect": {
     "feature_set": "V",
-    "books": 13342,
-    "dims": 100,
-    "cophenetic": {
-      "ward": 0.39576516189509664,
-      "complete": 0.39779333147168017,
-      "average": 0.4849042151502892,
-      "single": 0.03620646974609331
+    "k": 3,
+    "train_books": 8129,
+    "linkage": "ward",
+    "metric": "euclidean",
+    "uncentred": {
+      "nmi_script": 0.6416368308689485,
+      "knn10_same_script": 0.9726657645466847,
+      "largest_group_share": 0.49108131381473735
     },
-    "pca_embedder_pc123": [
-      8.888736724853516,
-      6.696173667907715,
-      4.425758361816406
-    ],
-    "pca_embedder_total": 77.95051574707031,
-    "pca_Z_3d": [
-      11.043060302734375,
-      8.4501371383667,
-      5.609840393066406
-    ],
-    "group_names": {
-      "0": "G1 \u00b7 society, law and economics",
-      "1": "G2 \u00b7 literature",
-      "2": "G3 \u00b7 literature",
-      "3": "G4 \u00b7 science, medicine and technology",
-      "4": "G5 \u00b7 language and grammar"
+    "centred": {
+      "nmi_script": 0.0652169098696686,
+      "knn10_same_script": 0.6276417763562554,
+      "largest_group_share": 0.4192397588879321
     }
   }
 }

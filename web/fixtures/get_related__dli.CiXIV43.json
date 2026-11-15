@@ -7,36 +7,60 @@
   "other_scripts": true,
   "neighbours": [
    {
-    "identifier": "dli.ernet.243184",
-    "title": "Vyakarana Chandryo",
-    "lang_tag": "hin",
-    "script": "Devanagari",
-    "url": "https://archive.org/details/dli.ernet.243184",
-    "distance": 0.9058456872213616
-   },
-   {
-    "identifier": "dli.CiXIV119aa",
-    "title": "ಕನ್ನಡ ಬಾಲವ್ಯಕರಣ",
+    "identifier": "dli.CiXIV119a",
+    "title": "ಕನ್ನಡ ವ್ಯಾಕರಣ ಸಾರವು",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/dli.CiXIV119aa",
-    "distance": 0.9574937022547485
+    "url": "https://archive.org/details/dli.CiXIV119a",
+    "distance": 0.9095793327154866
    },
    {
-    "identifier": "in.ernet.dli.2015.388441",
-    "title": "అప్పకవీయవివరణము తృతీయాశ్వాసము",
+    "identifier": "dli.ministry.02382",
+    "title": "A grammar of the Kannada language in english",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.ministry.02382",
+    "distance": 0.9321597101743994
+   },
+   {
+    "identifier": "in.ernet.dli.2015.373623",
+    "title": "చక్కని తెలుగు రాయడమెలా?",
     "lang_tag": "tel",
     "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.388441",
-    "distance": 0.9595290496276446
+    "url": "https://archive.org/details/in.ernet.dli.2015.373623",
+    "distance": 0.9549485577520515
    },
    {
-    "identifier": "dli.CiXIV119ac",
-    "title": "ಕನ್ನಡ ಬಾಲವ್ಯಾಕರಣ",
+    "identifier": "dli.CiXIV98_1",
+    "title": "ಕನ್ನಡ ಶಾಲವ್ಯಾಕರಣ",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/dli.CiXIV119ac",
-    "distance": 0.9656666008812184
+    "url": "https://archive.org/details/dli.CiXIV98_1",
+    "distance": 0.9550370242929349
+   },
+   {
+    "identifier": "in.ernet.dli.2015.489340",
+    "title": "Hindii Vyaakarand-a",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.489340",
+    "distance": 0.9558045447580689
+   },
+   {
+    "identifier": "in.ernet.dli.2015.386304",
+    "title": "ప్రాకృతభాషోత్పత్తి",
+    "lang_tag": "tel",
+    "script": "Telugu",
+    "url": "https://archive.org/details/in.ernet.dli.2015.386304",
+    "distance": 0.9705088611198612
+   },
+   {
+    "identifier": "in.ernet.dli.2015.328167",
+    "title": "Moozhi N’uul",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "url": "https://archive.org/details/in.ernet.dli.2015.328167",
+    "distance": 0.9723582545576762
    },
    {
     "identifier": "in.ernet.dli.2015.441153",
@@ -44,47 +68,23 @@
     "lang_tag": "hin",
     "script": "Devanagari",
     "url": "https://archive.org/details/in.ernet.dli.2015.441153",
-    "distance": 0.9658948000474714
+    "distance": 0.9737817485132705
    },
    {
-    "identifier": "in.ernet.dli.2015.294203",
-    "title": "Tolkaappiyam 2",
-    "lang_tag": "tam",
-    "script": "Tamil",
-    "url": "https://archive.org/details/in.ernet.dli.2015.294203",
-    "distance": 0.9723976745963476
+    "identifier": "dli.CiXIV119aa",
+    "title": "ಕನ್ನಡ ಬಾಲವ್ಯಕರಣ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.CiXIV119aa",
+    "distance": 0.9842684094405166
    },
    {
-    "identifier": "in.ernet.dli.2015.553768",
-    "title": "Prakrit Vyakaranam Adyaya-8",
-    "lang_tag": "san",
-    "script": "Devanagari",
-    "url": "https://archive.org/details/in.ernet.dli.2015.553768",
-    "distance": 0.9789532111252691
-   },
-   {
-    "identifier": "in.ernet.dli.2015.336716",
-    "title": "Byakaran",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.336716",
-    "distance": 0.9796519785537564
-   },
-   {
-    "identifier": "in.ernet.dli.2015.333214",
-    "title": "ద్రావిడ భాషా పరిశీలన",
+    "identifier": "in.ernet.dli.2015.330397",
+    "title": "ఆంధ్ర శబ్దతత్త్వము",
     "lang_tag": "tel",
     "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.333214",
-    "distance": 0.9862687662934381
-   },
-   {
-    "identifier": "in.ernet.dli.2015.400798",
-    "title": "Haadotee Sahitya Aur Swaroop",
-    "lang_tag": "hin",
-    "script": "Devanagari",
-    "url": "https://archive.org/details/in.ernet.dli.2015.400798",
-    "distance": 0.9876739058740789
+    "url": "https://archive.org/details/in.ernet.dli.2015.330397",
+    "distance": 0.9869369236562039
    }
   ]
  }

@@ -7,15 +7,15 @@
   "suggestions": [
    {
     "class": "language and literature",
-    "score": 0.44127271455271394
+    "score": 0.5960389560950893
    },
    {
     "class": "religion",
-    "score": 0.39690395206872414
+    "score": 0.24050338139503424
    },
    {
     "class": "generalities",
-    "score": 0.1228342345361044
+    "score": 0.16345766250987642
    }
   ],
   "neighbours_used": 25,

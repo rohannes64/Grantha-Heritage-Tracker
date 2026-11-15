@@ -1,0 +1,17 @@
+{
+  "feature_set": "V",
+  "k": 3,
+  "train_books": 8129,
+  "linkage": "ward",
+  "metric": "euclidean",
+  "uncentred": {
+    "nmi_script": 0.6416368308689485,
+    "knn10_same_script": 0.9726657645466847,
+    "largest_group_share": 0.49108131381473735
+  },
+  "centred": {
+    "nmi_script": 0.0652169098696686,
+    "knn10_same_script": 0.6276417763562554,
+    "largest_group_share": 0.4192397588879321
+  }
+}

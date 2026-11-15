@@ -1,0 +1,15 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "dli.CiXIV43",
+  "verdict": "fine",
+  "score": 0.0,
+  "reasons": [],
+  "signals": {
+   "mean_conf": 76.40024330900243,
+   "text_source": "tesseract_pages",
+   "n_tokens": 811,
+   "dbscan_noise": false
+  }
+ }
+}

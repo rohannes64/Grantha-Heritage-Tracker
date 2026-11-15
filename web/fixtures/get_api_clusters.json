@@ -3,54 +3,70 @@
  "body": [
   {
    "cluster": 0,
-   "name": "mixed",
-   "size": 6786,
-   "share": 0.5086193973916954,
-   "terms": [],
+   "name": "cent, methods",
+   "size": 6152,
+   "share": 0.4605479862254829,
+   "terms": [
+    "cent",
+    "methods"
+   ],
    "script_mix": {
-    "Latin": 0.238,
-    "Bengali": 0.177,
-    "Devanagari": 0.165,
-    "Kannada": 0.129,
-    "Gujarati": 0.125,
-    "Telugu": 0.098,
-    "Tamil": 0.068
+    "Latin": 0.245,
+    "Devanagari": 0.188,
+    "Bengali": 0.162,
+    "Gujarati": 0.127,
+    "Kannada": 0.12,
+    "Telugu": 0.08,
+    "Tamil": 0.077
    },
-   "median_year": 1929.0
+   "median_year": 1933.0
   },
   {
    "cluster": 1,
-   "name": "mixed",
-   "size": 2329,
-   "share": 0.17456153500224852,
-   "terms": [],
+   "name": "ब्रह्म, सर्वे, मोक्ष",
+   "size": 1714,
+   "share": 0.12831262164994758,
+   "terms": [
+    "ब्रह्म",
+    "सर्वे",
+    "मोक्ष",
+    "युक्त",
+    "सर्व",
+    "द्रव्य",
+    "देवा",
+    "रहित"
+   ],
    "script_mix": {
-    "Tamil": 0.193,
-    "Devanagari": 0.174,
-    "Gujarati": 0.147,
-    "Telugu": 0.135,
-    "Latin": 0.124,
-    "Bengali": 0.121,
-    "Kannada": 0.105
+    "Devanagari": 0.375,
+    "Gujarati": 0.159,
+    "Bengali": 0.139,
+    "Telugu": 0.103,
+    "Tamil": 0.094,
+    "Kannada": 0.065,
+    "Latin": 0.064
    },
-   "median_year": 1917.0
+   "median_year": 1916.0
   },
   {
    "cluster": 2,
-   "name": "mixed",
-   "size": 4227,
-   "share": 0.31681906760605605,
-   "terms": [],
+   "name": "ll, te, ne",
+   "size": 5492,
+   "share": 0.41113939212456957,
+   "terms": [
+    "ll",
+    "te",
+    "ne"
+   ],
    "script_mix": {
-    "Devanagari": 0.274,
-    "Latin": 0.195,
-    "Gujarati": 0.136,
-    "Bengali": 0.123,
-    "Tamil": 0.115,
-    "Telugu": 0.081,
-    "Kannada": 0.076
+    "Latin": 0.202,
+    "Devanagari": 0.162,
+    "Bengali": 0.141,
+    "Tamil": 0.139,
+    "Gujarati": 0.13,
+    "Telugu": 0.119,
+    "Kannada": 0.107
    },
-   "median_year": 1922.0
+   "median_year": 1919.0
   }
  ]
 }

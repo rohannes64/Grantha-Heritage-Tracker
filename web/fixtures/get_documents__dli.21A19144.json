@@ -11,8 +11,10 @@
   "mean_conf": 67.79875518672199,
   "classification": null,
   "total_pages": 175,
+  "text_source": "tesseract_pages",
+  "n_tokens": 1074,
   "url": "https://archive.org/details/dli.21A19144",
-  "hier": 1,
+  "hier": 2,
   "dbscan": 0
  }
 }

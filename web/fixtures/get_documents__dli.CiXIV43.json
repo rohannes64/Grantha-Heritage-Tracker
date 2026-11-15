@@ -11,8 +11,10 @@
   "mean_conf": 76.40024330900243,
   "classification": null,
   "total_pages": 293,
+  "text_source": "tesseract_pages",
+  "n_tokens": 811,
   "url": "https://archive.org/details/dli.CiXIV43",
-  "hier": 2,
+  "hier": 0,
   "dbscan": 0
  }
 }

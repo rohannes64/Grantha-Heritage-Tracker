@@ -7,84 +7,84 @@
   "other_scripts": true,
   "neighbours": [
    {
-    "identifier": "in.ernet.dli.2015.291888",
-    "title": "Baidik Gabesona",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.291888",
-    "distance": 1.007478589387492
+    "identifier": "in.ernet.dli.2015.494800",
+    "title": "ಋಗ್ವೇದ ಸಂಹಿತೆ ಭಾಗ ೧೧",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/in.ernet.dli.2015.494800",
+    "distance": 0.8869308552110523
    },
    {
-    "identifier": "in.ernet.dli.2015.399798",
-    "title": "Dharm Varnan",
+    "identifier": "in.ernet.dli.2015.303851",
+    "title": "Srivedantdarshan",
     "lang_tag": "guj",
     "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.399798",
-    "distance": 1.0112246749204685
+    "url": "https://archive.org/details/in.ernet.dli.2015.303851",
+    "distance": 0.9079650678614078
    },
    {
-    "identifier": "in.ernet.dli.2015.356038",
-    "title": "Baishnababratadinnirnya  Ed. 3rd",
+    "identifier": "in.ernet.dli.2015.340201",
+    "title": "Satak. 2, Pt. 1",
     "lang_tag": "ben",
     "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.356038",
-    "distance": 1.0293055731041723
+    "url": "https://archive.org/details/in.ernet.dli.2015.340201",
+    "distance": 0.9189844840471457
    },
    {
-    "identifier": "in.ernet.dli.2015.333388",
-    "title": "ఆంధ్ర మీమాంసా పరిభాష",
-    "lang_tag": "tel",
-    "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.333388",
-    "distance": 1.036675588499035
-   },
-   {
-    "identifier": "in.ernet.dli.2015.303798",
-    "title": "Adhyayarth",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.303798",
-    "distance": 1.0388440108600472
-   },
-   {
-    "identifier": "in.ernet.dli.2015.511089",
-    "title": "Hindudharmer Nabojagoran  Ed. 2nd",
-    "lang_tag": "san",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.511089",
-    "distance": 1.0509865936790126
-   },
-   {
-    "identifier": "in.ernet.dli.2015.328070",
-    "title": "Chaivapuushhand-a Chan’thirikai(irand-daavathu Pathippu)",
-    "lang_tag": "tam",
-    "script": "Tamil",
-    "url": "https://archive.org/details/in.ernet.dli.2015.328070",
-    "distance": 1.0518115159506303
-   },
-   {
-    "identifier": "in.ernet.dli.2015.353674",
-    "title": "Bramhan Samaj Masik Patra  Barsha. 5, Sankha. 4",
+    "identifier": "dli.bengal.10689.7915",
+    "title": "Rigved Sanghita ঋগ্বেদ্ সংহিতা",
     "lang_tag": "ben",
     "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.353674",
-    "distance": 1.0522717362343863
+    "url": "https://archive.org/details/dli.bengal.10689.7915",
+    "distance": 0.9294702700086476
    },
    {
-    "identifier": "dli.ernet.259201",
-    "title": "Ratna-jivan-jyot.",
+    "identifier": "dli.osmania.4943",
+    "title": "ಶ್ರೀ ವಿಷ್ಣುಧರ್ಮೋತ್ತರ ಮಹಾಪುರಾಣಂ ಒಂದನೆಯ ಭಾಗ",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.osmania.4943",
+    "distance": 0.9452786954989136
+   },
+   {
+    "identifier": "in.ernet.dli.2015.316064",
+    "title": "1544  Mahabharat-anushasanparv Vol-40; (1345)",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.316064",
+    "distance": 0.9455520667990133
+   },
+   {
+    "identifier": "in.ernet.dli.2015.357825",
+    "title": "Chhandyogyopanishat",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.357825",
+    "distance": 0.9496987803213125
+   },
+   {
+    "identifier": "in.ernet.dli.2015.453086",
+    "title": "Ishopanishat",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.453086",
+    "distance": 0.9573828757404693
+   },
+   {
+    "identifier": "dli.ernet.490157",
+    "title": "Rigveda Samhitha Volume 1",
+    "lang_tag": "kan",
+    "script": "Kannada",
+    "url": "https://archive.org/details/dli.ernet.490157",
+    "distance": 0.9595165325849195
+   },
+   {
+    "identifier": "in.ernet.dli.2015.399593",
+    "title": "Srivedantdarshan",
     "lang_tag": "guj",
     "script": "Gujarati",
-    "url": "https://archive.org/details/dli.ernet.259201",
-    "distance": 1.0587463714509233
-   },
-   {
-    "identifier": "in.ernet.dli.2015.332938",
-    "title": "భారతినిగమోపలక్షణము",
-    "lang_tag": "tel",
-    "script": "Telugu",
-    "url": "https://archive.org/details/in.ernet.dli.2015.332938",
-    "distance": 1.0596383313989937
+    "url": "https://archive.org/details/in.ernet.dli.2015.399593",
+    "distance": 0.9612989871439049
    }
   ]
  }

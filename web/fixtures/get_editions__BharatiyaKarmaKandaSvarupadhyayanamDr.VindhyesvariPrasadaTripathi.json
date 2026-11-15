@@ -1,0 +1,9 @@
+{
+ "status": 200,
+ "body": {
+  "identifier": "BharatiyaKarmaKandaSvarupadhyayanamDr.VindhyesvariPrasadaTripathi",
+  "threshold": 0.044639265229988664,
+  "method": "Distance (euclidean) at which, among each book's 10 nearest neighbours in the 8129 train books, 'same normalised title and author' is best predicted (maximum F1). Candidates are books within that distance, at most 10, nearest first.",
+  "candidates": []
+ }
+}

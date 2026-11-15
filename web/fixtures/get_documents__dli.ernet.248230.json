@@ -11,8 +11,10 @@
   "mean_conf": 73.64561855670104,
   "classification": null,
   "total_pages": 44,
+  "text_source": "hocr",
+  "n_tokens": 4000,
   "url": "https://archive.org/details/dli.ernet.248230",
-  "hier": 1,
-  "dbscan": -1
+  "hier": 2,
+  "dbscan": 0
  }
 }

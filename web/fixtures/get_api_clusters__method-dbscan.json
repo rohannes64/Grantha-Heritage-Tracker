@@ -4,56 +4,62 @@
   {
    "cluster": -1,
    "name": "mixed",
-   "size": 5657,
-   "share": 0.42399940038974665,
+   "size": 4101,
+   "share": 0.30700703698158405,
    "terms": [],
    "script_mix": {
-    "Devanagari": 0.205,
-    "Bengali": 0.171,
-    "Latin": 0.148,
-    "Gujarati": 0.135,
-    "Tamil": 0.122,
-    "Kannada": 0.113,
-    "Telugu": 0.106
+    "Devanagari": 0.203,
+    "Bengali": 0.192,
+    "Latin": 0.134,
+    "Gujarati": 0.133,
+    "Telugu": 0.117,
+    "Tamil": 0.114,
+    "Kannada": 0.107
    },
-   "median_year": 1923.0
+   "median_year": 1922.0
   },
   {
    "cluster": 0,
-   "name": "mixed",
-   "size": 7669,
-   "share": 0.5748013791035826,
-   "terms": [],
+   "name": "ne",
+   "size": 9243,
+   "share": 0.6919449019314269,
+   "terms": [
+    "ne"
+   ],
    "script_mix": {
-    "Latin": 0.244,
-    "Devanagari": 0.199,
-    "Bengali": 0.135,
-    "Gujarati": 0.13,
-    "Kannada": 0.105,
-    "Telugu": 0.094,
-    "Tamil": 0.092
+    "Latin": 0.236,
+    "Devanagari": 0.2,
+    "Bengali": 0.132,
+    "Gujarati": 0.132,
+    "Kannada": 0.107,
+    "Tamil": 0.101,
+    "Telugu": 0.091
    },
    "median_year": 1925.0
   },
   {
    "cluster": 1,
-   "name": "jerusalem, roman, rome",
-   "size": 16,
-   "share": 0.0011992205066706642,
+   "name": "ಯಾಕಂದರೆ, ಯೇಸು, ಸಂಗಡ",
+   "size": 14,
+   "share": 0.0010480610869890701,
    "terms": [
-    "jerusalem",
-    "roman",
-    "rome",
-    "romans",
-    "jews",
-    "greek",
-    "jordan",
-    "syria"
+    "ಯಾಕಂದರೆ",
+    "ಯೇಸು",
+    "ಸಂಗಡ",
+    "ಅಂದನು",
+    "ಕ್ರಿಸ್ತನ",
+    "ಅಂದರು",
+    "ತಿರಿಗಿ",
+    "ಇದಲ್ಲದೆ"
    ],
    "script_mix": {
-    "Latin": 1.0
+    "Kannada": 0.571,
+    "Gujarati": 0.143,
+    "Tamil": 0.143,
+    "Telugu": 0.071,
+    "Devanagari": 0.071
    },
-   "median_year": 1900.0
+   "median_year": 1873.0
   }
  ]
 }

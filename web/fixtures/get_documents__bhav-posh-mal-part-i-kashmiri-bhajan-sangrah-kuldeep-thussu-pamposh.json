@@ -11,8 +11,10 @@
   "mean_conf": 75.61261261261261,
   "classification": null,
   "total_pages": 157,
+  "text_source": "hocr",
+  "n_tokens": 4000,
   "url": "https://archive.org/details/bhav-posh-mal-part-i-kashmiri-bhajan-sangrah-kuldeep-thussu-pamposh",
-  "hier": 1,
+  "hier": 2,
   "dbscan": 0
  }
 }

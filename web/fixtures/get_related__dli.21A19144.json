@@ -7,84 +7,84 @@
   "other_scripts": true,
   "neighbours": [
    {
-    "identifier": "in.ernet.dli.2015.304804",
-    "title": "Kavya Sangrah",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.304804",
-    "distance": 1.0223460840754466
-   },
-   {
-    "identifier": "in.ernet.dli.2015.477782",
-    "title": "Shri Shri Padakalpataru  Vol. 2",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.477782",
-    "distance": 1.0249458249993626
-   },
-   {
-    "identifier": "in.ernet.dli.2015.303141",
-    "title": "Sree Sree Chaitanya Charitamrita",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.303141",
-    "distance": 1.0277405299953628
-   },
-   {
-    "identifier": "in.ernet.dli.2015.289722",
-    "title": "Bidagdha Madhab Natakang",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.289722",
-    "distance": 1.0315923245247005
-   },
-   {
-    "identifier": "in.ernet.dli.2015.316501",
-    "title": "1328b. ; Baisakh - Falgun : No. 1-11",
-    "lang_tag": "ben",
-    "script": "Bengali",
-    "url": "https://archive.org/details/in.ernet.dli.2015.316501",
-    "distance": 1.0361004335938917
-   },
-   {
     "identifier": "dli.osmania.3422",
     "title": "ಶಿವಾಧಿಕ್ಯ ಶಿಕಾಮಣೌ",
     "lang_tag": "kan",
     "script": "Kannada",
     "url": "https://archive.org/details/dli.osmania.3422",
-    "distance": 1.0541003110718818
+    "distance": 1.0206354861966036
    },
    {
-    "identifier": "dli.osmania.4512",
-    "title": "ಕಾಳೀಸ್ವಯಂವರ",
+    "identifier": "in.ernet.dli.2015.496657",
+    "title": "Charittirachchurukkam",
+    "lang_tag": "tam",
+    "script": "Tamil",
+    "url": "https://archive.org/details/in.ernet.dli.2015.496657",
+    "distance": 1.0445407890247385
+   },
+   {
+    "identifier": "dli.osmania.4620",
+    "title": "ಕರ್ನಾಟಕ ಕವಿಚರಿತೆ ದ್ವಿತೀಯ ಸಂಪುಟ",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/dli.osmania.4512",
-    "distance": 1.056007161101956
+    "url": "https://archive.org/details/dli.osmania.4620",
+    "distance": 1.0457983246644829
    },
    {
-    "identifier": "in.ernet.dli.2015.305193",
-    "title": "Shri Vallabhajyan",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.305193",
-    "distance": 1.057096293915437
+    "identifier": "in.ernet.dli.2015.480692",
+    "title": "Sagun Aur Nirgun Hindi Saahitya",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.480692",
+    "distance": 1.0461287017055436
    },
    {
-    "identifier": "dli.language.1914",
-    "title": "ಚಂಪೂ ನುಡಿಗನ್ನಡಿ (ಹಳಗನ್ನಡ ಶಬ್ಧಾರ್ಥ ಸಂಕಲನ)",
+    "identifier": "in.ernet.dli.2015.483143",
+    "title": "Chand - Prabhakar",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.483143",
+    "distance": 1.0464121915028934
+   },
+   {
+    "identifier": "in.ernet.dli.2015.262942",
+    "title": "Atharwedbhasyam Part4",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.262942",
+    "distance": 1.0530725903142755
+   },
+   {
+    "identifier": "in.ernet.dli.2015.444867",
+    "title": "Nirukttam Ac.1800",
+    "lang_tag": "hin",
+    "script": "Devanagari",
+    "url": "https://archive.org/details/in.ernet.dli.2015.444867",
+    "distance": 1.0554114110110684
+   },
+   {
+    "identifier": "in.ernet.dli.2015.353667",
+    "title": "Bramhabaibartapuranam(sri Krishnajanma Khandam)",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/in.ernet.dli.2015.353667",
+    "distance": 1.0574369014937726
+   },
+   {
+    "identifier": "dli.osmania.4902",
+    "title": "ಶ್ರೀ ಭಾಗವತ ಮಹಾಪುರಾಣ ಚತುರ್ಥ ಸ್ಕಂದ",
     "lang_tag": "kan",
     "script": "Kannada",
-    "url": "https://archive.org/details/dli.language.1914",
-    "distance": 1.0580340435415243
+    "url": "https://archive.org/details/dli.osmania.4902",
+    "distance": 1.057856160434933
    },
    {
-    "identifier": "in.ernet.dli.2015.537658",
-    "title": "Hariyashgit",
-    "lang_tag": "guj",
-    "script": "Gujarati",
-    "url": "https://archive.org/details/in.ernet.dli.2015.537658",
-    "distance": 1.0580715655799213
+    "identifier": "dli.ministry.30070",
+    "title": "Rādhātantram",
+    "lang_tag": "ben",
+    "script": "Bengali",
+    "url": "https://archive.org/details/dli.ministry.30070",
+    "distance": 1.0592648102302178
    }
   ]
  }
