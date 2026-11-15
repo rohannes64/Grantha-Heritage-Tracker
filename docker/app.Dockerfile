@@ -13,7 +13,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     HF_HUB_OFFLINE=1 \
     TRANSFORMERS_OFFLINE=1
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# upgrade first: security fixes published since the base image was built (the Publish workflow's Trivy gate checks them)
+RUN apt-get update && apt-get upgrade -y --no-install-recommends && apt-get install -y --no-install-recommends \
         tesseract-ocr tesseract-ocr-osd \
         tesseract-ocr-eng tesseract-ocr-hin tesseract-ocr-san tesseract-ocr-ben \
         tesseract-ocr-guj tesseract-ocr-tel tesseract-ocr-kan tesseract-ocr-tam \
