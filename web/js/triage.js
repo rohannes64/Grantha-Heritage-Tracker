@@ -9,7 +9,7 @@ const VERDICTS = ["fine", "re-ocr", "re-scan"];
 const VERDICT = {
   fine: { name: "Fine", short: "fine", plain: "The text we have can be used as it is." },
   "re-ocr": { name: "Read the scan again", short: "read again", plain: "The scan is there but too little readable text came out of it; run character recognition again." },
-  "re-scan": { name: "Photograph again", short: "photograph again", plain: "Our reading of the scan is unreliable and the archive has no text of its own; the pages need new photographs." },
+  "re-scan": { name: "Photograph again", short: "photograph again", plain: "Our reading of the scan is missing or unreliable, and the archive has no text of its own; the pages need new photographs." },
 };
 const BCP47 = { eng: "en", hin: "hi", san: "sa", ben: "bn", guj: "gu", tel: "te", kan: "kn", tam: "ta" };
 const NON_LATIN = /(?!\p{Script=Latin})\p{L}/u;

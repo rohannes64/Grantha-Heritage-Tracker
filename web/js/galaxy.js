@@ -319,7 +319,7 @@ function shareSentences() {
     const s = r && r.knn_other_script_share;
     if (!s || s.uncentred == null || s.centred == null || r.k == null) return;
     const k = fmt.n(r.k);
-    $("share-uncentred").textContent = ` On average only ${fmt.p(s.uncentred)} of a book’s ${k} nearest neighbours are in another script (measured on the training books).`;
+    $("share-uncentred").textContent = ` On average only ${fmt.p(s.uncentred)} of a book’s ${k} nearest neighbours are in another script, in the model’s full space rather than this 3-D picture (measured on the training books).`;
     $("share-centred").textContent = ` Now ${fmt.p(s.centred)} of a book’s ${k} nearest neighbours are in another script (measured on the training books).`;
   }).catch(() => {});
 }
@@ -546,7 +546,7 @@ function renderBookHead() {
 
 function relBlock(...kids) {
   const box = bookPanel.querySelector("#book-rel");
-  if (box) box.replaceChildren(el("h3", { text: "Closest books in other scripts" }), ...kids);
+  if (box) box.replaceChildren(el("h3", { text: "Closest books in other scripts" }), ...kids.filter(Boolean));
 }
 
 function recordedNote(rec) {
