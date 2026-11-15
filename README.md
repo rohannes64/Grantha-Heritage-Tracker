@@ -30,7 +30,7 @@ Archive, in English, Hindi, Sanskrit, Bengali, Gujarati, Telugu, Kannada and Tam
   encoder test ([docs/accuracy_plan.md](docs/accuracy_plan.md)) chose Gemini Embedding 001 from five
   candidates on the earlier, smaller study. The current study runs on Google Vertex AI
   text-multilingual-embedding-002 instead: a team decision on 2026-11-10 (commits `7cafb29`, `eff39bd`),
-  not an outcome of that test. Both studies are reported.
+  not an outcome of that test. The results above are from that single Vertex AI study on whole-book text.
 - **App:** upload a page image or PDF (or paste text); get the closest group from both methods,
   how sure the match is, other groups it is also close to, the five nearest archive books, and the
   page's place on the PCA map. It abstains when the OCR is too weak to judge.
@@ -139,10 +139,15 @@ link from the Internet Archive. Book text is sent to Google (Gemini API or Verte
 ## Checking the numbers
 
 Every number in the deck, the viva guide, the speaker script, the viva notes and the results block
-above comes from `reports/deliverable_facts.json`, which `scripts/deliverable_facts.py` builds from the
-result files. `python scripts/check_claims.py` fails if any of those documents contains a number that
-no result file or pipeline constant supports (`--explain` shows where each number comes from), and
-`scripts/dataset_manifest.py` records the exact books, splits and file checksums behind a run.
+above comes from the result files: `reports/deliverable_facts.json` (built by `scripts/deliverable_facts.py`
+on the VM, which holds `data/`) and the feature evaluations in `reports/features/`. On the VM,
+`scripts/post_run.sh` evaluates the features, records the app fixtures and regenerates the facts after a run.
+On the laptop, pull those files, then rebuild the documents: `scripts/build_deck.py` (deck),
+`scripts/build_viva_notes.py`, `scripts/build_speaker_script.py`, `scripts/build_readme_results.py` (the
+block above) and `scripts/build_viva_guide.py` (PDF). `python scripts/check_claims.py` fails if any of those
+documents contains a number that no result file or pipeline constant supports (`--explain` shows where each
+number comes from); `scripts/dataset_manifest.py` records the exact books, splits and file checksums behind a
+run, and `scripts/deploy_vm.sh` ships the committed code to the VM and smoke-tests the live app.
 
 ## Limits
 
