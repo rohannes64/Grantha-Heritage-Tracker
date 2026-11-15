@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grantha: scan quality</title>
+<meta name="description" content="Which digitised books in the archive can be used as they are, which need their scan read again, and which need photographing again.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@200;400&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="triage.css">
+</head>
+<body>
+<header class="slab"><div class="container"><a class="wordmark" href="./">Grantha</a>
+<nav aria-label="Main"><ul>
+  <li><a href="check.html">Check a page</a></li>
+  <li><a href="browse.html">Browse groups</a></li>
+  <li><a href="galaxy.html">Archive map</a></li>
+  <li><a href="triage.html" aria-current="page">Scan quality</a></li>
+  <li><a href="editions.html">Editions</a></li>
+  <li><a href="study.html">The study</a></li>
+  <li><a href="about.html">About</a></li>
+</ul></nav></div></header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>Scan quality</h1>
+    <p>For each digitised book: can its text be used as it is, should the existing scan be read again, or should the book be photographed again?</p>
+  </div>
+
+  <p class="visually-hidden" id="status" role="status"></p>
+  <noscript><p class="state">This page needs JavaScript to load the verdicts. The same data is at <a href="/api/triage">/api/triage</a>.</p></noscript>
+
+  <section class="tri-section" id="summary" aria-labelledby="summary-title">
+    <h2 id="summary-title" tabindex="-1">The verdicts</h2>
+    <div id="summary-body" class="mt-lg" aria-busy="true">
+      <div class="skeleton skeleton--block"></div>
+    </div>
+  </section>
+
+  <section class="tri-section" id="languages" aria-labelledby="languages-title">
+    <h2 id="languages-title">By language</h2>
+    <div id="languages-body" class="mt-lg" aria-busy="true">
+      <div class="skeleton skeleton--block"></div>
+    </div>
+  </section>
+
+  <section class="tri-section" id="books" aria-labelledby="books-title">
+    <h2 id="books-title" tabindex="-1">The books</h2>
+    <form class="tri-filters mt-lg" id="filters" novalidate>
+      <div class="field">
+        <label for="f-lang">Language</label>
+        <select class="input" id="f-lang" name="lang"><option value="">All languages</option></select>
+      </div>
+      <div class="field">
+        <label for="f-verdict">Verdict</label>
+        <select class="input" id="f-verdict" name="verdict">
+          <option value="">All verdicts</option>
+          <option value="fine">Fine</option>
+          <option value="re-ocr">Read the scan again</option>
+          <option value="re-scan">Photograph again</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-limit">Books per page</label>
+        <select class="input" id="f-limit" name="limit"></select>
+      </div>
+      <div class="actions tri-download">
+        <button class="btn" type="button" id="download" aria-disabled="true" aria-describedby="download-note">Download as CSV</button>
+      </div>
+    </form>
+    <p class="small muted mt-sm" id="verdict-why" hidden>The verdict filter is off until this model has scan verdicts; see above.</p>
+    <p class="small muted mt-sm" id="download-note" aria-live="polite"></p>
+    <div id="books-body" class="mt-lg" aria-busy="true">
+      <div class="skeleton skeleton--block"></div>
+    </div>
+    <nav class="tri-pager mt-lg" id="pager" aria-label="Pages of books" hidden>
+      <button class="btn" type="button" id="prev">Previous</button>
+      <p class="small ink-2" id="range"></p>
+      <button class="btn" type="button" id="next">Next</button>
+    </nav>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="cols">
+      <div><h2>Use</h2><ul><li><a href="check.html">Check a page</a></li><li><a href="browse.html">Browse groups</a></li><li><a href="triage.html">Scan quality</a></li></ul></div>
+      <div><h2>Study</h2><ul><li><a href="study.html">Results</a></li><li><a href="study.html#limits">Limits</a></li></ul></div>
+      <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
+      <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
+    </div>
+  </div>
+</footer>
+<script type="module" src="js/triage.js"></script>
+</body>
+</html>

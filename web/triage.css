@@ -1,0 +1,85 @@
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Darkroom (deal 1/3, carried from app.css) · scope: app · screen: scan quality, verdict counts, per-language split, filterable book table (states: loading, error, empty filter, verdicts not available, full) · signature: the per-language split bars · nav: slab, kept · footer: index columns, kept · hero: none, app screen · posture: restrained · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3 · weakest: V, the screen stays inside the shared Darkroom shell; the problem verdicts carry the amber, fine books stay quiet */
+
+.tri-section { padding-block: var(--space-2xl); border-top: var(--rule-hair) solid var(--color-rule); }
+.tri-section > h2 { font-size: var(--text-section); }
+.tri-section:first-of-type { padding-top: 0; border-top: 0; }
+
+/* verdict marks: fine is quiet, the two problem verdicts carry the amber */
+.tri-seg--fine, .tri-key--fine { background: var(--color-muted); }
+.tri-seg--re-ocr, .tri-key--re-ocr { background: var(--color-accent-deep); }
+.tri-seg--re-scan, .tri-key--re-scan { background: var(--color-accent); }
+
+.recorded { display: grid; gap: var(--space-3xs); margin-bottom: var(--space-lg); padding-left: var(--space-md); border-left: 2px solid var(--color-accent); font-size: var(--text-sm); color: var(--color-ink-2); }
+.recorded strong { font-weight: 400; color: var(--color-ink); }
+
+/* summary */
+.tri-figures { margin-top: var(--space-lg); }
+.tri-fig { display: grid; gap: var(--space-2xs); align-content: start; min-width: 0; }
+.tri-fig .figure { overflow-wrap: break-word; min-width: 0; }
+.tri-fig--re-scan .figure { color: var(--color-accent); }
+.tri-fig p { max-width: 45ch; }
+.tri-notice { display: grid; gap: var(--space-2xs); max-width: 72ch; border-left: 2px solid var(--color-accent); }
+.tri-notice h3 { font-size: var(--text-title); }
+
+/* by language */
+.tri-legend { margin-top: 0; }
+.tri-sw { display: inline-block; width: 18px; height: 8px; }
+.tri-langs { margin: 0; padding: 0; list-style: none; display: grid; border-top: var(--rule-hair) solid var(--color-rule); }
+.tri-langs li { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 3fr); gap: var(--space-md); align-items: center; padding: var(--space-sm) 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+.tri-lang-name { min-width: 0; overflow-wrap: anywhere; }
+.tri-bar { display: flex; gap: 1px; height: 14px; min-width: 0; background: var(--color-paper); }
+.tri-bar i { display: block; flex-basis: 0; min-width: 2px; }
+.tri-lang-counts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2xs) var(--space-md); }
+.tri-lang-counts .num { display: inline-flex; align-items: center; gap: var(--space-2xs); }
+.tri-key { display: inline-block; width: 8px; height: 8px; flex: none; }
+@media (max-width: 40rem) {
+  .tri-langs li { grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); }
+  .tri-lang-counts { justify-content: flex-start; }
+}
+.tri-covered dd { text-align: right; }
+
+/* filters */
+.tri-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 14rem)) minmax(0, 1fr); gap: var(--space-md); align-items: end; }
+.tri-download { justify-content: flex-end; }
+@media (max-width: 64rem) { .tri-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tri-download { justify-content: flex-start; } }
+@media (max-width: 40rem) { .tri-filters { grid-template-columns: minmax(0, 1fr); } .tri-download .btn { width: 100%; } }
+.tri-filters select:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* the table */
+.tri-table td { overflow-wrap: anywhere; }
+.tri-title { min-width: 16rem; max-width: 28rem; }
+.tri-title a { display: block; color: var(--color-ink); text-decoration-color: var(--color-muted); }
+.tri-title a:hover { text-decoration-color: var(--color-accent); }
+.tri-title a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.tri-id { display: block; margin-top: var(--space-3xs); }
+.tri-verdict { white-space: nowrap; }
+.tri-verdict .tri-key { margin-right: var(--space-xs); vertical-align: 0.05em; }
+.tri-verdict--re-scan { color: var(--color-accent); }
+.tri-verdict--re-ocr { color: var(--color-ink); }
+.tri-verdict--fine { color: var(--color-ink-2); }
+.tri-reasons { min-width: 14rem; max-width: 26rem; color: var(--color-ink-2); }
+.tri-reasons ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-2xs); }
+[lang]:not(html) { line-height: 1.7; }
+
+/* paging */
+.tri-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md); }
+.tri-pager p { flex: 1 1 16rem; text-align: center; }
+@media (max-width: 40rem) { .tri-pager p { order: -1; flex-basis: 100%; text-align: left; } .tri-pager .btn { flex: 1 1 0; } }
+
+/* phones: each book becomes a ruled entry, its fields labelled from the column heads */
+@media (max-width: 40rem) {
+  .tri-table, .tri-table tbody, .tri-table tr, .tri-table td { display: block; }
+  .tri-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .tri-table tr { padding: var(--space-md) 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+  .tri-table td { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--space-sm); padding: var(--space-2xs) 0; border-bottom: 0; text-align: left; min-width: 0; max-width: none; white-space: normal; }
+  .tri-table td.num { text-align: left; }
+  .tri-table td.tri-title { display: block; padding-bottom: var(--space-xs); }
+  .tri-table td[data-label]::before { content: attr(data-label); color: var(--color-muted); }
+  .table-wrap:has(.tri-table) { overflow-x: visible; }
+}
+
+/* headings that take focus after paging or a retry: ring only for keyboard focus */
+[tabindex="-1"]:focus { outline: none; }
+[tabindex="-1"]:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.tri-lang-counts > span { display: inline-flex; align-items: center; gap: var(--space-2xs); white-space: nowrap; }
