@@ -52,7 +52,9 @@ def _close(a, b, path="") -> bool:
         assert len(a) == len(b), path
         return all(_close(x, y, f"{path}[{i}]") for i, (x, y) in enumerate(zip(a, b)))
     if isinstance(a, float) and isinstance(b, float):
-        assert a == pytest.approx(b, rel=1e-9, abs=1e-12), path
+        # Choices and labels must match exactly (below); scores only to 1e-5. BLAS builds and thread counts
+        # change float summation order, which moved scores by up to 2.5e-6 between machines (CI vs the snapshot).
+        assert a == pytest.approx(b, rel=1e-5, abs=1e-9), path
         return True
     assert a == b, path
     return True
