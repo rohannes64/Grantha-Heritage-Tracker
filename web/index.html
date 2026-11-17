@@ -4,10 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Grantha</title>
-<meta name="description" content="Upload a scanned page from an old Indian book and see which archive books it belongs with.">
+<meta name="description" content="Grantha groups 13,358 scanned Indian books in eight languages by subject, without labels, and lets an archivist place a new page among them.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Noto+Serif+Tamil:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="home.css">
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }</script>
+<script src="js/theme-boot.js"></script>
 </head>
 <body>
 <header class="slab"><div class="container slab-container"><div class="slab-brand"><a class="wordmark" href="./" aria-current="page">Grantha</a></div>
@@ -24,37 +26,71 @@
 </ul></nav></div></header>
 
 <main>
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="container">
-      <div>
-        <h1 id="hero-title">Every old page has neighbours</h1>
-        <p class="lead">Upload a scanned page and see which archive books it belongs with.</p>
+  <section class="vitrine" aria-labelledby="hero-title">
+    <div class="container vitrine-grid">
+      <div class="vitrine-text">
+        <h1 id="hero-title">Old books, grouped by what they say</h1>
+        <p class="lead">13,358 scanned Indian books in eight languages, sorted by subject without labels.</p>
         <div class="actions">
-          <a class="btn btn--primary" href="check.html">Check a page</a>
-          <a class="btn" href="browse.html">Browse the groups</a>
+          <a class="btn btn--primary" href="galaxy.html">Explore the archive map</a>
+          <a class="btn" href="check.html">Check a page</a>
         </div>
       </div>
-      <figure class="plate">
-        <div data-slot="hero" data-alt="A page of Tamil verse from an unindexed archive scan">
-          <img id="hero-img" src="https://archive.org/download/in.ernet.dli.2015.294941/page/n18_w1200.jpg"
-               width="1270" height="2088" alt="A page of Tamil verse with commentary, printed in 1912, from an unindexed archive scan" fetchpriority="high">
+      <figure class="vitrine-stage">
+        <div class="manuscript-frame" id="manuscript">
+          <img class="manuscript-still" src="assets/manuscript.png" width="2335" height="688"
+               alt="A palm-leaf manuscript: inscribed leaves bound on a cord between two carved wooden boards" fetchpriority="high">
         </div>
-        <figcaption class="caption" id="hero-caption">Ain-tinaiyaimpatu Muulamum Uraiyum, Tamil, 1912. Page 19 of an unindexed scan.</figcaption>
+        <figcaption class="vitrine-caption">A palm-leaf manuscript, modelled in 3-D. Its leaves carry the opening of the Tirukkural.</figcaption>
       </figure>
     </div>
   </section>
 
-  <section class="stage stage--first" aria-labelledby="s1">
-    <div class="container">
-      <div class="stage-text">
-        <h2 id="s1">1. Read the page</h2>
-        <p>Tesseract reads the scan in its own script, after turning it upright.</p>
+  <section class="gap" aria-labelledby="gap-title">
+    <div class="container gap-grid">
+      <p class="gap-figure figure" aria-hidden="true">6,825</p>
+      <div>
+        <h2 id="gap-title">Half the shelf has no subject</h2>
+        <p class="lead ink-2">Only 6,825 of the 13,358 usable books carry a librarian’s class. The rest cannot be found by subject, and a Tamil book never meets its Telugu twin.</p>
       </div>
-      <div class="readout">
-        <div data-slot="crop" data-alt="The top of the same page, close up">
-          <img id="crop-img" src="https://archive.org/download/in.ernet.dli.2015.294941/page/n18_w1200.jpg" width="1270" height="2088" alt="The top lines of the Tamil page, close up" loading="lazy">
-        </div>
-        <div>
+    </div>
+  </section>
+
+  <section class="tools" aria-labelledby="tools-title">
+    <div class="container tools-grid">
+      <h2 id="tools-title">What the archive can do now</h2>
+      <ol class="catalogue">
+        <li><a href="check.html"><span class="cat-name">Check a page</span><span class="cat-what">Upload one scan; see its group and its five closest books.</span></a></li>
+        <li><a href="browse.html"><span class="cat-name">Browse the groups</span><span class="cat-what">Three broad shelves, each mixing all eight languages.</span></a></li>
+        <li><a href="galaxy.html"><span class="cat-name">Archive map</span><span class="cat-what">Every book as a point in 3-D, coloured by language or group.</span></a></li>
+        <li><a href="editions.html"><span class="cat-name">Editions</span><span class="cat-what">Other editions of the same work, across scripts.</span></a></li>
+        <li><a href="triage.html"><span class="cat-name">Scan quality</span><span class="cat-what">Scans flagged to read again or scan again.</span></a></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="method well grained" aria-labelledby="method-title">
+    <div class="container">
+      <h2 id="method-title">Five steps from a scan to a shelf</h2>
+      <ol class="steps">
+        <li><span class="figure">1</span><h3>Read</h3><p>OCR turns each page image into text.</p></li>
+        <li><span class="figure">2</span><h3>Embed</h3><p>A model turns the text into numbers that carry its meaning.</p></li>
+        <li class="steps-key"><span class="figure">3</span><h3>Centre</h3><p>Subtract each language’s average, so subject outweighs script.</p></li>
+        <li><span class="figure">4</span><h3>Group</h3><p>Hierarchical clustering builds the shelves; DBSCAN finds the dense cores.</p></li>
+        <li><span class="figure">5</span><h3>Check</h3><p>Test on books held back, against simple guesses.</p></li>
+      </ol>
+      <p class="method-note"><span class="figure">0.642 → 0.065</span> how much the groups follow script, before and after centring.</p>
+    </div>
+  </section>
+
+  <section class="demo" aria-labelledby="s1">
+    <div class="container">
+      <h2 id="s1">One page, read live</h2>
+      <div class="demo-grid">
+        <div class="readout">
+          <div data-slot="crop" data-alt="The top of an unindexed page, close up">
+            <img id="crop-img" src="https://archive.org/download/in.ernet.dli.2015.294941/page/n18_w1200.jpg" width="1270" height="2088" alt="The top lines of an unindexed Tamil page, close up" loading="lazy">
+          </div>
           <p class="ocr-text" id="ocr-text" lang="ta">இரவுக்குறிவந்து பெயருந்‌ தலைமகனைக்‌
 கண்ணுற்றுரின்ற தோழி வரைவுகடாயது.
 (இ-ள்‌) சொடுவரி வேங்சையாழ்‌ கோட்பட்டுப்‌ பிழைத்து மடிந்த செவி</p>
@@ -63,36 +99,22 @@
             <div><dt>Mean word confidence</dt><dd class="num" id="ocr-conf">73 of 100</dd></div>
           </dl>
         </div>
+        <div>
+          <h3 id="s2" class="demo-sub">Its closest books</h3>
+          <div id="neighbours-wrap">
+          <ol class="neighbours" id="neighbours">
+            <li><span class="figure">1</span><div><h3>Checking the page against the archive</h3><p class="why">The five closest books appear here.</p></div><span></span></li>
+          </ol>
+          <noscript><p class="note">Turn on JavaScript, or open <a href="check.html">Check a page</a>, to run this live.</p></noscript>
+          </div>
+          <h3 id="s3" class="demo-sub">Where it sits</h3>
+          <div class="map-frame" id="map" role="figure" aria-label="Map of the archive books with the page marked"></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="stage" aria-labelledby="s2">
-    <div class="container">
-      <div class="stage-text">
-        <h2 id="s2">2. Find its neighbours</h2>
-        <p>Its words are compared with every book in the study. The five closest come back with the words they share.</p>
-      </div>
-      <div id="neighbours-wrap">
-        <ol class="neighbours" id="neighbours">
-          <li><span class="figure">1</span><div><h3>Checking the page against the archive</h3><p class="why">The five closest books appear here.</p></div><span></span></li>
-        </ol>
-        <noscript><p class="note">Turn on JavaScript, or open <a href="check.html">Check a page</a>, to run this live.</p></noscript>
-      </div>
-    </div>
-  </section>
-
-  <section class="stage" aria-labelledby="s3">
-    <div class="container">
-      <div class="stage-text">
-        <h2 id="s3">3. See where it sits</h2>
-        <p>Each dot is a book. The lit dots are its group; the ring is the page.</p>
-      </div>
-      <div class="map-frame" id="map" role="figure" aria-label="Map of the archive books with the page marked"></div>
-    </div>
-  </section>
-
-  <section class="split well grained" aria-label="Before and after">
+  <section class="split" aria-label="Before and after">
     <div class="container">
       <div class="side">
         <h2>Before</h2>
@@ -133,15 +155,9 @@
 
   <section class="close" aria-labelledby="close-title">
     <div class="container">
-      <div>
-        <h2 id="close-title">Bring your own page</h2>
-        <p class="lead ink-2">Groups are exploratory, not a catalogue. The study page says how far to trust them.</p>
-        <div class="actions"><a class="btn btn--primary" href="check.html">Check a page</a></div>
-      </div>
-      <figure>
-        <img src="assets/check-screen.png" width="799" height="569" alt="The check screen with a result: a Hindi passage on fevers placed in the science and medicine group, with Hindi and Tamil medical books as its closest matches" loading="lazy">
-        <figcaption class="caption">A Hindi passage on treating fevers: placed with science and medicine, and its closest books include Tamil medical works.</figcaption>
-      </figure>
+      <h2 id="close-title">Every number here traces to a result file</h2>
+      <p class="lead ink-2">Groups are exploratory, not a catalogue. The study says how far to trust them, and where they fall short.</p>
+      <div class="actions"><a class="btn btn--primary" href="study.html">Read the study</a><a class="btn" href="check.html">Check a page</a></div>
     </div>
   </section>
 </main>
@@ -154,12 +170,17 @@
       <div><h2>About</h2><ul><li><a href="about.html">Data and rights</a></li><li><a href="about.html#team">Team</a></li></ul></div>
       <div><h2>Source</h2><ul><li><a href="https://archive.org/details/digitallibraryindia">Digital Library of India</a></li><li><a href="/docs">API</a></li></ul></div>
     </div>
-    <p class="colophon">SIH26096. Page images: Digital Library of India scans served by the Internet Archive, shown by link and not copied. Photographs: the page above is from <a href="https://archive.org/details/in.ernet.dli.2015.294941">Ain-tinaiyaimpatu Muulamum Uraiyum (1912)</a>.</p>
+    <p class="colophon">SIH26096. Page images: Digital Library of India scans served by the Internet Archive, shown by link and not copied. Photographs: the page above is from <a href="https://archive.org/details/in.ernet.dli.2015.294941">Ain-tinaiyaimpatu Muulamum Uraiyum (1912)</a>. The palm-leaf manuscript is a 3-D model made for this project.</p>
   </div>
 </footer>
 
 <script>window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
 document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
+<script type="module">
+import { mountManuscript } from "./js/manuscript.js";
+const frame = document.getElementById("manuscript");
+mountManuscript(frame).catch(() => {});        // without WebGL the still picture stays
+</script>
 <script type="module" src="js/home.js"></script>
 </body>
 </html>

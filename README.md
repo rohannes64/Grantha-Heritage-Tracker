@@ -40,6 +40,31 @@ Archive, in English, Hindi, Sanskrit, Bengali, Gujarati, Telugu, Kannada and Tam
 Team: Rajith Sundar (data and OCR), Etikala Sai Pranav (clustering study), Vemuri Rohan (app and delivery).
 Plan: [PLAN.md](PLAN.md). Report, deck, viva notes and paper draft: [docs/](docs/).
 
+## Live app and links
+
+- Live deployment: https://grantha.tail7ee38f.ts.net/ (check a page, browse groups, archive map, study)
+- API documentation: https://grantha.tail7ee38f.ts.net/docs
+- Dataset: source scans in the Internet Archive collection https://archive.org/details/digitallibraryindia;
+  the list of usable books with their archive identifiers is served at https://grantha.tail7ee38f.ts.net/data/corpus.json
+  (also `web/data/corpus.json` in this repository).
+
+## Prerequisites
+
+- Git, and Docker with Docker Compose (Docker Desktop on Windows and macOS). Nothing else is needed to run the app.
+- For the page check and the embedding step: internet access and Google credentials in `.env` (next section).
+- Only to work outside Docker: Python 3.12 and Tesseract 5 with the language packs for the eight languages.
+
+## Dependencies
+
+Pinned Python packages, installed inside the Docker images by `docker/app.Dockerfile` and `docker/pipeline.Dockerfile`:
+
+- `requirements-app.txt`: the web app (FastAPI, Uvicorn, PyMuPDF for PDF uploads, httpx).
+- `requirements-pipeline.txt`: harvest, OCR and the study (requests, pytesseract, Pillow, pandas, scikit-learn and others).
+- `requirements-ml.txt`: local encoders for the earlier studies (PyTorch CPU, sentence-transformers); the app does not need them.
+
+Without Docker: `pip install -r requirements-app.txt -r requirements-pipeline.txt`, then
+`uvicorn app.main:app --port 8000` from this folder.
+
 ## Keys and settings (.env)
 
 The embedding models are online Google services, so the app and the embedding step need internet.
@@ -55,7 +80,7 @@ HERITAGE_ADC_FILE=/path/to/adc.json          # optional: OAuth credentials file;
 it the app still serves the study and browse pages, and the check page answers that it cannot reach
 the topic service.
 
-## Run the app
+## Installation and running the app
 
 Needs Docker. A fresh clone has everything the app needs: the fitted model is committed at
 `data/model/bundle.joblib` (48 MB) and the website data at `web/data/`. The rest of `data/` (harvested

@@ -4,12 +4,8 @@ const sample = await getJSON("data/sample_page.json").catch(() => null);
 
 // The demo page: a scan from outside the study sample, read by the same OCR.
 if (sample) {
-  for (const id of ["hero-img", "crop-img"]) {
-    const img = document.getElementById(id);
-    if (img) img.src = sample.image_url;
-  }
-  document.getElementById("hero-caption").textContent =
-    `${sample.title}, ${LANG[sample.lang] || sample.lang}, ${sample.year ?? "undated"}. Page ${sample.leaf + 1} of an unindexed scan.`;
+  const crop = document.getElementById("crop-img");
+  if (crop) crop.src = sample.image_url;
   const ocr = document.getElementById("ocr-text");
   ocr.lang = sample.html_lang;
   ocr.textContent = sample.excerpt;
