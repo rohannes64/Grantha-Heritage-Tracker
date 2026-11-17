@@ -298,13 +298,14 @@ export function resultFigure(r0, { headingLevel = "h3", variant = null } = {}) {
 
 // ---- shared shell chrome: semi-light / darkroom toggle + GPU reading progress
 (function initShellChrome() {
-  const KEY = "grantha-theme";
+  // The launch theme and where the choice is kept are set by the flag in js/theme-boot.js (loaded in each <head>).
+  const boot = window.granthaTheme;
   const apply = (mode) => {
     if (mode === "dark") document.documentElement.dataset.theme = "dark";
     else delete document.documentElement.dataset.theme;
   };
-  let saved = null;
-  try { saved = localStorage.getItem(KEY); } catch {}
+  let saved = boot ? boot.mode : null;
+  if (!boot) { try { saved = localStorage.getItem("grantha-theme"); } catch {} }
   apply(saved);
 
   const mount = () => {
@@ -321,7 +322,8 @@ export function resultFigure(r0, { headingLevel = "h3", variant = null } = {}) {
         onclick: () => {
           const dark = document.documentElement.dataset.theme !== "dark";
           apply(dark ? "dark" : "light");
-          try { localStorage.setItem(KEY, dark ? "dark" : "light"); } catch {}
+          if (boot) boot.save(dark ? "dark" : "light");
+          else { try { localStorage.setItem("grantha-theme", dark ? "dark" : "light"); } catch {} }
           btn.setAttribute("aria-pressed", String(dark));
           btn.textContent = dark ? "Light" : "Dark";
         },
